@@ -211,7 +211,8 @@ export function Navbar() {
           href="/"
           onClick={(e) => {
             e.preventDefault()
-            window.scrollTo({ top: 0, behavior: 'smooth' })
+            window.history.pushState(null, '', '/');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className="text-base font-semibold tracking-tight text-fg"
           aria-label={t.accessibility.homeLink}
