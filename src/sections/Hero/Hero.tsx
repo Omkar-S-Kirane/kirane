@@ -6,7 +6,7 @@ import { fadeInUp, staggerChildren } from '@/lib/animations/motion-variants'
 
 export function Hero() {
   return (
-    <section className="flex min-h-svh items-center pt-16">
+    <section className="flex min-h-svh items-center pt-24">
       <Container className="flex flex-col items-center text-center">
         <motion.div
           initial="hidden"
