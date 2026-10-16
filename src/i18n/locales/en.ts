@@ -3,6 +3,7 @@ import type { Translations } from '../types'
 const en: Translations = {
   common: {
     brandName: 'KIRANE | OMKAR',
+    splashTagline: 'Engineering the extraordinary.',
     copyright: 'KIRANE | OMKAR',
   },
   navigation: {

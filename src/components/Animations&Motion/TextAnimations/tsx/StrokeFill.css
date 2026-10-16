@@ -1,0 +1,104 @@
+.stroke-fill {
+  position: absolute;
+  z-index: 1;
+  inset-inline: 0;
+  pointer-events: none;
+}
+
+.stroke-fill--bottom-left {
+  inset-block-end: calc(
+    clamp(2rem, 6vh, 5rem) + var(--layout-safe-area-bottom)
+  );
+}
+
+.stroke-fill--center {
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+}
+
+.stroke-fill--bottom-center {
+  inset-block-end: calc(
+    clamp(2rem, 6vh, 5rem) + var(--layout-safe-area-bottom)
+  );
+}
+
+.stroke-fill__container {
+  display: flex;
+  align-items: center;
+}
+
+.stroke-fill--center .stroke-fill__container,
+.stroke-fill--bottom-center .stroke-fill__container {
+  justify-content: center;
+}
+
+.stroke-fill__stack {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, clamp(25rem, 52vw, 50rem));
+}
+
+.stroke-fill__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+
+.stroke-fill--center .stroke-fill__svg,
+.stroke-fill--bottom-center .stroke-fill__svg {
+  margin-inline: auto;
+}
+
+.stroke-fill__text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: clamp(0.03em, 0.45vw, 0.08em);
+  text-transform: uppercase;
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  text-rendering: geometricPrecision;
+  paint-order: stroke fill;
+}
+
+.stroke-fill__divider {
+  font-weight: 400;
+  font-size: 0.72em;
+}
+
+.stroke-fill__tagline {
+  display: block;
+  margin-block-start: clamp(0.3rem, 0.35vw, 0.4rem);
+  color: var(--splash-text);
+  font-family: var(--font-display);
+  font-size: clamp(0.875rem, 1.25vw, 1.125rem);
+  font-weight: 450;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .stroke-fill--bottom-left,
+  .stroke-fill--bottom-center {
+    inset-block-end: calc(
+      clamp(1.75rem, 5vh, 3.5rem) + var(--layout-safe-area-bottom)
+    );
+  }
+
+  .stroke-fill__text {
+    letter-spacing: 0.06em;
+  }
+}
+
+@media (max-width: 639px) {
+  .stroke-fill__text {
+    letter-spacing: 0.025em;
+  }
+
+  .stroke-fill--bottom-left,
+  .stroke-fill--bottom-center {
+    inset-block-end: calc(
+      clamp(9rem, 27vh, 14rem) + var(--layout-safe-area-bottom)
+    );
+  }
+}

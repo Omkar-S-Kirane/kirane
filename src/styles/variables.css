@@ -1,7 +1,17 @@
 :root {
   /* Layout */
   --container-max: 1200px;
+  --container-wide-max: 1440px;
   --container-padding: 1.5rem;
+  --layout-page-gutter: clamp(1.25rem, 5vw, 5.5rem);
+  --layout-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Splash screen palette */
+  --splash-bg: #000000;
+  --splash-text: #f5f2ea;
+  --splash-accent: #e6c66a;
+  --splash-muted: #a7a29a;
+  --splash-divider: #292929;
 
   /* Animation timing */
   --duration-fast: 150ms;

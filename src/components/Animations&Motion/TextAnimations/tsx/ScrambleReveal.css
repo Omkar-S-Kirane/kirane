@@ -1,0 +1,31 @@
+.scramble-reveal {
+  position: relative;
+}
+
+.scramble-reveal--pending {
+  visibility: hidden;
+}
+
+.scramble-reveal__accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.scramble-reveal__visual {
+  white-space: normal;
+}
+
+.scramble-reveal__character--unresolved {
+  color: var(--splash-muted);
+}
+
+.scramble-reveal__character--resolved {
+  color: var(--splash-text);
+}

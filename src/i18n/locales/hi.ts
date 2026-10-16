@@ -3,6 +3,7 @@ import type { Translations } from '../types'
 const hi: Translations = {
   common: {
     brandName: 'किराणे | ओंकार',
+    splashTagline: 'असाधारण अनुभवों का निर्माण।',
     copyright: 'किराणे | ओंकार',
   },
   navigation: {

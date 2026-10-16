@@ -13,6 +13,7 @@
 export interface Translations {
   common: {
     brandName: string
+    splashTagline: string
     copyright: string
   }
   navigation: {

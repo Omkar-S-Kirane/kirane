@@ -3,6 +3,7 @@ import type { Translations } from '../types'
 const gu: Translations = {
   common: {
     brandName: 'કિરાણે | ઓમકાર',
+    splashTagline: 'અસાધારણ અનુભવોનું સર્જન.',
     copyright: 'કિરાણે | ઓમકાર',
   },
   navigation: {
