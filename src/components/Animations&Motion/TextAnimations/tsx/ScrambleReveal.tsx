@@ -7,6 +7,7 @@ export interface ScrambleRevealProps {
   text: string
   duration?: number
   start?: boolean
+  onComplete?: () => void
   className?: string
 }
 
@@ -42,6 +43,7 @@ export function ScrambleReveal({
   text,
   duration = 1800,
   start = true,
+  onComplete,
   className,
 }: ScrambleRevealProps) {
   const prefersReducedMotion = useReducedMotion() === true
@@ -57,13 +59,32 @@ export function ScrambleReveal({
   )
   const [frame, setFrame] = useState(initialFrame)
   const animationFrame = useRef<number | null>(null)
+  const completedAnimationKey = useRef<string | null>(null)
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
   const visibleFrame = frame.source === text ? frame : initialFrame
 
   useEffect(() => {
-    if (!start) return
+    const animationKey = `${text}\u0000${safeDuration}`
+    if (completedAnimationKey.current !== animationKey) {
+      completedAnimationKey.current = null
+    }
+
+    if (!start) {
+      completedAnimationKey.current = null
+      return
+    }
+
+    if (completedAnimationKey.current === animationKey) return
+
+    const notifyComplete = () => {
+      completedAnimationKey.current = animationKey
+      onCompleteRef.current?.()
+    }
 
     if (prefersReducedMotion || safeDuration === 0 || characters.length === 0) {
       setFrame(createFrame(text, characters.length))
+      notifyComplete()
       return
     }
 
@@ -87,6 +108,7 @@ export function ScrambleReveal({
         animationFrame.current = requestAnimationFrame(advance)
       } else {
         animationFrame.current = null
+        notifyComplete()
       }
     }
 

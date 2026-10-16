@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { motion } from 'motion/react'
+import { getSphereTransitionFrame } from './sphere-transition'
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -32,6 +34,14 @@ interface InteractionState {
   /** Monotonic time of the most recent click (seconds) */
   clickTime: number
 }
+
+interface SphereMotionState {
+  rotationMultiplier: number
+}
+
+export type ParticleSpherePhase = 'splash' | 'transitioning' | 'hero'
+
+const SPHERE_TRANSITION_SECONDS = 1.9
 
 // ---------------------------------------------------------------------------
 // Responsive particle scaling
@@ -302,12 +312,14 @@ function SphereParticles({
   count,
   reducedMotion,
   interaction,
+  motionState,
   pointSizeScale,
   brightnessBoost,
 }: {
   count: number
   reducedMotion: boolean
   interaction: React.RefObject<InteractionState>
+  motionState: React.RefObject<SphereMotionState>
   pointSizeScale: number
   brightnessBoost: number
 }) {
@@ -426,12 +438,11 @@ function SphereParticles({
     smoothMouseActive.current += (targetActive - smoothMouseActive.current) * Math.min(delta * 6, 1)
     smoothMouse.current.lerp(ix.mouse, Math.min(delta * 8, 1))
 
-    // Transform mouse position into the sphere's local space
-    // (compensate for the continuous Y-rotation)
-    const localMouse = smoothMouse.current.clone()
-    localMouse.applyAxisAngle(
-      new THREE.Vector3(0, 1, 0),
-      -pointsRef.current.rotation.y,
+    // Convert world-space input into local space, including the cinematic
+    // parent transform and the sphere's continuous rotation.
+    pointsRef.current.updateWorldMatrix(true, false)
+    const localMouse = pointsRef.current.worldToLocal(
+      smoothMouse.current.clone(),
     )
 
     mat.uniforms.uMouse.value.copy(localMouse)
@@ -439,18 +450,15 @@ function SphereParticles({
 
     // Click origin — also transform to local space
     if (ix.clickTime > mat.uniforms.uClickTime.value) {
-      const localClick = ix.clickOrigin.clone()
-      localClick.applyAxisAngle(
-        new THREE.Vector3(0, 1, 0),
-        -pointsRef.current.rotation.y,
-      )
+      const localClick = pointsRef.current.worldToLocal(ix.clickOrigin.clone())
       mat.uniforms.uClickOrigin.value.copy(localClick)
       mat.uniforms.uClickTime.value = ix.clickTime
     }
 
     // Rotation — revolving like Earth
     const rotSpeed = reducedMotion ? 0.005 : 0.06
-    pointsRef.current.rotation.y += delta * rotSpeed
+    pointsRef.current.rotation.y +=
+      delta * rotSpeed * motionState.current.rotationMultiplier
   })
 
   return <points ref={pointsRef} />
@@ -463,11 +471,13 @@ function SphereParticles({
 function HaloParticles({
   count,
   reducedMotion,
+  motionState,
   pointSizeScale,
   brightnessBoost,
 }: {
   count: number
   reducedMotion: boolean
+  motionState: React.RefObject<SphereMotionState>
   pointSizeScale: number
   brightnessBoost: number
 }) {
@@ -541,7 +551,10 @@ function HaloParticles({
     matRef.current.uniforms.uResolution.value =
       state.size.height * state.gl.getPixelRatio()
     matRef.current.uniforms.uTime.value += delta
-    pointsRef.current.rotation.y += delta * (reducedMotion ? 0.003 : 0.03)
+    pointsRef.current.rotation.y +=
+      delta *
+      (reducedMotion ? 0.003 : 0.03) *
+      motionState.current.rotationMultiplier
   })
 
   return <points ref={pointsRef} />
@@ -595,32 +608,80 @@ function InteractionMesh({
 function Scene({
   reducedMotion,
   interaction,
+  phase,
+  onTransitionComplete,
 }: {
   reducedMotion: boolean
   interaction: React.RefObject<InteractionState>
+  phase: ParticleSpherePhase
+  onTransitionComplete: () => void
 }) {
   const config = useMemo(() => getResponsiveConfig(), [])
-
+  const groupRef = useRef<THREE.Group>(null)
+  const motionState = useRef<SphereMotionState>({ rotationMultiplier: 1 })
+  const transitionStart = useRef<number | null>(null)
+  const transitionComplete = useRef(false)
+  const onTransitionCompleteRef = useRef(onTransitionComplete)
+  onTransitionCompleteRef.current = onTransitionComplete
   const sphereCount = Math.round(BASE_PARTICLE_COUNT * config.particleScale)
   const haloCount = Math.round(HALO_PARTICLE_COUNT * config.haloScale)
 
+  useFrame((state) => {
+    let progress = 0
+
+    if (phase === 'splash') {
+      transitionStart.current = null
+      transitionComplete.current = false
+    } else if (phase === 'hero') {
+      progress = 1
+      transitionStart.current = null
+    } else {
+      transitionStart.current ??= state.clock.elapsedTime
+      progress = reducedMotion
+        ? 1
+        : Math.min(
+            1,
+            (state.clock.elapsedTime - transitionStart.current) /
+              SPHERE_TRANSITION_SECONDS,
+          )
+    }
+
+    const frame = getSphereTransitionFrame(progress, state.size.width, reducedMotion)
+    if (groupRef.current) {
+      groupRef.current.position.set(frame.offsetX, 0, 0)
+      groupRef.current.scale.setScalar(frame.scale)
+    }
+    motionState.current.rotationMultiplier = frame.rotationMultiplier
+
+    if (
+      phase === 'transitioning' &&
+      progress >= 1 &&
+      !transitionComplete.current
+    ) {
+      transitionComplete.current = true
+      onTransitionCompleteRef.current()
+    }
+  })
+
   return (
-    <>
+    <group ref={groupRef}>
       <InteractionMesh interaction={interaction} />
       <SphereParticles
         count={sphereCount}
         reducedMotion={reducedMotion}
         interaction={interaction}
+        motionState={motionState}
         pointSizeScale={config.pointSizeScale}
         brightnessBoost={config.brightnessBoost}
       />
       <HaloParticles
         count={haloCount}
         reducedMotion={reducedMotion}
+        motionState={motionState}
         pointSizeScale={config.pointSizeScale}
         brightnessBoost={config.brightnessBoost}
       />
-    </>
+    </group>
   )
 }
 
@@ -628,14 +689,58 @@ function Scene({
 // WebGL fallback — static golden sphere rendered with CSS
 // ---------------------------------------------------------------------------
 
-function StaticFallback() {
+function StaticFallback({
+  phase,
+  reducedMotion,
+  onReady,
+  onTransitionComplete,
+}: {
+  phase: ParticleSpherePhase
+  reducedMotion: boolean
+  onReady: () => void
+  onTransitionComplete: () => void
+}) {
+  const readyReported = useRef(false)
+  const transitionReported = useRef(false)
+  const onReadyRef = useRef(onReady)
+  const onTransitionCompleteRef = useRef(onTransitionComplete)
+  onReadyRef.current = onReady
+  onTransitionCompleteRef.current = onTransitionComplete
+
+  useEffect(() => {
+    if (readyReported.current) return
+    readyReported.current = true
+    onReadyRef.current()
+  }, [])
+
+  useEffect(() => {
+    if (
+      phase !== 'transitioning' ||
+      !reducedMotion ||
+      transitionReported.current
+    ) {
+      return
+    }
+
+    transitionReported.current = true
+    onTransitionCompleteRef.current()
+  }, [phase, reducedMotion])
+
   return (
     <div
       className="absolute inset-0 flex items-center justify-center"
       aria-hidden
     >
-      <div
+      <motion.div
         className="rounded-full"
+        initial={false}
+        animate={{ scale: phase === 'transitioning' ? 1.14 : 1 }}
+        transition={{ duration: reducedMotion ? 0 : SPHERE_TRANSITION_SECONDS }}
+        onAnimationComplete={() => {
+          if (phase !== 'transitioning' || transitionReported.current) return
+          transitionReported.current = true
+          onTransitionCompleteRef.current()
+        }}
         style={{
           width: 'min(60vw, 360px)',
           height: 'min(60vw, 360px)',
@@ -656,9 +761,17 @@ function StaticFallback() {
 interface ParticleSphereProps {
   /** When true, show a static or very slow sphere */
   reducedMotion?: boolean
+  phase?: ParticleSpherePhase
+  onReady?: () => void
+  onTransitionComplete?: () => void
 }
 
-export function ParticleSphere({ reducedMotion = false }: ParticleSphereProps) {
+export function ParticleSphere({
+  reducedMotion = false,
+  phase = 'splash',
+  onReady,
+  onTransitionComplete,
+}: ParticleSphereProps) {
   const config = useMemo(() => getResponsiveConfig(), [])
   const hasWebGL = useMemo(() => {
     try {
@@ -681,13 +794,25 @@ export function ParticleSphere({ reducedMotion = false }: ParticleSphereProps) {
     clickOrigin: new THREE.Vector3(),
     clickTime: -10,
   })
+  const readyReported = useRef(false)
+  const onReadyRef = useRef(onReady)
+  const onTransitionCompleteRef = useRef(onTransitionComplete)
+  onReadyRef.current = onReady
+  onTransitionCompleteRef.current = onTransitionComplete
+
+  const reportReady = useCallback(() => {
+    if (readyReported.current) return
+    readyReported.current = true
+    onReadyRef.current?.()
+  }, [])
 
   const handleCreated = useCallback(
     ({ gl }: { gl: THREE.WebGLRenderer }) => {
       gl.setClearColor(0x000000, 1)
       gl.setPixelRatio(config.dpr)
+      reportReady()
     },
-    [config.dpr],
+    [config.dpr, reportReady],
   )
 
   const handlePointerLeave = useCallback(() => {
@@ -695,7 +820,14 @@ export function ParticleSphere({ reducedMotion = false }: ParticleSphereProps) {
   }, [])
 
   if (!hasWebGL) {
-    return <StaticFallback />
+    return (
+      <StaticFallback
+        phase={phase}
+        reducedMotion={reducedMotion}
+        onReady={reportReady}
+        onTransitionComplete={() => onTransitionCompleteRef.current?.()}
+      />
+    )
   }
 
   return (
@@ -705,6 +837,14 @@ export function ParticleSphere({ reducedMotion = false }: ParticleSphereProps) {
       gl={{ antialias: false, alpha: false, powerPreference: 'default' }}
       onCreated={handleCreated}
       onPointerLeave={handlePointerLeave}
+      fallback={
+        <StaticFallback
+          phase={phase}
+          reducedMotion={reducedMotion}
+          onReady={reportReady}
+          onTransitionComplete={() => onTransitionCompleteRef.current?.()}
+        />
+      }
       style={{
         position: 'absolute',
         inset: 0,
@@ -713,7 +853,12 @@ export function ParticleSphere({ reducedMotion = false }: ParticleSphereProps) {
         background: '#000',
       }}
     >
-      <Scene reducedMotion={reducedMotion} interaction={interactionRef} />
+      <Scene
+        reducedMotion={reducedMotion}
+        interaction={interactionRef}
+        phase={phase}
+        onTransitionComplete={() => onTransitionCompleteRef.current?.()}
+      />
     </Canvas>
   )
 }

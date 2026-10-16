@@ -10,19 +10,23 @@ vi.mock('@/components/effects/ParticleSphere', () => ({
 afterEach(cleanup)
 
 describe('SplashScreen', () => {
-  it('shows the translated brand as accessible SVG text and leaves the splash active', () => {
-    const onComplete = vi.fn()
+  it('shows the translated brand without owning the persistent particle renderer', () => {
+    const onRevealComplete = vi.fn()
 
     render(
       <I18nProvider>
-        <SplashScreen onComplete={onComplete} />
+        <SplashScreen
+          exiting={false}
+          fontsReady
+          onRevealComplete={onRevealComplete}
+        />
       </I18nProvider>,
     )
 
-    expect(screen.getByTestId('particle-sphere')).toBeInTheDocument()
+    expect(screen.queryByTestId('particle-sphere')).not.toBeInTheDocument()
     expect(
       screen.getByRole('img', { name: 'KIRANE | OMKAR' }),
     ).toBeInTheDocument()
-    expect(onComplete).not.toHaveBeenCalled()
+    expect(onRevealComplete).not.toHaveBeenCalled()
   })
 })

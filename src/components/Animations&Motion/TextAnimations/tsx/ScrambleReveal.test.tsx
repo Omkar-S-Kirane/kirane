@@ -92,6 +92,59 @@ describe('ScrambleReveal', () => {
     expect(requestAnimationFrame).toHaveBeenCalledOnce()
   })
 
+  it('reports completion once, only after the final scramble frame', () => {
+    const onComplete = vi.fn()
+    const { rerender } = render(
+      <ScrambleReveal
+        text="Engineering the extraordinary."
+        onComplete={onComplete}
+      />,
+    )
+
+    runNextFrame(0)
+    expect(onComplete).not.toHaveBeenCalled()
+
+    runNextFrame(1800)
+    expect(onComplete).toHaveBeenCalledOnce()
+
+    rerender(
+      <ScrambleReveal
+        text="Engineering the extraordinary."
+        onComplete={onComplete}
+      />,
+    )
+    expect(onComplete).toHaveBeenCalledOnce()
+  })
+
+  it('reports completed text immediately for reduced motion and zero duration', () => {
+    const reducedMotionComplete = vi.fn()
+    reducedMotionMock.mockReturnValue(true)
+
+    render(
+      <ScrambleReveal
+        text="Engineering the extraordinary."
+        onComplete={reducedMotionComplete}
+      />,
+    )
+
+    expect(reducedMotionComplete).toHaveBeenCalledOnce()
+    expect(requestAnimationFrame).not.toHaveBeenCalled()
+
+    cleanup()
+    reducedMotionMock.mockReturnValue(false)
+    const zeroDurationComplete = vi.fn()
+    render(
+      <ScrambleReveal
+        text="Engineering the extraordinary."
+        duration={0}
+        onComplete={zeroDurationComplete}
+      />,
+    )
+
+    expect(zeroDurationComplete).toHaveBeenCalledOnce()
+    expect(requestAnimationFrame).not.toHaveBeenCalled()
+  })
+
   it('renders the completed text without scheduling frames for reduced motion', () => {
     reducedMotionMock.mockReturnValue(true)
 

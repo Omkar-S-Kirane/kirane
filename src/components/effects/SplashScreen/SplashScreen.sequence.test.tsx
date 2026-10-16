@@ -64,15 +64,37 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-function renderSplash() {
+function renderSplash(fontsReady = true) {
   return render(
     <I18nProvider>
-      <SplashScreen onComplete={vi.fn()} />
+      <SplashScreen
+        exiting={false}
+        fontsReady={fontsReady}
+        onRevealComplete={vi.fn()}
+      />
     </I18nProvider>,
   )
 }
 
 describe('SplashScreen animation sequence', () => {
+  it('waits for critical font loading before starting the wordmark', () => {
+    const { rerender } = renderSplash(false)
+
+    expect(screen.queryByTestId('wordmark-sequence')).not.toBeInTheDocument()
+
+    rerender(
+      <I18nProvider>
+        <SplashScreen
+          exiting={false}
+          fontsReady
+          onRevealComplete={vi.fn()}
+        />
+      </I18nProvider>,
+    )
+
+    expect(screen.getByTestId('wordmark-sequence')).toBeInTheDocument()
+  })
+
   it('starts the tagline only after the wordmark completes and a short hold', async () => {
     renderSplash()
     const tagline = document.querySelector('.scramble-reveal')
