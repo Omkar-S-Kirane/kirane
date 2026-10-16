@@ -1,12 +1,5 @@
 import { Container } from '@/components/ui/Container'
-
-const socialLinks = [
-  { label: 'GitHub', href: '#' },
-  { label: 'LinkedIn', href: '#' },
-  { label: 'Email', href: '#' },
-] as const
-
-const CURRENT_YEAR = new Date().getFullYear()
+import { CURRENT_YEAR, SOCIAL_LINKS } from '@/constants/footer-constants'
 
 export function Footer() {
   return (
@@ -14,7 +7,7 @@ export function Footer() {
       <Container className="flex flex-col items-center justify-between gap-4 sm:flex-row">
         <p className="text-sm text-fg-muted">&copy; {CURRENT_YEAR} KIRANE</p>
         <nav aria-label="Social links" className="flex gap-6">
-          {socialLinks.map((link) => (
+          {SOCIAL_LINKS.map((link) => (
             <a
               key={link.label}
               href={link.href}

@@ -35,3 +35,27 @@
     outline-offset: 2px;
   }
 }
+
+/* Spotlight Navbar — radial light that follows the pointer */
+@layer components {
+  .spotlight-navbar {
+    --spotlight-x: 50%;
+    --spotlight-opacity: 0;
+  }
+
+  .spotlight-glow {
+    background: radial-gradient(
+      300px circle at var(--spotlight-x) 50%,
+      rgba(255, 255, 255, 0.04),
+      transparent 70%
+    );
+    opacity: var(--spotlight-opacity);
+    transition: opacity var(--duration-normal) var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spotlight-glow {
+      display: none;
+    }
+  }
+}
