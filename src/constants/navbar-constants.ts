@@ -2,8 +2,11 @@
 // Navbar constants
 // ---------------------------------------------------------------------------
 
+import type { NavItemKey } from '@/i18n'
+
 export interface NavItem {
-  label: string
+  /** Key into `translations.navigation` — resolved at render time. */
+  translationKey: NavItemKey
   href: string
 }
 
@@ -16,13 +19,13 @@ export const NAVBAR_HEIGHT = 56
  * ready when those sections are added.
  */
 export const NAV_ITEMS: NavItem[] = [
-  { label: 'Work', href: '#work' },
-  { label: 'Experience', href: '#experience' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'Resume', href: '#resume' },
+  { translationKey: 'work', href: '#work' },
+  { translationKey: 'experience', href: '#experience' },
+  { translationKey: 'skills', href: '#skills' },
+  { translationKey: 'resume', href: '#resume' },
 ]
 
-export const CONTACT_ITEM: NavItem = { label: 'Contact Me', href: '#contact' }
+export const CONTACT_ITEM = { href: '#contact' } as const
 
 /** All section IDs the navbar targets (without the leading #). */
 export const SECTION_IDS = [

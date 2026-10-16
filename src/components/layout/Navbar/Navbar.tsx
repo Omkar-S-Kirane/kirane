@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
+import { useTranslation } from '@/i18n'
 import type { NavItem } from '@/constants/navbar-constants'
 import {
   CONTACT_ITEM,
@@ -10,6 +11,7 @@ import {
 } from '@/constants/navbar-constants'
 import { useActiveSection } from '@/hooks/use-active-section'
 import { useSpotlight } from '@/hooks/use-spotlight'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 // ---------------------------------------------------------------------------
 // NavLink
@@ -24,6 +26,8 @@ function NavLink({
   isActive: boolean
   onClick: () => void
 }) {
+  const { t } = useTranslation()
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     const targetId = item.href.slice(1)
     const el = document.getElementById(targetId)
@@ -59,7 +63,9 @@ function NavLink({
           }}
         />
       )}
-      <span className="relative z-10">{item.label}</span>
+      <span className="relative z-10">
+        {t.navigation[item.translationKey]}
+      </span>
     </a>
   )
 }
@@ -79,6 +85,8 @@ function MobileMenu({
   activeId: string | null
   onNavClick: (id: string) => void
 }) {
+  const { t } = useTranslation()
+
   // Close on Escape
   useEffect(() => {
     if (!isOpen) return
@@ -89,8 +97,8 @@ function MobileMenu({
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [isOpen, onClose])
 
-  const handleItemClick = (item: NavItem) => {
-    const targetId = item.href.slice(1)
+  const handleItemClick = (href: string) => {
+    const targetId = href.slice(1)
     onNavClick(targetId)
     onClose()
 
@@ -100,8 +108,6 @@ function MobileMenu({
       window.scrollTo({ top, behavior: 'smooth' })
     }
   }
-
-  const allItems = [...NAV_ITEMS, CONTACT_ITEM]
 
   return (
     <AnimatePresence>
@@ -113,8 +119,8 @@ function MobileMenu({
           transition={{ duration: 0.2, ease: [0.33, 1, 0.68, 1] }}
           className="absolute left-4 right-4 top-full mt-2 rounded-2xl border border-white/[0.08] bg-[#0a0a0c]/95 p-2 backdrop-blur-md sm:hidden"
         >
-          <nav aria-label="Mobile navigation" className="flex flex-col gap-0.5">
-            {allItems.map((item) => {
+          <nav aria-label={t.accessibility.mobileNavigation} className="flex flex-col gap-0.5">
+            {NAV_ITEMS.map((item) => {
               const id = item.href.slice(1)
               return (
                 <a
@@ -122,7 +128,7 @@ function MobileMenu({
                   href={item.href}
                   onClick={(e) => {
                     e.preventDefault()
-                    handleItemClick(item)
+                    handleItemClick(item.href)
                   }}
                   aria-current={activeId === id ? 'page' : undefined}
                   className={cn(
@@ -132,10 +138,27 @@ function MobileMenu({
                       : 'text-fg-muted hover:bg-fg/[0.04] hover:text-fg',
                   )}
                 >
-                  {item.label}
+                  {t.navigation[item.translationKey]}
                 </a>
               )
             })}
+            {/* Contact item in mobile menu */}
+            <a
+              href={CONTACT_ITEM.href}
+              onClick={(e) => {
+                e.preventDefault()
+                handleItemClick(CONTACT_ITEM.href)
+              }}
+              aria-current={activeId === 'contact' ? 'page' : undefined}
+              className={cn(
+                'rounded-xl px-4 py-2.5 text-sm transition-colors duration-150',
+                activeId === 'contact'
+                  ? 'bg-fg/[0.08] text-fg'
+                  : 'text-fg-muted hover:bg-fg/[0.04] hover:text-fg',
+              )}
+            >
+              {t.navigation.contactMe}
+            </a>
           </nav>
         </motion.div>
       )}
@@ -148,6 +171,7 @@ function MobileMenu({
 // ---------------------------------------------------------------------------
 
 export function Navbar() {
+  const { t } = useTranslation()
   const navRef = useRef<HTMLElement>(null)
   const [activeId, setActiveFromClick] = useActiveSection()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -190,14 +214,14 @@ export function Navbar() {
             window.scrollTo({ top: 0, behavior: 'smooth' })
           }}
           className="text-base font-semibold tracking-tight text-fg"
-          aria-label="KIRANE — home"
+          aria-label={t.accessibility.homeLink}
         >
-          KIRANE
+          {t.common.brandName}
         </a>
 
         {/* Desktop nav — centred */}
         <nav
-          aria-label="Main navigation"
+          aria-label={t.accessibility.mainNavigation}
           className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 sm:flex"
         >
           {NAV_ITEMS.map((item) => (
@@ -210,8 +234,10 @@ export function Navbar() {
           ))}
         </nav>
 
-        {/* Right side — Contact CTA (desktop) + mobile toggle */}
+        {/* Right side — Language Switcher + Contact CTA (desktop) + mobile toggle */}
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
+
           <a
             href={CONTACT_ITEM.href}
             onClick={(e) => {
@@ -232,7 +258,7 @@ export function Navbar() {
               'bg-fg/[0.1] text-fg hover:bg-fg/[0.15]',
             )}
           >
-            {CONTACT_ITEM.label}
+            {t.navigation.contactMe}
           </a>
 
           {/* Mobile hamburger */}
@@ -240,7 +266,7 @@ export function Navbar() {
             type="button"
             onClick={() => setMobileOpen((prev) => !prev)}
             aria-expanded={mobileOpen}
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-label={mobileOpen ? t.accessibility.closeMenu : t.accessibility.openMenu}
             className="inline-flex items-center justify-center rounded-full p-2 text-fg-muted transition-colors duration-150 hover:text-fg sm:hidden"
           >
             {mobileOpen ? (
