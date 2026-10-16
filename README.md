@@ -28,17 +28,17 @@ A personal developer portfolio built with React, TypeScript, and Vite. Designed 
 
 ## Tech Stack
 
-| Category       | Technology                                      |
-| -------------- | ----------------------------------------------- |
-| Framework      | [React](https://react.dev/) 19                  |
-| Language       | [TypeScript](https://www.typescriptlang.org/) 6 |
-| Build Tool     | [Vite](https://vite.dev/) 8                     |
-| Styling        | [Tailwind CSS](https://tailwindcss.com/) 4      |
-| Animation      | [Motion](https://motion.dev/)                   |
-| Icons          | [Lucide React](https://lucide.dev/)             |
-| Linting        | [Oxlint](https://oxc.rs/)                       |
-| Formatting     | [Prettier](https://prettier.io/)                |
-| Testing        | [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/) |
+| Category   | Technology                                                                            |
+| ---------- | ------------------------------------------------------------------------------------- |
+| Framework  | [React](https://react.dev/) 19                                                        |
+| Language   | [TypeScript](https://www.typescriptlang.org/) 6                                       |
+| Build Tool | [Vite](https://vite.dev/) 8                                                           |
+| Styling    | [Tailwind CSS](https://tailwindcss.com/) 4                                            |
+| Animation  | [Motion](https://motion.dev/)                                                         |
+| Icons      | [Lucide React](https://lucide.dev/)                                                   |
+| Linting    | [Oxlint](https://oxc.rs/)                                                             |
+| Formatting | [Prettier](https://prettier.io/)                                                      |
+| Testing    | [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/) |
 
 ## Getting Started
 
@@ -52,8 +52,10 @@ A personal developer portfolio built with React, TypeScript, and Vite. Designed 
 ```bash
 git clone https://github.com/Omkar-S-Kirane/kirane.git
 cd kirane
-npm install
+npm run setup
 ```
+
+The setup script validates your environment, installs dependencies, runs diagnostics, and verifies that all quality gates pass. If you prefer a manual install, run `npm install` instead.
 
 ### Development
 
@@ -79,9 +81,78 @@ npm run preview
 
 Serves the production build locally for inspection before deployment.
 
+## Setup
+
+The project includes a self-diagnosing setup system that validates your environment, installs dependencies, and runs all quality gates in one command.
+
+```bash
+npm run setup
+```
+
+### CLI Options
+
+| Option           | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `--help`         | Show usage information                         |
+| `--skip-tests`   | Skip the test suite during quality gates       |
+| `--install-only` | Install dependencies only (skip quality gates) |
+
+```bash
+# Example: skip tests during setup
+npm run setup -- --skip-tests
+```
+
+### What It Checks
+
+The setup pipeline runs five phases in order:
+
+1. **Environment validation** — Node.js >= 22, npm >= 10, OS and architecture detection
+2. **Dependency installation** — Prefers `npm ci` for reproducible installs; falls back to `npm install`
+3. **Diagnostics** — Peer dependency issues, lockfile health, duplicate packages, disk space
+4. **Configuration validation** — Required config files and package scripts
+5. **Quality gates** — TypeScript type checking, Oxlint, Vitest, Vite production build
+
+### Troubleshooting
+
+**Node.js version too old**
+The project requires Node.js 22 or later. Use a version manager to switch:
+
+```bash
+# nvm
+nvm install 22 && nvm use 22
+
+# fnm
+fnm install 22 && fnm use 22
+
+# volta
+volta install node@22
+```
+
+An `.nvmrc` file is included so `nvm use` and `fnm use` pick up the correct version automatically.
+
+**npm version too old**
+Node.js 22 ships with npm 10. If your npm is older, upgrade it:
+
+```bash
+npm install -g npm@latest
+```
+
+**Dependency installation fails**
+Check your network connection and try again. If the problem persists, delete `node_modules` and `package-lock.json` manually, then run `npm install`:
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**Quality gate fails**
+Review the error output printed by the setup script. Each gate runs the same command you can run individually — `npm run typecheck`, `npm run lint`, `npm run test`, or `npm run build` — to isolate the issue.
+
 ## Project Structure
 
 ```
+scripts/
+└── setup/                # Self-diagnosing project setup system
 src/
 ├── app/                  # Application root and providers
 ├── components/
@@ -98,17 +169,18 @@ src/
 
 ## Scripts
 
-| Command              | Description                                  |
-| -------------------- | -------------------------------------------- |
-| `npm run dev`        | Start development server                     |
-| `npm run build`      | Type check and build for production           |
-| `npm run preview`    | Preview the production build                  |
-| `npm run typecheck`  | Run TypeScript type checking                  |
-| `npm run lint`       | Lint with Oxlint                              |
-| `npm run test`       | Run tests with Vitest                         |
-| `npm run test:watch` | Run tests in watch mode                       |
-| `npm run format`     | Format code with Prettier                     |
-| `npm run format:check` | Check formatting without writing changes   |
+| Command                | Description                                    |
+| ---------------------- | ---------------------------------------------- |
+| `npm run setup`        | Validate environment, install deps, run checks |
+| `npm run dev`          | Start development server                       |
+| `npm run build`        | Type check and build for production            |
+| `npm run preview`      | Preview the production build                   |
+| `npm run typecheck`    | Run TypeScript type checking                   |
+| `npm run lint`         | Lint with Oxlint                               |
+| `npm run test`         | Run tests with Vitest                          |
+| `npm run test:watch`   | Run tests in watch mode                        |
+| `npm run format`       | Format code with Prettier                      |
+| `npm run format:check` | Check formatting without writing changes       |
 
 ## Deployment
 
