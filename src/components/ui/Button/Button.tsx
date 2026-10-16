@@ -8,12 +8,10 @@ interface ButtonProps extends ComponentProps<'button'> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary:
-    'bg-accent text-bg font-medium hover:bg-accent-hover',
+  primary: 'bg-accent text-bg font-medium hover:bg-accent-hover',
   secondary:
     'border border-border text-fg hover:border-border-hover hover:bg-bg-muted',
-  ghost:
-    'text-fg-muted hover:text-fg hover:bg-bg-muted',
+  ghost: 'text-fg-muted hover:text-fg hover:bg-bg-muted',
 }
 
 export function Button({

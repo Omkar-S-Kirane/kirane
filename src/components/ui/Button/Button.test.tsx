@@ -8,7 +8,9 @@ afterEach(cleanup)
 describe('Button', () => {
   it('renders children as label text', () => {
     render(<Button>Click me</Button>)
-    expect(screen.getByRole('button', { name: /click me/i })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /click me/i }),
+    ).toBeInTheDocument()
   })
 
   it('defaults to type="button" to prevent accidental form submission', () => {

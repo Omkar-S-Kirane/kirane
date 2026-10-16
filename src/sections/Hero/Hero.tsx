@@ -32,8 +32,8 @@ export function Hero() {
             variants={fadeInUp}
             className="max-w-lg text-lg leading-relaxed text-fg-muted"
           >
-            Crafting thoughtful digital experiences with clean code
-            and purposeful design.
+            Crafting thoughtful digital experiences with clean code and
+            purposeful design.
           </motion.p>
 
           <motion.div variants={fadeInUp} className="flex gap-4 pt-4">

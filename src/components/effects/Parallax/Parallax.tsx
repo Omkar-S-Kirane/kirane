@@ -1,9 +1,4 @@
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useTransform,
-} from 'motion/react'
+import { motion, useReducedMotion, useScroll, useTransform } from 'motion/react'
 import { useRef, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 
@@ -19,11 +14,7 @@ interface ParallaxProps {
  * Scroll-linked transforms bypass MotionConfig's reducedMotion setting,
  * so this component checks the preference directly.
  */
-export function Parallax({
-  children,
-  className,
-  offset = 50,
-}: ParallaxProps) {
+export function Parallax({ children, className, offset = 50 }: ParallaxProps) {
   const ref = useRef<HTMLDivElement>(null)
   const shouldReduceMotion = useReducedMotion()
 

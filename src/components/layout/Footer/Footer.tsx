@@ -12,9 +12,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border py-12">
       <Container className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-        <p className="text-sm text-fg-muted">
-          &copy; {CURRENT_YEAR} KIRANE
-        </p>
+        <p className="text-sm text-fg-muted">&copy; {CURRENT_YEAR} KIRANE</p>
         <nav aria-label="Social links" className="flex gap-6">
           {socialLinks.map((link) => (
             <a
