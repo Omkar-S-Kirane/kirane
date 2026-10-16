@@ -30,6 +30,25 @@ export interface Translations {
     viewWork: string
     learnMore: string
   }
+  portfolio: {
+    workEyebrow: string
+    workHeading: string
+    projectCategory: string
+    projectTitle: string
+    projectDescription: string
+    sourceLinkLabel: string
+    experienceEyebrow: string
+    experienceHeading: string
+    experienceDescription: string
+    skillsEyebrow: string
+    skillsHeading: string
+    skillsDescription: string
+    skills: readonly string[]
+    contactEyebrow: string
+    contactHeading: string
+    contactDescription: string
+    githubLinkLabel: string
+  }
   footer: {
     github: string
     linkedin: string

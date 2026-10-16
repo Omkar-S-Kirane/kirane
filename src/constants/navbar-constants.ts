@@ -22,7 +22,6 @@ export const NAV_ITEMS: NavItem[] = [
   { translationKey: 'work', href: '#work' },
   { translationKey: 'experience', href: '#experience' },
   { translationKey: 'skills', href: '#skills' },
-  { translationKey: 'resume', href: '#resume' },
 ]
 
 export const CONTACT_ITEM = { href: '#contact' } as const

@@ -6,12 +6,14 @@ import { SplashScreen } from '@/components/effects/SplashScreen'
 import { CustomCursor } from '@/components/effects/CustomCursor'
 import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/sections/Hero'
+import { PortfolioSections } from '@/sections/PortfolioSections'
 import { waitForCriticalFonts } from './critical-fonts'
 import {
   createInitialSplashLifecycle,
   splashLifecycleReducer,
   type SplashReadinessSignal,
 } from './splash-lifecycle'
+import './App.css'
 
 export function App() {
   const [lifecycle, dispatch] = useReducer(
@@ -32,7 +34,8 @@ export function App() {
   const criticalFontsReady = lifecycle.readySignals.has('critical-fonts')
 
   const reportReadiness = useCallback(
-    (signal: SplashReadinessSignal) => dispatch({ type: 'readiness-signal', signal }),
+    (signal: SplashReadinessSignal) =>
+      dispatch({ type: 'readiness-signal', signal }),
     [],
   )
 
@@ -78,16 +81,19 @@ export function App() {
 
   return (
     <div className="relative isolate min-h-svh overflow-x-clip bg-black">
-      <div
-        className="absolute inset-x-0 top-0 z-0 h-svh"
-        aria-hidden="true"
-      >
-        <ParticleSphere
-          reducedMotion={prefersReducedMotion}
-          phase={spherePhase}
-          onReady={handleSphereReady}
-          onTransitionComplete={handleSphereTransitionComplete}
-        />
+      <div className="absolute inset-0 z-0 h-svh" aria-hidden="true">
+        <div
+          data-testid="sphere-stage"
+          data-phase={spherePhase}
+          className="app-sphere-stage"
+        >
+          <ParticleSphere
+            reducedMotion={prefersReducedMotion}
+            phase={spherePhase}
+            onReady={handleSphereReady}
+            onTransitionComplete={handleSphereTransitionComplete}
+          />
+        </div>
       </div>
 
       <motion.div
@@ -113,6 +119,7 @@ export function App() {
             onLayoutReady={handleHeroLayoutReady}
             onRevealComplete={handleHeroRevealComplete}
           />
+          <PortfolioSections />
         </main>
         {/* <div className="pointer-events-auto">
           <Footer />

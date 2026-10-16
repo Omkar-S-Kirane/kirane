@@ -29,6 +29,18 @@ describe('Button', () => {
     expect(btn.className).toContain('bg-accent')
   })
 
+  it('renders a semantic anchor when an href is provided', () => {
+    render(
+      <Button as="a" href="#work" variant="primary">
+        Explore my work
+      </Button>,
+    )
+
+    const link = screen.getByRole('link', { name: 'Explore my work' })
+    expect(link).toHaveAttribute('href', '#work')
+    expect(link.className).toContain('bg-accent')
+  })
+
   it('applies secondary variant styles when specified', () => {
     render(<Button variant="secondary">Secondary</Button>)
     const btn = screen.getByRole('button')

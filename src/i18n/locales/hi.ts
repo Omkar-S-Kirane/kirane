@@ -14,12 +14,42 @@ const hi: Translations = {
     contactMe: 'संपर्क करें',
   },
   hero: {
-    tagline: 'सृजनशील डेवलपर',
-    heading: 'किराणे | ओंकार',
+    tagline: 'क्रिएटिव इंजीनियरिंग / फ्रंटएंड डेवलपमेंट',
+    heading: 'डिजिटल अनुभव बनाता हूँ,\nजो लोगों को\nप्रेरित करें।',
     description:
-      'स्वच्छ कोड और उद्देश्यपूर्ण डिज़ाइन के साथ सोच-समझकर डिजिटल अनुभव तैयार करता हूँ।',
-    viewWork: 'कार्य देखें',
-    learnMore: 'और जानें',
+      'मैं उद्देश्यपूर्ण इंटरैक्शन और बारीकियों पर ध्यान के साथ विचारशील, उच्च-प्रदर्शन वाले वेब अनुभव बनाता हूँ।',
+    viewWork: 'मेरा काम देखें',
+    learnMore: 'बात करें',
+  },
+  portfolio: {
+    workEyebrow: '01 — चयनित काम',
+    workHeading: 'सोच-समझकर बनाया गया एक प्रोजेक्ट।',
+    projectCategory: 'व्यक्तिगत पोर्टफोलियो · निर्माण जारी',
+    projectTitle: 'KIRANE पोर्टफोलियो',
+    projectDescription:
+      'एक विकसित होता पोर्टफोलियो इंटरफ़ेस, जिसमें उत्तरदायी डिज़ाइन, सुलभ मोशन और रीयल-टाइम पार्टिकल दृश्य शामिल हैं।',
+    sourceLinkLabel: 'सोर्स कोड देखें',
+    experienceEyebrow: '02 — कार्यशैली',
+    experienceHeading: 'हर स्तर पर सोच-समझकर इंजीनियरिंग।',
+    experienceDescription:
+      'मैं स्पष्ट इंटरफ़ेस, सुलभ इंटरैक्शन, उद्देश्यपूर्ण गति और उन बारीकियों पर ध्यान देता हूँ जो अनुभव को पूर्ण बनाती हैं।',
+    skillsEyebrow: '03 — टूलकिट',
+    skillsHeading: 'इस पोर्टफोलियो में उपयोग की गई तकनीकें।',
+    skillsDescription:
+      'अभिव्यक्तिपूर्ण इंटरफ़ेस और सावधानीपूर्वक कार्यान्वयन के लिए चुना गया केंद्रित स्टैक।',
+    skills: [
+      'React',
+      'TypeScript',
+      'Motion',
+      'React Three Fiber',
+      'Three.js',
+      'Tailwind CSS',
+    ],
+    contactEyebrow: '04 — संपर्क',
+    contactHeading: 'बातचीत शुरू करें।',
+    contactDescription:
+      'मेरे काम या संभावित सहयोग के बारे में पूछने के लिए GitHub पर संपर्क करें।',
+    githubLinkLabel: 'GitHub प्रोफ़ाइल देखें',
   },
   footer: {
     github: 'GitHub',

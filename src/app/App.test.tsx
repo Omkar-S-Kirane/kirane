@@ -54,7 +54,11 @@ vi.mock('@/sections/Hero', () => ({
     onRevealComplete: () => void
   }) => (
     <section data-testid="hero" data-active={active}>
-      <button type="button" data-testid="hero-layout-ready" onClick={onLayoutReady} />
+      <button
+        type="button"
+        data-testid="hero-layout-ready"
+        onClick={onLayoutReady}
+      />
       <button
         type="button"
         data-testid="hero-reveal-complete"
@@ -62,6 +66,10 @@ vi.mock('@/sections/Hero', () => ({
       />
     </section>
   ),
+}))
+
+vi.mock('@/sections/PortfolioSections', () => ({
+  PortfolioSections: () => <div data-testid="portfolio-sections" />,
 }))
 
 vi.mock('@/components/effects/CustomCursor', () => ({
@@ -96,17 +104,31 @@ describe('App splash lifecycle', () => {
       'data-phase',
       'splash',
     )
-    expect(screen.getByTestId('splash')).toHaveAttribute('data-exiting', 'false')
+    expect(screen.getByTestId('sphere-stage')).toHaveAttribute(
+      'data-phase',
+      'splash',
+    )
+    expect(screen.getByTestId('splash')).toHaveAttribute(
+      'data-exiting',
+      'false',
+    )
 
     act(() => vi.advanceTimersByTime(60_000))
     expect(screen.getByTestId('splash')).toBeInTheDocument()
 
     fireEvent.click(screen.getByTestId('splash-reveal-complete'))
     fireEvent.click(screen.getByTestId('hero-layout-ready'))
-    expect(screen.getByTestId('splash')).toHaveAttribute('data-exiting', 'false')
+    expect(screen.getByTestId('splash')).toHaveAttribute(
+      'data-exiting',
+      'false',
+    )
 
     fireEvent.click(screen.getByTestId('renderer-ready'))
     expect(screen.getByTestId('particle-sphere')).toHaveAttribute(
+      'data-phase',
+      'transitioning',
+    )
+    expect(screen.getByTestId('sphere-stage')).toHaveAttribute(
       'data-phase',
       'transitioning',
     )
@@ -114,6 +136,10 @@ describe('App splash lifecycle', () => {
     expect(screen.getByTestId('hero')).toHaveAttribute('data-active', 'false')
 
     fireEvent.click(screen.getByTestId('sphere-transition-complete'))
+    expect(screen.getByTestId('sphere-stage')).toHaveAttribute(
+      'data-phase',
+      'hero',
+    )
     expect(screen.getByTestId('hero')).toHaveAttribute('data-active', 'true')
     expect(screen.getByTestId('app-shell')).toHaveAttribute('inert')
 
