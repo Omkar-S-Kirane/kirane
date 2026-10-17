@@ -68,6 +68,12 @@ const sa: Translations = {
     label: 'भाषा',
     changeLanguage: 'भाषां परिवर्तयतु',
   },
+  theme: {
+    preference: 'वर्णविन्यास-विकल्पः',
+    dark: 'गाढः',
+    light: 'प्रकाशः',
+    system: 'प्रणाली',
+  },
 }
 
 export default sa

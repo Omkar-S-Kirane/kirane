@@ -66,6 +66,12 @@ export interface Translations {
     label: string
     changeLanguage: string
   }
+  theme: {
+    preference: string
+    dark: string
+    light: string
+    system: string
+  }
 }
 
 /**

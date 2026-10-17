@@ -137,7 +137,7 @@ export function CustomCursor() {
           width: DOT_SIZE,
           height: DOT_SIZE,
           borderRadius: '50%',
-          backgroundColor: '#67C7FF',
+          backgroundColor: 'var(--color-accent)',
           pointerEvents: 'none',
           zIndex: 9999,
           x: dotX,
@@ -159,7 +159,8 @@ export function CustomCursor() {
           width: RING_SIZE,
           height: RING_SIZE,
           borderRadius: '50%',
-          border: '1.5px solid rgba(255, 255, 255, 0.25)',
+          border:
+            '1.5px solid color-mix(in srgb, var(--color-fg) 25%, transparent)',
           pointerEvents: 'none',
           zIndex: 9998,
           x: ringX,

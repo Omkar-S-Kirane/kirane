@@ -68,6 +68,12 @@ const en: Translations = {
     label: 'Language',
     changeLanguage: 'Change language',
   },
+  theme: {
+    preference: 'Theme preference',
+    dark: 'Dark',
+    light: 'Light',
+    system: 'System',
+  },
 }
 
 export default en

@@ -68,6 +68,12 @@ const mr: Translations = {
     label: 'भाषा',
     changeLanguage: 'भाषा बदला',
   },
+  theme: {
+    preference: 'रंगसंगतीची पसंती',
+    dark: 'गडद',
+    light: 'उजळ',
+    system: 'सिस्टम',
+  },
 }
 
 export default mr

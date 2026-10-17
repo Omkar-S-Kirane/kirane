@@ -80,7 +80,7 @@ export function App() {
     lifecycle.phase === 'splash' || lifecycle.phase === 'transitioning'
 
   return (
-    <div className="relative isolate min-h-svh overflow-x-clip bg-black">
+    <div className="relative isolate min-h-svh overflow-x-clip bg-bg text-fg">
       <div className="absolute inset-0 z-0 h-svh" aria-hidden="true">
         <div
           data-testid="sphere-stage"

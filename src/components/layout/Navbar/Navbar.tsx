@@ -12,6 +12,7 @@ import {
 import { useActiveSection } from '@/hooks/use-active-section'
 import { useSpotlight } from '@/hooks/use-spotlight'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { ThemeSwitcher } from './ThemeSwitcher'
 
 function scrollToSection(targetId: string, reducedMotion: boolean) {
   const element = document.getElementById(targetId)
@@ -126,7 +127,7 @@ function MobileMenu({
             duration: reducedMotion ? 0.01 : 0.2,
             ease: [0.33, 1, 0.68, 1],
           }}
-          className="absolute left-4 right-4 top-full mt-2 rounded-2xl border border-white/[0.08] bg-[#0a0a0c]/95 p-2 backdrop-blur-md sm:hidden"
+          className="absolute left-4 right-4 top-full mt-2 rounded-2xl border border-border/80 bg-bg-muted/95 p-2 shadow-xl shadow-fg/5 backdrop-blur-md sm:hidden"
         >
           <nav
             aria-label={t.accessibility.mobileNavigation}
@@ -210,7 +211,7 @@ export function Navbar() {
   return (
     <header
       ref={navRef}
-      className="spotlight-navbar fixed top-[calc(1rem+var(--layout-safe-area-top))] right-4 left-4 z-50 mx-auto max-w-[900px] rounded-full border border-white/[0.08] bg-[#0a0a0c]/90 backdrop-blur-sm sm:top-[calc(1.25rem+var(--layout-safe-area-top))]"
+      className="spotlight-navbar fixed top-[calc(1rem+var(--layout-safe-area-top))] right-4 left-4 z-50 mx-auto max-w-[900px] rounded-full border border-border/80 bg-bg/90 backdrop-blur-sm sm:top-[calc(1.25rem+var(--layout-safe-area-top))]"
     >
       {/* Spotlight overlay — CSS-driven, no React state */}
       <div
@@ -253,7 +254,8 @@ export function Navbar() {
         </nav>
 
         {/* Right side — Language Switcher + Contact CTA (desktop) + mobile toggle */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeSwitcher />
           <LanguageSwitcher />
 
           <a

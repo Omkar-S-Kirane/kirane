@@ -68,6 +68,12 @@ const gu: Translations = {
     label: 'ભાષા',
     changeLanguage: 'ભાષા બદલો',
   },
+  theme: {
+    preference: 'થીમ પસંદગી',
+    dark: 'ડાર્ક',
+    light: 'લાઇટ',
+    system: 'સિસ્ટમ',
+  },
 }
 
 export default gu

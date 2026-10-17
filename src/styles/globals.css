@@ -18,6 +18,22 @@
   --font-mono: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
 }
 
+:root {
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #f5f2ea;
+  --color-bg-muted: #ffffff;
+  --color-fg: #171717;
+  --color-fg-muted: #68645d;
+  --color-accent: #866417;
+  --color-accent-hover: #795916;
+  --color-border: #ded9ce;
+  --color-border-hover: #c6bda8;
+}
+
 @layer base {
   body {
     margin: 0;
@@ -39,9 +55,37 @@
     color: var(--color-bg);
   }
 
+  :where(input, select, textarea) {
+    color: var(--color-fg);
+    background-color: var(--color-bg-muted);
+    border-color: var(--color-border);
+    color-scheme: inherit;
+  }
+
+  :where(input, select, textarea)::placeholder {
+    color: var(--color-fg-muted);
+    opacity: 1;
+  }
+
   *:focus-visible {
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+  }
+}
+
+.theme-color-transition,
+.theme-color-transition :where(*) {
+  transition-property:
+    color, background-color, border-color, outline-color, fill, stroke,
+    stop-color, text-decoration-color;
+  transition-duration: 240ms;
+  transition-timing-function: var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-color-transition,
+  .theme-color-transition :where(*) {
+    transition-duration: 0ms !important;
   }
 }
 
@@ -50,12 +94,13 @@
   .spotlight-navbar {
     --spotlight-x: 50%;
     --spotlight-opacity: 0;
+    --spotlight-glow-color: color-mix(in srgb, var(--color-fg) 4%, transparent);
   }
 
   .spotlight-glow {
     background: radial-gradient(
       300px circle at var(--spotlight-x) 50%,
-      rgba(255, 255, 255, 0.04),
+      var(--spotlight-glow-color),
       transparent 70%
     );
     opacity: var(--spotlight-opacity);

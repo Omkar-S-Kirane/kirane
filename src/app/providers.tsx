@@ -1,6 +1,7 @@
 import { MotionConfig } from 'motion/react'
 import type { ReactNode } from 'react'
 import { I18nProvider } from '@/i18n'
+import { ThemeProvider } from '@/theme'
 
 interface ProvidersProps {
   children: ReactNode
@@ -16,8 +17,10 @@ interface ProvidersProps {
  */
 export function Providers({ children }: ProvidersProps) {
   return (
-    <I18nProvider>
-      <MotionConfig reducedMotion="user">{children}</MotionConfig>
-    </I18nProvider>
+    <ThemeProvider>
+      <I18nProvider>
+        <MotionConfig reducedMotion="user">{children}</MotionConfig>
+      </I18nProvider>
+    </ThemeProvider>
   )
 }

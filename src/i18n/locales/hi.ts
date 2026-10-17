@@ -68,6 +68,12 @@ const hi: Translations = {
     label: 'भाषा',
     changeLanguage: 'भाषा बदलें',
   },
+  theme: {
+    preference: 'थीम प्राथमिकता',
+    dark: 'डार्क',
+    light: 'लाइट',
+    system: 'सिस्टम',
+  },
 }
 
 export default hi

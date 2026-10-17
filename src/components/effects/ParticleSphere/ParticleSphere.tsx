@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { motion } from 'motion/react'
+import { useTheme } from '@/theme'
+import type { ResolvedTheme } from '@/theme'
 import { getSphereTransitionFrame } from './sphere-transition'
 
 // ---------------------------------------------------------------------------
@@ -12,6 +14,11 @@ import { getSphereTransitionFrame } from './sphere-transition'
 const BASE_PARTICLE_COUNT = 10000
 const HALO_PARTICLE_COUNT = 400
 const SPHERE_RADIUS = 2.8
+const SPHERE_GL_OPTIONS = {
+  antialias: false,
+  alpha: true,
+  powerPreference: 'default',
+} as const
 
 /** Inner zone gets ~72 % of particles, tightly packed at the sphere surface */
 const INNER_RATIO = 0.72
@@ -200,6 +207,7 @@ const fragmentShader = /* glsl */ `
   uniform float uTime;
   uniform float uReducedMotion;
   uniform float uBrightnessBoost;
+  uniform float uThemeMix;
 
   varying float vBrightness;
   varying vec3  vWorldPos;
@@ -220,9 +228,9 @@ const fragmentShader = /* glsl */ `
     float lit      = smoothstep(-0.1, 1.0, lighting);
 
     // Golden palette: warm gold on lit side, dark amber on shadow side
-    vec3 brightGold = vec3(0.95, 0.8, 0.3);
-    vec3 warmAmber  = vec3(0.7, 0.42, 0.12);
-    vec3 deepShadow = vec3(0.18, 0.1, 0.03);
+    vec3 brightGold = mix(vec3(0.95, 0.8, 0.3), vec3(0.58, 0.38, 0.08), uThemeMix);
+    vec3 warmAmber  = mix(vec3(0.7, 0.42, 0.12), vec3(0.35, 0.2, 0.035), uThemeMix);
+    vec3 deepShadow = mix(vec3(0.18, 0.1, 0.03), vec3(0.02, 0.012, 0.003), uThemeMix);
 
     vec3 color = mix(deepShadow, warmAmber, smoothstep(0.0, 0.5, lit));
     color      = mix(color, brightGold, smoothstep(0.5, 1.0, lit));
@@ -240,7 +248,11 @@ const fragmentShader = /* glsl */ `
       color *= pulse;
     }
 
-    gl_FragColor = vec4(color, alpha * vBrightness * 0.92 * uBrightnessBoost);
+    float themeOpacity = mix(1.0, 1.7, uThemeMix);
+    gl_FragColor = vec4(
+      color,
+      alpha * vBrightness * 0.92 * uBrightnessBoost * themeOpacity
+    );
   }
 `
 
@@ -288,6 +300,7 @@ const haloVertexShader = /* glsl */ `
 
 const haloFragmentShader = /* glsl */ `
   uniform float uBrightnessBoost;
+  uniform float uThemeMix;
 
   varying float vBrightness;
 
@@ -298,9 +311,10 @@ const haloFragmentShader = /* glsl */ `
     float alpha = 1.0 - smoothstep(0.25, 0.5, dist);
 
     // Warm golden glow for halo particles
-    vec3 color = vec3(0.85, 0.65, 0.2) * vBrightness;
+    vec3 color = mix(vec3(0.85, 0.65, 0.2), vec3(0.48, 0.3, 0.06), uThemeMix) * vBrightness;
 
-    gl_FragColor = vec4(color, alpha * vBrightness * 0.18 * uBrightnessBoost);
+    float haloStrength = mix(0.18, 0.08, uThemeMix);
+    gl_FragColor = vec4(color, alpha * vBrightness * haloStrength * uBrightnessBoost);
   }
 `
 
@@ -315,6 +329,7 @@ function SphereParticles({
   motionState,
   pointSizeScale,
   brightnessBoost,
+  theme,
 }: {
   count: number
   reducedMotion: boolean
@@ -322,6 +337,7 @@ function SphereParticles({
   motionState: React.RefObject<SphereMotionState>
   pointSizeScale: number
   brightnessBoost: number
+  theme: ResolvedTheme
 }) {
   const pointsRef = useRef<THREE.Points>(null)
   const matRef = useRef<THREE.ShaderMaterial | null>(null)
@@ -329,6 +345,11 @@ function SphereParticles({
   // Smooth interpolation targets for mouse state
   const smoothMouse = useRef(new THREE.Vector3())
   const smoothMouseActive = useRef(0)
+  const themeMixTarget = useRef(theme === 'light' ? 1 : 0)
+
+  useEffect(() => {
+    themeMixTarget.current = theme === 'light' ? 1 : 0
+  }, [theme])
 
   useEffect(() => {
     const geometry = new THREE.BufferGeometry()
@@ -366,7 +387,8 @@ function SphereParticles({
       const idx = innerCount + i
       const theta = Math.random() * Math.PI * 2
       const phi = Math.acos(2 * Math.random() - 1)
-      const r = OUTER_MIN_RADIUS + Math.random() * (OUTER_MAX_RADIUS - OUTER_MIN_RADIUS)
+      const r =
+        OUTER_MIN_RADIUS + Math.random() * (OUTER_MAX_RADIUS - OUTER_MIN_RADIUS)
 
       positions[idx * 3] = r * Math.sin(phi) * Math.cos(theta)
       positions[idx * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
@@ -381,7 +403,10 @@ function SphereParticles({
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geometry.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1))
     geometry.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1))
-    geometry.setAttribute('aBrightness', new THREE.BufferAttribute(brightnesses, 1))
+    geometry.setAttribute(
+      'aBrightness',
+      new THREE.BufferAttribute(brightnesses, 1),
+    )
     geometry.setAttribute('aZone', new THREE.BufferAttribute(zones, 1))
 
     const material = new THREE.ShaderMaterial({
@@ -396,6 +421,7 @@ function SphereParticles({
         uClickTime: { value: -10 },
         uPointSizeScale: { value: pointSizeScale },
         uBrightnessBoost: { value: brightnessBoost },
+        uThemeMix: { value: themeMixTarget.current },
         uResolution: { value: 1 },
       },
       transparent: true,
@@ -432,10 +458,14 @@ function SphereParticles({
 
     // Advance time
     mat.uniforms.uTime.value += delta
+    mat.uniforms.uThemeMix.value +=
+      (themeMixTarget.current - mat.uniforms.uThemeMix.value) *
+      (1 - Math.exp(-delta * 12))
 
     // Smooth mouse position and activation
     const targetActive = ix.mouseActive ? 1 : 0
-    smoothMouseActive.current += (targetActive - smoothMouseActive.current) * Math.min(delta * 6, 1)
+    smoothMouseActive.current +=
+      (targetActive - smoothMouseActive.current) * Math.min(delta * 6, 1)
     smoothMouse.current.lerp(ix.mouse, Math.min(delta * 8, 1))
 
     // Convert world-space input into local space, including the cinematic
@@ -474,15 +504,22 @@ function HaloParticles({
   motionState,
   pointSizeScale,
   brightnessBoost,
+  theme,
 }: {
   count: number
   reducedMotion: boolean
   motionState: React.RefObject<SphereMotionState>
   pointSizeScale: number
   brightnessBoost: number
+  theme: ResolvedTheme
 }) {
   const pointsRef = useRef<THREE.Points>(null)
   const matRef = useRef<THREE.ShaderMaterial | null>(null)
+  const themeMixTarget = useRef(theme === 'light' ? 1 : 0)
+
+  useEffect(() => {
+    themeMixTarget.current = theme === 'light' ? 1 : 0
+  }, [theme])
 
   useEffect(() => {
     const geometry = new THREE.BufferGeometry()
@@ -512,7 +549,10 @@ function HaloParticles({
     geometry.setAttribute('aSize', new THREE.BufferAttribute(sizes, 1))
     geometry.setAttribute('aPhase', new THREE.BufferAttribute(phases, 1))
     geometry.setAttribute('aDrift', new THREE.BufferAttribute(drifts, 1))
-    geometry.setAttribute('aBrightness', new THREE.BufferAttribute(brightnesses, 1))
+    geometry.setAttribute(
+      'aBrightness',
+      new THREE.BufferAttribute(brightnesses, 1),
+    )
 
     const material = new THREE.ShaderMaterial({
       vertexShader: haloVertexShader,
@@ -522,6 +562,7 @@ function HaloParticles({
         uReducedMotion: { value: reducedMotion ? 1.0 : 0.0 },
         uPointSizeScale: { value: pointSizeScale },
         uBrightnessBoost: { value: brightnessBoost },
+        uThemeMix: { value: themeMixTarget.current },
         uResolution: { value: 1 },
       },
       transparent: true,
@@ -551,6 +592,9 @@ function HaloParticles({
     matRef.current.uniforms.uResolution.value =
       state.size.height * state.gl.getPixelRatio()
     matRef.current.uniforms.uTime.value += delta
+    matRef.current.uniforms.uThemeMix.value +=
+      (themeMixTarget.current - matRef.current.uniforms.uThemeMix.value) *
+      (1 - Math.exp(-delta * 12))
     pointsRef.current.rotation.y +=
       delta *
       (reducedMotion ? 0.003 : 0.03) *
@@ -607,11 +651,13 @@ function InteractionMesh({
 
 function Scene({
   reducedMotion,
+  theme,
   interaction,
   phase,
   onTransitionComplete,
 }: {
   reducedMotion: boolean
+  theme: ResolvedTheme
   interaction: React.RefObject<InteractionState>
   phase: ParticleSpherePhase
   onTransitionComplete: () => void
@@ -646,7 +692,11 @@ function Scene({
           )
     }
 
-    const frame = getSphereTransitionFrame(progress, state.size.width, reducedMotion)
+    const frame = getSphereTransitionFrame(
+      progress,
+      state.size.width,
+      reducedMotion,
+    )
     if (groupRef.current) {
       groupRef.current.position.set(frame.offsetX, 0, 0)
       groupRef.current.scale.setScalar(frame.scale)
@@ -673,6 +723,7 @@ function Scene({
         motionState={motionState}
         pointSizeScale={config.pointSizeScale}
         brightnessBoost={config.brightnessBoost}
+        theme={theme}
       />
       <HaloParticles
         count={haloCount}
@@ -680,6 +731,7 @@ function Scene({
         motionState={motionState}
         pointSizeScale={config.pointSizeScale}
         brightnessBoost={config.brightnessBoost}
+        theme={theme}
       />
     </group>
   )
@@ -692,11 +744,13 @@ function Scene({
 function StaticFallback({
   phase,
   reducedMotion,
+  theme,
   onReady,
   onTransitionComplete,
 }: {
   phase: ParticleSpherePhase
   reducedMotion: boolean
+  theme: ResolvedTheme
   onReady: () => void
   onTransitionComplete: () => void
 }) {
@@ -729,6 +783,7 @@ function StaticFallback({
   return (
     <div
       className="absolute inset-0 flex items-center justify-center"
+      data-theme={theme}
       aria-hidden
     >
       <motion.div
@@ -745,8 +800,8 @@ function StaticFallback({
           width: 'min(60vw, 360px)',
           height: 'min(60vw, 360px)',
           background:
-            'radial-gradient(circle at 35% 35%, #ffd966 0%, #cc8a22 40%, #4a2800 70%, #0a0500 100%)',
-          boxShadow: '0 0 80px 20px rgba(255, 200, 60, 0.12)',
+            'radial-gradient(circle at 35% 35%, var(--sphere-highlight) 0%, var(--sphere-amber) 40%, var(--sphere-shadow) 70%, var(--sphere-core) 100%)',
+          boxShadow: 'var(--sphere-glow)',
           opacity: 0.85,
         }}
       />
@@ -772,7 +827,15 @@ export function ParticleSphere({
   onReady,
   onTransitionComplete,
 }: ParticleSphereProps) {
+  const { resolvedTheme } = useTheme()
   const config = useMemo(() => getResponsiveConfig(), [])
+  const camera = useMemo(
+    () => ({
+      position: [0, 0, config.cameraZ] as [number, number, number],
+      fov: config.fov,
+    }),
+    [config],
+  )
   const hasWebGL = useMemo(() => {
     try {
       const c = document.createElement('canvas')
@@ -808,7 +871,7 @@ export function ParticleSphere({
 
   const handleCreated = useCallback(
     ({ gl }: { gl: THREE.WebGLRenderer }) => {
-      gl.setClearColor(0x000000, 1)
+      gl.setClearColor(0x000000, 0)
       gl.setPixelRatio(config.dpr)
       reportReady()
     },
@@ -824,6 +887,7 @@ export function ParticleSphere({
       <StaticFallback
         phase={phase}
         reducedMotion={reducedMotion}
+        theme={resolvedTheme}
         onReady={reportReady}
         onTransitionComplete={() => onTransitionCompleteRef.current?.()}
       />
@@ -832,15 +896,16 @@ export function ParticleSphere({
 
   return (
     <Canvas
-      camera={{ position: [0, 0, config.cameraZ], fov: config.fov }}
+      camera={camera}
       dpr={config.dpr}
-      gl={{ antialias: false, alpha: false, powerPreference: 'default' }}
+      gl={SPHERE_GL_OPTIONS}
       onCreated={handleCreated}
       onPointerLeave={handlePointerLeave}
       fallback={
         <StaticFallback
           phase={phase}
           reducedMotion={reducedMotion}
+          theme={resolvedTheme}
           onReady={reportReady}
           onTransitionComplete={() => onTransitionCompleteRef.current?.()}
         />
@@ -850,11 +915,13 @@ export function ParticleSphere({
         inset: 0,
         width: '100%',
         height: '100%',
-        background: '#000',
+        background: 'transparent',
+        mixBlendMode: resolvedTheme === 'light' ? 'multiply' : 'normal',
       }}
     >
       <Scene
         reducedMotion={reducedMotion}
+        theme={resolvedTheme}
         interaction={interactionRef}
         phase={phase}
         onTransitionComplete={() => onTransitionCompleteRef.current?.()}

@@ -7,6 +7,13 @@
   --layout-safe-area-top: env(safe-area-inset-top, 0px);
   --layout-safe-area-bottom: env(safe-area-inset-bottom, 0px);
 
+  /* Sphere CSS fallback — dark values match the existing static renderer. */
+  --sphere-highlight: #ffd966;
+  --sphere-amber: #cc8a22;
+  --sphere-shadow: #4a2800;
+  --sphere-core: #0a0500;
+  --sphere-glow: 0 0 80px 20px rgb(255 200 60 / 12%);
+
   /* Splash screen palette */
   --splash-bg: var(--color-bg);
   --splash-text: var(--color-fg);
@@ -26,4 +33,12 @@
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-full: 9999px;
+}
+
+:root[data-theme='light'] {
+  --sphere-highlight: #d5a927;
+  --sphere-amber: #9a681b;
+  --sphere-shadow: #4a3212;
+  --sphere-core: #23190c;
+  --sphere-glow: 0 0 48px 10px rgb(165 112 22 / 8%);
 }

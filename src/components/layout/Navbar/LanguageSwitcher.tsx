@@ -139,7 +139,7 @@ export function LanguageSwitcher() {
             transition={{ duration: 0.15, ease: [0.33, 1, 0.68, 1] }}
             role="listbox"
             aria-label={t.languageSwitcher.label}
-            className="absolute right-0 top-full z-50 mt-2 min-w-[160px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#0a0a0c]/95 p-1 backdrop-blur-md"
+            className="absolute right-0 top-full z-50 mt-2 min-w-[160px] overflow-hidden rounded-xl border border-border/80 bg-bg-muted/95 p-1 shadow-xl shadow-fg/5 backdrop-blur-md"
           >
             {LANGUAGES.map((lang, index) => {
               const isActive = lang.code === language
