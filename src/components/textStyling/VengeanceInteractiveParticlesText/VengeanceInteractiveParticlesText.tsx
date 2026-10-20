@@ -167,7 +167,10 @@ class TouchTexture {
     if (!ctx) throw new Error('TouchTexture: 2D context unavailable')
     this.ctx = ctx
     this.texture = new THREE.CanvasTexture(this.canvas)
-    this.radius = Math.max(0.05, Math.min(0.5, 0.15 * (interactionRadius / 120)))
+    this.radius = Math.max(
+      0.05,
+      Math.min(0.5, 0.15 * (interactionRadius / 120)),
+    )
   }
 
   addTouch(point: { x: number; y: number; force?: number }) {
@@ -196,7 +199,14 @@ class TouchTexture {
     const py = (1 - pt.y) * size
     const intensity = 1 - pt.age / TOUCH_MAX_AGE
     const radius = this.radius * size * intensity * pt.force
-    const grad = this.ctx.createRadialGradient(px, py, radius * 0.25, px, py, radius)
+    const grad = this.ctx.createRadialGradient(
+      px,
+      py,
+      radius * 0.25,
+      px,
+      py,
+      radius,
+    )
     grad.addColorStop(0, `rgba(255,255,255,${0.35 * intensity})`)
     grad.addColorStop(1, 'rgba(255,255,255,0)')
     this.ctx.beginPath()
@@ -260,7 +270,11 @@ function sampleText(
   ctx.textBaseline = 'middle'
 
   for (let i = 0; i < lines.length; i += 1) {
-    ctx.fillText(lines[i], textureWidth / 2, padding + lineHeight * i + lineHeight / 2)
+    ctx.fillText(
+      lines[i],
+      textureWidth / 2,
+      padding + lineHeight * i + lineHeight / 2,
+    )
   }
 
   const imageData = ctx.getImageData(0, 0, textureWidth, textureHeight)
@@ -352,7 +366,9 @@ export function VengeanceInteractiveParticlesText({
 }: VengeanceInteractiveParticlesTextProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useReducedMotion() === true
-  const [renderMode, setRenderMode] = useState<'webgl' | 'failed' | 'text-only'>('text-only')
+  const [renderMode, setRenderMode] = useState<
+    'webgl' | 'failed' | 'text-only'
+  >('text-only')
 
   useEffect(() => {
     const container = containerRef.current
@@ -378,7 +394,7 @@ export function VengeanceInteractiveParticlesText({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     const rect = container.getBoundingClientRect()
 
-    if (rect.width === 0 || rect.height === 0) {
+    if (rect.width === 0) {
       renderer.dispose()
       setRenderMode('text-only')
       onReady?.()
@@ -389,10 +405,7 @@ export function VengeanceInteractiveParticlesText({
     renderer.domElement.style.position = 'absolute'
     renderer.domElement.style.top = '0'
     renderer.domElement.style.left = '0'
-    renderer.domElement.style.width = '100%'
-    renderer.domElement.style.height = '100%'
     renderer.domElement.setAttribute('aria-hidden', 'true')
-    renderer.setSize(rect.width, rect.height, false)
     container.appendChild(renderer.domElement)
 
     // ---- Auto-compute fontSize ------------------------------------------
@@ -422,7 +435,14 @@ export function VengeanceInteractiveParticlesText({
     const camera = new THREE.PerspectiveCamera(CAMERA_FOV, aspect, 1, 10000)
 
     // ---- Sample text ----------------------------------------------------
-    const sample = sampleText(text, computedFontSize, fontFamily, fontWeight, letterSpacing, particleDensity)
+    const sample = sampleText(
+      text,
+      computedFontSize,
+      fontFamily,
+      fontWeight,
+      letterSpacing,
+      particleDensity,
+    )
     if (sample.count === 0) {
       renderer.dispose()
       setRenderMode('text-only')
@@ -430,9 +450,26 @@ export function VengeanceInteractiveParticlesText({
       return
     }
 
+    // ---- Canvas dimensions ----------------------------------------------
+    // The container collapses to ~1px height because the canvas is absolutely
+    // positioned (removed from document flow). Compute canvas height from the
+    // sampled text's aspect ratio so the particle field always has proper
+    // dimensions regardless of container flow height.
+    const textAspect = sample.textureHeight / sample.textureWidth
+    const canvasWidth = Math.max(1, rect.width)
+    const canvasHeight = Math.max(1, Math.round(canvasWidth * textAspect))
+
+    renderer.domElement.style.width = `${canvasWidth}px`
+    renderer.domElement.style.height = `${canvasHeight}px`
+    renderer.setSize(canvasWidth, canvasHeight, false)
+    camera.aspect = canvasWidth / canvasHeight
+    camera.updateProjectionMatrix()
+
     const halfFov = (CAMERA_FOV * Math.PI) / 360
     const fitH = sample.textureHeight / (2 * Math.tan(halfFov))
-    const fitW = sample.textureWidth / (2 * Math.tan(halfFov) * aspect)
+    const fitW =
+      sample.textureWidth /
+      (2 * Math.tan(halfFov) * (canvasWidth / canvasHeight))
     camera.position.z = Math.max(fitH, fitW) * 1.1
 
     // ---- Textures -------------------------------------------------------
@@ -443,19 +480,29 @@ export function VengeanceInteractiveParticlesText({
 
     // ---- Geometry -------------------------------------------------------
     const baseGeo = new THREE.InstancedBufferGeometry()
-    const positions = new Float32Array([-0.5, 0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, -0.5, 0])
+    const positions = new Float32Array([
+      -0.5, 0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, -0.5, 0,
+    ])
     baseGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     const uvs = new Float32Array([0, 0, 1, 0, 0, 1, 1, 1])
     baseGeo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
-    baseGeo.setIndex(new THREE.BufferAttribute(new Uint16Array([0, 2, 1, 2, 3, 1]), 1))
-    baseGeo.setAttribute('offset', new THREE.InstancedBufferAttribute(sample.offsets, 3))
+    baseGeo.setIndex(
+      new THREE.BufferAttribute(new Uint16Array([0, 2, 1, 2, 3, 1]), 1),
+    )
+    baseGeo.setAttribute(
+      'offset',
+      new THREE.InstancedBufferAttribute(sample.offsets, 3),
+    )
     const pindices = new Float32Array(sample.count)
     const angles = new Float32Array(sample.count)
     for (let i = 0; i < sample.count; i += 1) {
       pindices[i] = i
       angles[i] = Math.random() * Math.PI
     }
-    baseGeo.setAttribute('pindex', new THREE.InstancedBufferAttribute(pindices, 1))
+    baseGeo.setAttribute(
+      'pindex',
+      new THREE.InstancedBufferAttribute(pindices, 1),
+    )
     baseGeo.setAttribute('angle', new THREE.InstancedBufferAttribute(angles, 1))
 
     // ---- Material -------------------------------------------------------
@@ -465,7 +512,9 @@ export function VengeanceInteractiveParticlesText({
       uDepth: { value: prefersReducedMotion ? depth : 15 },
       uSize: { value: prefersReducedMotion ? particleSize : 0.8 },
       uPointer: { value: 0 },
-      uTextureSize: { value: new THREE.Vector2(sample.textureWidth, sample.textureHeight) },
+      uTextureSize: {
+        value: new THREE.Vector2(sample.textureWidth, sample.textureHeight),
+      },
       uTexture: { value: textTexture },
       uTouch: { value: touch.texture },
       uColor: { value: parseColor(color) },
@@ -483,7 +532,10 @@ export function VengeanceInteractiveParticlesText({
     scene.add(mesh)
 
     // ---- Hit plane ------------------------------------------------------
-    const hitGeo = new THREE.PlaneGeometry(sample.textureWidth, sample.textureHeight)
+    const hitGeo = new THREE.PlaneGeometry(
+      sample.textureWidth,
+      sample.textureHeight,
+    )
     const hitMat = new THREE.MeshBasicMaterial({ visible: false })
     const hitMesh = new THREE.Mesh(hitGeo, hitMat)
     scene.add(hitMesh)
@@ -505,7 +557,11 @@ export function VengeanceInteractiveParticlesText({
       const hits = raycaster.intersectObject(hitMesh)
       if (hits.length > 0 && hits[0].uv) {
         pointerTarget = 1
-        touch.addTouch({ x: hits[0].uv.x, y: hits[0].uv.y, force: interactionStrength })
+        touch.addTouch({
+          x: hits[0].uv.x,
+          y: hits[0].uv.y,
+          force: interactionStrength,
+        })
       }
     }
 
@@ -523,9 +579,12 @@ export function VengeanceInteractiveParticlesText({
     function resize() {
       if (!container) return
       const r = container.getBoundingClientRect()
-      if (r.width === 0 || r.height === 0) return
-      renderer.setSize(r.width, r.height, false)
-      camera.aspect = r.width / r.height
+      if (r.width === 0) return
+      const nextHeight = Math.max(1, Math.round(r.width * textAspect))
+      renderer.domElement.style.width = `${r.width}px`
+      renderer.domElement.style.height = `${nextHeight}px`
+      renderer.setSize(r.width, nextHeight, false)
+      camera.aspect = r.width / nextHeight
       camera.updateProjectionMatrix()
     }
 
@@ -631,10 +690,27 @@ export function VengeanceInteractiveParticlesText({
       }
     }
   }, [
-    prefersReducedMotion, text, fontSize, fontFamily, color, background, className,
-    fontWeight, letterSpacing, particleSize, particleDensity, depth, randomness,
-    speed, interactionRadius, interactionStrength, returnSpeed, animated,
-    reducedMotionFallback, ariaLabel, onReady,
+    prefersReducedMotion,
+    text,
+    fontSize,
+    fontFamily,
+    color,
+    background,
+    className,
+    fontWeight,
+    letterSpacing,
+    particleSize,
+    particleDensity,
+    depth,
+    randomness,
+    speed,
+    interactionRadius,
+    interactionStrength,
+    returnSpeed,
+    animated,
+    reducedMotionFallback,
+    ariaLabel,
+    onReady,
   ])
 
   const isWebglActive = renderMode === 'webgl'
@@ -672,12 +748,27 @@ export function VengeanceInteractiveParticlesText({
       className={cn('pointer-events-auto relative', className)}
       style={{ background }}
     >
-      <span style={hiddenTextStyle} aria-hidden={showFallbackText ? 'true' : undefined}>
+      <span
+        style={hiddenTextStyle}
+        aria-hidden={showFallbackText ? 'true' : undefined}
+      >
         {text}
       </span>
-      {showFallbackText && (
-        <span style={fallbackTextStyle}>{text}</span>
-      )}
+      {showFallbackText && <span style={fallbackTextStyle}>{text}</span>}
     </div>
   )
 }
+
+/* 
+
+USE :-> 
+          
+<VengeanceInteractiveParticlesText
+    text={t.hero.heading}
+    fontSize={98}
+    fontWeight={600}
+    animated={!prefersReducedMotion}
+    interactionRadius={100}
+/>
+
+*/

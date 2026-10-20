@@ -132,52 +132,17 @@ export function Hero({
                 ? reducedMotionSequenceVariants
                 : headingVariants
             }
-            className="max-w-[13ch] font-display text-[clamp(2.7rem,6.2vw,5.5rem)] font-medium leading-[0.98] tracking-[-0.065em]"
+            className="font-display text-[clamp(2.7rem,6.2vw,5.5rem)] font-medium leading-[0.98] tracking-[-0.065em]"
           >
             <VengeanceInteractiveParticlesText
               text={t.hero.heading}
-              fontSize={48}
+              fontSize={98}
               fontWeight={600}
               animated={!prefersReducedMotion}
               interactionRadius={100}
             />
           </motion.h1>
-          <motion.p
-            variants={fadeVariants}
-            className="mt-6 max-w-xl text-base leading-relaxed text-fg-muted sm:mt-7 sm:text-lg"
-          >
-            {t.hero.description}
-          </motion.p>
-
-          <motion.div
-            variants={fadeVariants}
-            className="mt-8 flex w-full flex-col gap-3 min-[380px]:w-fit min-[380px]:flex-row sm:mt-9"
-          >
-            <Button
-              as="a"
-              href="#work"
-              variant="primary"
-              className="group gap-3 px-6"
-            >
-              {t.hero.viewWork}
-              <ArrowUpRight
-                aria-hidden="true"
-                className="h-4 w-4 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:-translate-y-0.5 motion-safe:group-hover:translate-x-0.5 motion-safe:group-focus-visible:-translate-y-0.5 motion-safe:group-focus-visible:translate-x-0.5"
-              />
-            </Button>
-            <Button
-              as="a"
-              href="#contact"
-              variant="secondary"
-              className="group gap-3 border-border/80 px-6"
-            >
-              {t.hero.learnMore}
-              <ArrowDown
-                aria-hidden="true"
-                className="h-4 w-4 motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:translate-y-0.5 motion-safe:group-focus-visible:translate-y-0.5"
-              />
-            </Button>
-          </motion.div>
+          
         </motion.div>
 
         <div aria-hidden="true" className="hidden lg:col-span-5 lg:block" />
