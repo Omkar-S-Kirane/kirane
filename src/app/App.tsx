@@ -10,8 +10,7 @@ import {
 } from '@/components/effects/SplashScreen'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
-import { ParticleSphere } from '@/components/effects/ParticleSphere'
-import type { ParticleSpherePhase } from '@/components/effects/ParticleSphere/ParticleSphere'
+import { ParticleSphere, type ParticleSpherePhase } from '@/components/effects/ParticleSphere'
 import { Hero } from '@/sections/Hero'
 
 export function App() {
