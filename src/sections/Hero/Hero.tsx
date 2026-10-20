@@ -3,6 +3,7 @@ import { motion, useReducedMotion, type Variants } from 'motion/react'
 import { ArrowDown, ArrowUpRight } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
+import { VengeanceInteractiveParticlesText } from '@/components/textStyling'
 import { useTranslation } from '@/i18n'
 import { fadeInUp } from '@/lib/animations/motion-variants'
 
@@ -45,15 +46,6 @@ const headingVariants: Variants = {
   },
 }
 
-const headingLineVariants: Variants = {
-  hidden: { opacity: 0, y: '0.72em' },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.62, ease: [0.33, 1, 0.68, 1] },
-  },
-}
-
 export function Hero({
   active,
   fontsReady,
@@ -65,7 +57,6 @@ export function Hero({
   const sectionRef = useRef<HTMLElement | null>(null)
   const layoutReadyReported = useRef(false)
   const revealCompleteReported = useRef(false)
-  const headingLines = t.hero.heading.split('\n')
   const sequenceVariants = prefersReducedMotion
     ? reducedMotionSequenceVariants
     : contentVariants
@@ -136,34 +127,21 @@ export function Hero({
           </motion.p>
 
           <motion.h1
-            aria-label={t.hero.heading.replace(/\s+/g, ' ')}
             variants={
               prefersReducedMotion
                 ? reducedMotionSequenceVariants
                 : headingVariants
             }
-            className="max-w-[13ch] font-display text-[clamp(2.7rem,6.2vw,5.5rem)] font-medium leading-[0.98] tracking-[-0.065em] text-fg"
+            className="max-w-[13ch] font-display text-[clamp(2.7rem,6.2vw,5.5rem)] font-medium leading-[0.98] tracking-[-0.065em]"
           >
-            {headingLines.map((line, index) => (
-              <span
-                key={`${index}-${line}`}
-                aria-hidden="true"
-                className="block overflow-hidden pb-[0.08em]"
-              >
-                <motion.span
-                  variants={
-                    prefersReducedMotion
-                      ? reducedMotionVariants
-                      : headingLineVariants
-                  }
-                  className="block"
-                >
-                  {line}
-                </motion.span>
-              </span>
-            ))}
+            <VengeanceInteractiveParticlesText
+              text={t.hero.heading}
+              fontSize={48}
+              fontWeight={600}
+              animated={!prefersReducedMotion}
+              interactionRadius={100}
+            />
           </motion.h1>
-
           <motion.p
             variants={fadeVariants}
             className="mt-6 max-w-xl text-base leading-relaxed text-fg-muted sm:mt-7 sm:text-lg"

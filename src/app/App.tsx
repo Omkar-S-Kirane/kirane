@@ -6,7 +6,6 @@ import { SplashScreen } from '@/components/effects/SplashScreen'
 import { CustomCursor } from '@/components/effects/CustomCursor'
 import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/sections/Hero'
-import { PortfolioSections } from '@/sections/PortfolioSections'
 import { waitForCriticalFonts } from './critical-fonts'
 import {
   createInitialSplashLifecycle,
@@ -119,7 +118,6 @@ export function App() {
             onLayoutReady={handleHeroLayoutReady}
             onRevealComplete={handleHeroRevealComplete}
           />
-          <PortfolioSections />
         </main>
         {/* <div className="pointer-events-auto">
           <Footer />
