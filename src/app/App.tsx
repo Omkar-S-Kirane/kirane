@@ -10,7 +10,10 @@ import {
 } from '@/components/effects/SplashScreen'
 import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
-import { ParticleSphere, type ParticleSpherePhase } from '@/components/effects/ParticleSphere'
+import {
+  ParticleSphere,
+  type ParticleSpherePhase,
+} from '@/components/effects/ParticleSphere'
 import { Hero } from '@/sections/Hero'
 
 export function App() {
@@ -24,9 +27,19 @@ export function App() {
   const allReadyRef = useRef(false)
 
   useEffect(() => {
-    waitForCriticalFonts(typeof document !== 'undefined' ? document.fonts : undefined).then(() => {
+    waitForCriticalFonts(
+      typeof document !== 'undefined' ? document.fonts : undefined,
+    ).then(() => {
       setFontsReady(true)
     })
+  }, [])
+
+  useEffect(() => {
+    document.documentElement.classList.add('hide-scrollbar')
+
+    return () => {
+      document.documentElement.classList.remove('hide-scrollbar')
+    }
   }, [])
 
   const handleSplashComplete = useCallback(() => {
@@ -102,7 +115,7 @@ export function App() {
           onRevealComplete={handleHeroRevealComplete}
         />
       </main>
-      <Footer />
+      {/* <Footer /> */}
       <CVModal isOpen={cvOpen} onClose={handleCloseCv} />
     </>
   )

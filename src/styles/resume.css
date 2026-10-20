@@ -22,6 +22,12 @@
   background: var(--cv-modal-overlay);
   padding: var(--cv-gap-xl);
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.cv-modal-backdrop::-webkit-scrollbar {
+  display: none;
 }
 
 .cv-modal {
@@ -44,25 +50,14 @@
   padding: var(--cv-gap-xl);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
 }
 
-/* Scrollbar styling */
 .cv-modal__scroll::-webkit-scrollbar {
-  width: 6px;
+  display: none; /* Chrome, Safari, Edge */
 }
 
-.cv-modal__scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.cv-modal__scroll::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 3px;
-}
-
-.cv-modal__scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
-}
 
 /* ── Action bar ────────────────────────────────────────────── */
 
@@ -375,7 +370,14 @@
 
   .cv-modal__scroll {
     padding: var(--cv-gap-md);
-  }
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.cv-modal__scroll::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
 
   .cv-page {
     padding: var(--cv-gap-xl) var(--cv-gap-lg);

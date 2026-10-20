@@ -20,6 +20,15 @@
 }
 
 @layer base {
+  html.hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   body {
     margin: 0;
     background-color: var(--color-bg);

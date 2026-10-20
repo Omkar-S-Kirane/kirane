@@ -93,9 +93,26 @@ afterEach(() => {
 })
 
 describe('App splash lifecycle', () => {
+  it('hides the document scrollbar without disabling page scrolling', () => {
+    const { unmount } = render(
+      <Providers>
+        <App />
+      </Providers>,
+    )
+
+    expect(document.documentElement).toHaveClass('hide-scrollbar')
+
+    unmount()
+    expect(document.documentElement).not.toHaveClass('hide-scrollbar')
+  })
+
   it('waits for readiness and the full reveal, then hands off one sphere before enabling the hero', async () => {
     vi.useFakeTimers()
-    render(<Providers><App /></Providers>)
+    render(
+      <Providers>
+        <App />
+      </Providers>,
+    )
 
     await act(async () => {
       await Promise.resolve()
@@ -156,7 +173,11 @@ describe('App splash lifecycle', () => {
   })
 
   it('continues the splash when the full reveal finishes before readiness', async () => {
-    render(<Providers><App /></Providers>)
+    render(
+      <Providers>
+        <App />
+      </Providers>,
+    )
 
     await act(async () => {
       await Promise.resolve()
