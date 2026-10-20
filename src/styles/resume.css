@@ -1,0 +1,431 @@
+/* ---------------------------------------------------------------------------
+ * CV / Resume — Component styles
+ *
+ * Pixel-accurate reproduction of the original 3-page PDF.
+ * White background, black text, serif headings, ❖ section markers.
+ *
+ * BEM naming: cv-{block}__{element}--{modifier}
+ * All styles scoped under .cv-* to prevent leaking into the portfolio.
+ * --------------------------------------------------------------------------- */
+
+@import './resume-tokens.css';
+
+/* ── Modal backdrop & shell ────────────────────────────────── */
+
+.cv-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  background: var(--cv-modal-overlay);
+  padding: var(--cv-gap-xl);
+  overflow-y: auto;
+}
+
+.cv-modal {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cv-modal-bg);
+  border-radius: var(--cv-modal-radius);
+  box-shadow: var(--cv-modal-shadow);
+  outline: none;
+}
+
+.cv-modal__scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--cv-gap-xl);
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar styling */
+.cv-modal__scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cv-modal__scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cv-modal__scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+.cv-modal__scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Action bar ────────────────────────────────────────────── */
+
+.cv-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--cv-gap-md);
+  padding: var(--cv-gap-lg) var(--cv-gap-xl);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.cv-actions__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cv-gap-sm);
+  padding: var(--cv-gap-sm) var(--cv-gap-lg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  font-size: var(--cv-text-sm);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  line-height: 1;
+}
+
+.cv-actions__btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-fg);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.cv-actions__btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.cv-actions__btn--close {
+  margin-left: auto;
+}
+
+.cv-actions__label {
+  display: inline;
+}
+
+/* ── CV Document ───────────────────────────────────────────── */
+
+.cv-document {
+  width: 100%;
+}
+
+/* ── CV Page ───────────────────────────────────────────────── */
+
+.cv-page {
+  background: var(--cv-page-bg);
+  color: var(--cv-page-fg);
+  font-family: var(--cv-font-body);
+  font-size: var(--cv-text-base);
+  line-height: var(--cv-leading-relaxed);
+  padding: var(--cv-gap-2xl) var(--cv-gap-2xl);
+  border-radius: 4px;
+  margin-bottom: var(--cv-gap-xl);
+}
+
+.cv-page:last-child {
+  margin-bottom: 0;
+}
+
+/* ── CV Header ─────────────────────────────────────────────── */
+
+.cv-header {
+  text-align: center;
+  margin-bottom: var(--cv-gap-lg);
+}
+
+.cv-header__name {
+  font-family: var(--cv-font-heading);
+  font-size: var(--cv-text-2xl);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--cv-page-fg);
+  margin: 0 0 var(--cv-gap-md) 0;
+  line-height: 1.2;
+}
+
+.cv-header__contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cv-gap-sm);
+  font-size: var(--cv-text-sm);
+  color: var(--cv-page-fg-muted);
+}
+
+.cv-header__sep {
+  color: var(--cv-page-fg-muted);
+  opacity: 0.5;
+}
+
+/* ── Links ─────────────────────────────────────────────────── */
+
+.cv-link {
+  color: var(--cv-link-color);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--duration-fast);
+}
+
+.cv-link:hover {
+  border-bottom-color: var(--cv-link-color);
+}
+
+/* ── Section ───────────────────────────────────────────────── */
+
+.cv-section {
+  margin-bottom: var(--cv-gap-lg);
+}
+
+.cv-section:last-child {
+  margin-bottom: 0;
+}
+
+.cv-section__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--cv-gap-md);
+  margin-bottom: var(--cv-gap-xs);
+}
+
+.cv-section__marker {
+  font-size: var(--cv-text-sm);
+  color: var(--cv-page-fg);
+  flex-shrink: 0;
+}
+
+.cv-section__title {
+  font-family: var(--cv-font-heading);
+  font-size: var(--cv-text-xl);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cv-page-fg);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.cv-section__rule {
+  border: none;
+  border-top: var(--cv-rule-width) solid var(--cv-rule-color);
+  margin: var(--cv-gap-sm) 0 var(--cv-gap-lg) 0;
+}
+
+.cv-section__body {
+  font-size: var(--cv-text-base);
+  line-height: var(--cv-leading-relaxed);
+}
+
+/* ── Entry (experience, education, contributions) ──────────── */
+
+.cv-entry {
+  margin-bottom: var(--cv-gap-lg);
+}
+
+.cv-entry:last-child {
+  margin-bottom: 0;
+}
+
+.cv-entry__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--cv-gap-sm);
+}
+
+.cv-entry__left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+
+.cv-entry__company {
+  font-weight: 700;
+  font-size: var(--cv-text-lg);
+  color: var(--cv-page-fg);
+}
+
+.cv-entry__sep {
+  color: var(--cv-page-fg-muted);
+}
+
+.cv-entry__location {
+  font-style: italic;
+  color: var(--cv-page-fg-muted);
+  font-size: var(--cv-text-base);
+}
+
+.cv-entry__right {
+  flex-shrink: 0;
+}
+
+.cv-entry__period {
+  font-size: var(--cv-text-sm);
+  color: var(--cv-page-fg-muted);
+  font-style: italic;
+}
+
+.cv-entry__title {
+  font-weight: 600;
+  font-size: var(--cv-text-base);
+  color: var(--cv-page-fg);
+  margin-top: var(--cv-gap-xs);
+}
+
+.cv-entry__result {
+  font-weight: 400;
+  color: var(--cv-page-fg-muted);
+}
+
+/* ── Bullets ───────────────────────────────────────────────── */
+
+.cv-bullets {
+  list-style: none;
+  padding: 0;
+  margin: var(--cv-gap-sm) 0 0 0;
+}
+
+.cv-bullets__item {
+  position: relative;
+  padding-left: 1.25em;
+  margin-bottom: var(--cv-gap-sm);
+  font-size: var(--cv-text-base);
+  line-height: var(--cv-leading-relaxed);
+}
+
+.cv-bullets__item::before {
+  content: '●';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.5em;
+  line-height: 2.8;
+  color: var(--cv-page-fg);
+}
+
+.cv-bullets__item:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Paragraph ─────────────────────────────────────────────── */
+
+.cv-paragraph {
+  margin: 0;
+  font-size: var(--cv-text-base);
+  line-height: var(--cv-leading-relaxed);
+}
+
+/* ── Inline title (awards, extracurricular) ────────────────── */
+
+.cv-inline-title {
+  font-weight: 700;
+  color: var(--cv-page-fg);
+}
+
+/* ── Skills table ──────────────────────────────────────────── */
+
+.cv-skills-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--cv-text-base);
+}
+
+.cv-skills-table__row {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.cv-skills-table__row:last-child {
+  border-bottom: none;
+}
+
+.cv-skills-table__category {
+  font-weight: 700;
+  white-space: nowrap;
+  padding: var(--cv-gap-sm) var(--cv-gap-lg) var(--cv-gap-sm) 0;
+  vertical-align: top;
+  width: 1%;
+  color: var(--cv-page-fg);
+}
+
+.cv-skills-table__items {
+  padding: var(--cv-gap-sm) 0;
+  color: var(--cv-page-fg-muted);
+  line-height: var(--cv-leading-normal);
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  .cv-modal-backdrop {
+    padding: var(--cv-gap-md);
+  }
+
+  .cv-modal {
+    max-height: 100vh;
+    border-radius: var(--radius-sm);
+  }
+
+  .cv-modal__scroll {
+    padding: var(--cv-gap-md);
+  }
+
+  .cv-page {
+    padding: var(--cv-gap-xl) var(--cv-gap-lg);
+  }
+
+  .cv-header__name {
+    font-size: 1.25rem;
+    letter-spacing: 0.1em;
+  }
+
+  .cv-header__contact {
+    font-size: var(--cv-text-xs);
+  }
+
+  .cv-entry__header {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .cv-entry__right {
+    order: -1;
+  }
+
+  .cv-section__title {
+    font-size: var(--cv-text-lg);
+  }
+
+  .cv-skills-table__category {
+    display: block;
+    padding-bottom: 0;
+    white-space: normal;
+  }
+
+  .cv-skills-table__items {
+    display: block;
+    padding-top: 0;
+    padding-bottom: var(--cv-gap-md);
+  }
+
+  .cv-skills-table__row {
+    display: block;
+  }
+
+  .cv-actions__label {
+    display: none;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cv-page {
+    padding: var(--cv-gap-2xl) var(--cv-gap-xl);
+  }
+}

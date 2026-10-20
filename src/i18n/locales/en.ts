@@ -74,6 +74,28 @@ const en: Translations = {
     light: 'Light',
     system: 'System',
   },
+  resume: {
+    modalTitle: 'Resume',
+    close: 'Close',
+    print: 'Print',
+    downloadPdf: 'Download PDF',
+    professionalSummary: 'Professional Summary',
+    experience: 'Experience',
+    education: 'Education',
+    skills: 'Skills',
+    keyContributions: 'Key Contributions',
+    extracurricular: 'Extracurricular Activities',
+    awards: 'Awards & Recognition',
+    professionalInterests: 'Professional Interests',
+    institution: 'Institution',
+    degree: 'Degree',
+    result: 'Result',
+    period: 'Period',
+    openResume: 'Open resume',
+    closeResume: 'Close resume',
+    resumeDocument: 'Resume document',
+    pageOf: 'Page {current} of {total}',
+  },
 }
 
 export default en

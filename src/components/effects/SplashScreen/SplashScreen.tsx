@@ -1,3 +1,31 @@
+
+const SPLASH_SESSION_KEY = 'kirane:splash-shown'
+
+/**
+ * Determines whether the splash screen should be shown.
+ * Returns true only once per browser session (sessionStorage).
+ */
+export function shouldShowSplash(): boolean {
+  if (typeof sessionStorage === 'undefined') return true
+  try {
+    return sessionStorage.getItem(SPLASH_SESSION_KEY) === null
+  } catch {
+    return true
+  }
+}
+
+/**
+ * Marks the splash screen as shown for the current session.
+ */
+export function markSplashShown(): void {
+  if (typeof sessionStorage === 'undefined') return
+  try {
+    sessionStorage.setItem(SPLASH_SESSION_KEY, '1')
+  } catch {
+    // ignore quota/private-mode errors
+  }
+}
+
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import {

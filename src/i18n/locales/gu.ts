@@ -74,6 +74,28 @@ const gu: Translations = {
     light: 'લાઇટ',
     system: 'સિસ્ટમ',
   },
+  resume: {
+    modalTitle: 'બાયોડેટા',
+    close: 'બંધ કરો',
+    print: 'પ્રિન્ટ',
+    downloadPdf: 'PDF ડાઉનલોડ કરો',
+    professionalSummary: 'વ્યાવસાયિક સારાંશ',
+    experience: 'અનુભવ',
+    education: 'શિક્ષણ',
+    skills: 'કૌશલ્ય',
+    keyContributions: 'મુખ્ય યોગદાન',
+    extracurricular: 'અભ્યાસેતર પ્રવૃત્તિઓ',
+    awards: 'પુરસ્કાર અને માન્યતા',
+    professionalInterests: 'વ્યાવસાયિક રુચિઓ',
+    institution: 'સંસ્થા',
+    degree: 'પદવી',
+    result: 'પરિણામ',
+    period: 'સમયગાળો',
+    openResume: 'બાયોડેટા ખોલો',
+    closeResume: 'બાયોડેટા બંધ કરો',
+    resumeDocument: 'બાયોડેટા દસ્તાવેજ',
+    pageOf: 'પૃષ્ઠ {current} / {total}',
+  },
 }
 
 export default gu

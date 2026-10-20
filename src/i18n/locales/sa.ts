@@ -74,6 +74,28 @@ const sa: Translations = {
     light: 'प्रकाशः',
     system: 'प्रणाली',
   },
+  resume: {
+    modalTitle: 'परिचयपत्रम्',
+    close: 'पिदधातु',
+    print: 'मुद्रणम्',
+    downloadPdf: 'PDF अवतारयतु',
+    professionalSummary: 'व्यावसायिकसारांशः',
+    experience: 'अनुभवः',
+    education: 'शिक्षणम्',
+    skills: 'कौशलानि',
+    keyContributions: 'प्रमुखयोगदानानि',
+    extracurricular: 'पाठ्यक्रमेतरक्रियाकलापाः',
+    awards: 'पुरस्काराः मान्यताश्च',
+    professionalInterests: 'व्यावसायिकरुचयः',
+    institution: 'संस्था',
+    degree: 'उपाधिः',
+    result: 'परिणामः',
+    period: 'कालखण्डः',
+    openResume: 'परिचयपत्रम् उद्घाटयतु',
+    closeResume: 'परिचयपत्रम् पिदधातु',
+    resumeDocument: 'परिचयपत्रदस्तावेजम्',
+    pageOf: 'पृष्ठम् {current} / {total}',
+  },
 }
 
 export default sa

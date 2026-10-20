@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { AnimatePresence, motion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
@@ -12,17 +12,6 @@ import {
 import { useActiveSection } from '@/hooks/use-active-section'
 import { useSpotlight } from '@/hooks/use-spotlight'
 import { LanguageSwitcher } from './LanguageSwitcher'
-import { ThemeSwitcher } from './ThemeSwitcher'
-
-function scrollToSection(targetId: string, reducedMotion: boolean) {
-  const element = document.getElementById(targetId)
-  if (!element) return false
-
-  const top =
-    element.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16
-  window.scrollTo({ top, behavior: reducedMotion ? 'auto' : 'smooth' })
-  return true
-}
 
 // ---------------------------------------------------------------------------
 // NavLink
@@ -32,32 +21,43 @@ function NavLink({
   item,
   isActive,
   onClick,
-  reducedMotion,
+  onAction,
 }: {
   item: NavItem
   isActive: boolean
   onClick: () => void
-  reducedMotion: boolean
+  onAction?: () => void
 }) {
   const { t } = useTranslation()
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Modal-action items fire a callback instead of scrolling
+    if (item.action === 'modal' && onAction) {
+      e.preventDefault()
+      onAction()
+      return
+    }
+
     const targetId = item.href.slice(1)
-    if (document.getElementById(targetId)) {
+    const el = document.getElementById(targetId)
+    if (el) {
       e.preventDefault()
       onClick()
-      scrollToSection(targetId, reducedMotion)
+      const top =
+        el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16
+      window.scrollTo({ top, behavior: 'smooth' })
     }
     // If element doesn't exist, let the browser handle it normally
   }
 
   return (
     <a
-      href={item.href}
+      href={item.action === 'modal' ? undefined : item.href}
+      role={item.action === 'modal' ? 'button' : undefined}
       onClick={handleClick}
       aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'relative px-3 py-1.5 text-sm transition-colors duration-200',
+        'relative cursor-pointer px-3 py-1.5 text-sm transition-colors duration-200',
         isActive ? 'text-fg' : 'text-fg-muted hover:text-fg',
       )}
     >
@@ -88,13 +88,13 @@ function MobileMenu({
   onClose,
   activeId,
   onNavClick,
-  reducedMotion,
+  onResumeClick,
 }: {
   isOpen: boolean
   onClose: () => void
   activeId: string | null
   onNavClick: (id: string) => void
-  reducedMotion: boolean
+  onResumeClick?: () => void
 }) {
   const { t } = useTranslation()
 
@@ -108,26 +108,35 @@ function MobileMenu({
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [isOpen, onClose])
 
-  const handleItemClick = (href: string) => {
-    const targetId = href.slice(1)
+  const handleItemClick = (item: NavItem) => {
+    // Modal-action items fire a callback instead of scrolling
+    if (item.action === 'modal' && onResumeClick) {
+      onClose()
+      onResumeClick()
+      return
+    }
+
+    const targetId = item.href.slice(1)
     onNavClick(targetId)
     onClose()
 
-    scrollToSection(targetId, reducedMotion)
+    const el = document.getElementById(targetId)
+    if (el) {
+      const top =
+        el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16
+      window.scrollTo({ top, behavior: 'smooth' })
+    }
   }
 
   return (
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-          animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-          exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-          transition={{
-            duration: reducedMotion ? 0.01 : 0.2,
-            ease: [0.33, 1, 0.68, 1],
-          }}
-          className="absolute left-4 right-4 top-full mt-2 rounded-2xl border border-border/80 bg-bg-muted/95 p-2 shadow-xl shadow-fg/5 backdrop-blur-md sm:hidden"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: [0.33, 1, 0.68, 1] }}
+          className="absolute left-4 right-4 top-full mt-2 rounded-2xl border border-white/[0.08] bg-[#0a0a0c]/95 p-2 backdrop-blur-md sm:hidden"
         >
           <nav
             aria-label={t.accessibility.mobileNavigation}
@@ -137,15 +146,16 @@ function MobileMenu({
               const id = item.href.slice(1)
               return (
                 <a
-                  key={item.href}
-                  href={item.href}
+                  key={item.translationKey}
+                  href={item.action === 'modal' ? undefined : item.href}
+                  role={item.action === 'modal' ? 'button' : undefined}
                   onClick={(e) => {
                     e.preventDefault()
-                    handleItemClick(item.href)
+                    handleItemClick(item)
                   }}
                   aria-current={activeId === id ? 'page' : undefined}
                   className={cn(
-                    'rounded-xl px-4 py-2.5 text-sm transition-colors duration-150',
+                    'cursor-pointer rounded-xl px-4 py-2.5 text-sm transition-colors duration-150',
                     activeId === id
                       ? 'bg-fg/[0.08] text-fg'
                       : 'text-fg-muted hover:bg-fg/[0.04] hover:text-fg',
@@ -160,7 +170,7 @@ function MobileMenu({
               href={CONTACT_ITEM.href}
               onClick={(e) => {
                 e.preventDefault()
-                handleItemClick(CONTACT_ITEM.href)
+                handleItemClick(CONTACT_ITEM)
               }}
               aria-current={activeId === 'contact' ? 'page' : undefined}
               className={cn(
@@ -183,9 +193,12 @@ function MobileMenu({
 // Navbar (SpotlightNavbar)
 // ---------------------------------------------------------------------------
 
-export function Navbar() {
+interface NavbarProps {
+  onResumeClick?: () => void
+}
+
+export function Navbar({ onResumeClick }: NavbarProps) {
   const { t } = useTranslation()
-  const prefersReducedMotion = useReducedMotion() === true
   const navRef = useRef<HTMLElement>(null)
   const [activeId, setActiveFromClick] = useActiveSection()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -211,7 +224,7 @@ export function Navbar() {
   return (
     <header
       ref={navRef}
-      className="spotlight-navbar fixed top-[calc(1rem+var(--layout-safe-area-top))] right-4 left-4 z-50 mx-auto max-w-[900px] rounded-full border border-border/80 bg-bg/90 backdrop-blur-sm sm:top-[calc(1.25rem+var(--layout-safe-area-top))]"
+      className="spotlight-navbar fixed top-4 right-4 left-4 z-50 mx-auto max-w-[900px] rounded-full border border-white/[0.08] bg-[#0a0a0c]/90 backdrop-blur-sm sm:top-5"
     >
       {/* Spotlight overlay — CSS-driven, no React state */}
       <div
@@ -226,10 +239,7 @@ export function Navbar() {
           onClick={(e) => {
             e.preventDefault()
             window.history.pushState(null, '', '/')
-            window.scrollTo({
-              top: 0,
-              behavior: prefersReducedMotion ? 'auto' : 'smooth',
-            })
+            window.scrollTo({ top: 0, behavior: 'smooth' })
           }}
           className="text-base font-semibold tracking-tight text-fg"
           aria-label={t.accessibility.homeLink}
@@ -244,27 +254,32 @@ export function Navbar() {
         >
           {NAV_ITEMS.map((item) => (
             <NavLink
-              key={item.href}
+              key={item.translationKey}
               item={item}
               isActive={activeId === item.href.slice(1)}
               onClick={() => handleNavClick(item.href.slice(1))}
-              reducedMotion={prefersReducedMotion}
+              onAction={item.action === 'modal' ? onResumeClick : undefined}
             />
           ))}
         </nav>
 
         {/* Right side — Language Switcher + Contact CTA (desktop) + mobile toggle */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <ThemeSwitcher />
+        <div className="flex items-center gap-3">
           <LanguageSwitcher />
 
           <a
             href={CONTACT_ITEM.href}
             onClick={(e) => {
-              if (document.getElementById('contact')) {
+              const el = document.getElementById('contact')
+              if (el) {
                 e.preventDefault()
                 handleNavClick('contact')
-                scrollToSection('contact', prefersReducedMotion)
+                const top =
+                  el.getBoundingClientRect().top +
+                  window.scrollY -
+                  NAVBAR_HEIGHT -
+                  16
+                window.scrollTo({ top, behavior: 'smooth' })
               }
             }}
             className={cn(
@@ -300,8 +315,27 @@ export function Navbar() {
         onClose={() => setMobileOpen(false)}
         activeId={activeId}
         onNavClick={handleNavClick}
-        reducedMotion={prefersReducedMotion}
+        onResumeClick={onResumeClick}
       />
     </header>
   )
 }
+
+/*
+ * -----------------------------------------------------------------------
+ * MISSING SECTION IDS
+ * -----------------------------------------------------------------------
+ * The following sections do not have corresponding elements with
+ * matching id attributes yet. The navbar links are ready — add
+ * id="<name>" to each section as it's built:
+ *
+ *   - #work       → needs <section id="work">
+ *   - #experience → needs <section id="experience">
+ *   - #skills     → needs <section id="skills">
+ *   - #resume     → ✅ Opens the CV modal via onResumeClick callback
+ *   - #contact    → needs <section id="contact">
+ *
+ * The Hero section at the top has no id but the KIRANE brand link
+ * scrolls to the top of the page, which is equivalent.
+ * -----------------------------------------------------------------------
+ */

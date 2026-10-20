@@ -1,136 +1,110 @@
-import { useCallback, useEffect, useReducer } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { waitForCriticalFonts } from './critical-fonts'
+import { useReducedMotion } from 'motion/react'
+import { CVModal } from '@/components/cv'
+import { CustomCursor } from '@/components/effects/CustomCursor'
+import {
+  SplashScreen,
+  shouldShowSplash,
+  markSplashShown,
+} from '@/components/effects/SplashScreen'
+import { Footer } from '@/components/layout/Footer'
+import { Navbar } from '@/components/layout/Navbar'
 import { ParticleSphere } from '@/components/effects/ParticleSphere'
 import type { ParticleSpherePhase } from '@/components/effects/ParticleSphere/ParticleSphere'
-import { SplashScreen } from '@/components/effects/SplashScreen'
-import { CustomCursor } from '@/components/effects/CustomCursor'
-import { Navbar } from '@/components/layout/Navbar'
 import { Hero } from '@/sections/Hero'
-import { waitForCriticalFonts } from './critical-fonts'
-import {
-  createInitialSplashLifecycle,
-  splashLifecycleReducer,
-  type SplashReadinessSignal,
-} from './splash-lifecycle'
-import './App.css'
 
 export function App() {
-  const [lifecycle, dispatch] = useReducer(
-    splashLifecycleReducer,
-    undefined,
-    createInitialSplashLifecycle,
-  )
+  // Show splash only once per browser session
+  const [showSplash, setShowSplash] = useState(shouldShowSplash)
+  const [cvOpen, setCvOpen] = useState(false)
+  const [fontsReady, setFontsReady] = useState(false)
   const prefersReducedMotion = useReducedMotion() === true
-  const interactive = lifecycle.phase === 'interactive'
-  const heroActive =
-    lifecycle.phase === 'hero-revealing' || lifecycle.phase === 'interactive'
-  const spherePhase: ParticleSpherePhase =
-    lifecycle.phase === 'splash'
-      ? 'splash'
-      : lifecycle.phase === 'transitioning'
-        ? 'transitioning'
-        : 'hero'
-  const criticalFontsReady = lifecycle.readySignals.has('critical-fonts')
+  const [spherePhase, setSpherePhase] = useState<ParticleSpherePhase>('splash')
+  const sphereReadyRef = useRef(false)
+  const allReadyRef = useRef(false)
 
-  const reportReadiness = useCallback(
-    (signal: SplashReadinessSignal) =>
-      dispatch({ type: 'readiness-signal', signal }),
-    [],
-  )
+  useEffect(() => {
+    waitForCriticalFonts(typeof document !== 'undefined' ? document.fonts : undefined).then(() => {
+      setFontsReady(true)
+    })
+  }, [])
 
-  const handleHeroLayoutReady = useCallback(() => {
-    reportReadiness('hero-layout')
-  }, [reportReadiness])
+  const handleSplashComplete = useCallback(() => {
+    setShowSplash(false)
+    markSplashShown()
+  }, [])
 
   const handleSphereReady = useCallback(() => {
-    reportReadiness('sphere-renderer')
-  }, [reportReadiness])
-
-  const handleSplashRevealComplete = useCallback(() => {
-    dispatch({ type: 'intro-complete' })
+    sphereReadyRef.current = true
+    checkAllReady()
   }, [])
 
   const handleSphereTransitionComplete = useCallback(() => {
-    dispatch({ type: 'sphere-transition-complete' })
+    setSpherePhase('hero')
+  }, [])
+
+  const checkAllReady = useCallback(() => {
+    if (allReadyRef.current) return
+    if (fontsReady && sphereReadyRef.current) {
+      allReadyRef.current = true
+      setSpherePhase('transitioning')
+    }
+  }, [fontsReady])
+
+  const handleLayoutReady = useCallback(() => {
+    // Hero layout is ready
   }, [])
 
   const handleHeroRevealComplete = useCallback(() => {
-    dispatch({ type: 'hero-reveal-complete' })
+    // Hero reveal is complete
   }, [])
 
-  useEffect(() => {
-    reportReadiness('app-shell')
-  }, [reportReadiness])
+  const handleOpenCv = useCallback(() => {
+    setCvOpen(true)
+  }, [])
 
-  useEffect(() => {
-    let active = true
+  const handleCloseCv = useCallback(() => {
+    setCvOpen(false)
+  }, [])
 
-    void waitForCriticalFonts(document.fonts).then(() => {
-      if (active) reportReadiness('critical-fonts')
-    })
-
-    return () => {
-      active = false
-    }
-  }, [reportReadiness])
-
-  const exitingSplash = lifecycle.phase === 'transitioning'
-  const showSplash =
-    lifecycle.phase === 'splash' || lifecycle.phase === 'transitioning'
+  if (showSplash) {
+    return (
+      <SplashScreen
+        exiting={false}
+        fontsReady={fontsReady}
+        onRevealComplete={handleSplashComplete}
+      />
+    )
+  }
 
   return (
-    <div className="relative isolate min-h-svh overflow-x-clip bg-bg text-fg">
-      <div className="absolute inset-0 z-0 h-svh" aria-hidden="true">
-        <div
-          data-testid="sphere-stage"
-          data-phase={spherePhase}
-          className="app-sphere-stage"
-        >
-          <ParticleSphere
-            reducedMotion={prefersReducedMotion}
-            phase={spherePhase}
-            onReady={handleSphereReady}
-            onTransitionComplete={handleSphereTransitionComplete}
-          />
-        </div>
-      </div>
-
-      <motion.div
-        data-testid="app-shell"
-        aria-hidden={!interactive}
-        inert={!interactive}
-        initial={false}
-        animate={{ opacity: heroActive ? 1 : 0 }}
-        transition={{
-          duration: prefersReducedMotion ? 0.01 : 0.48,
-          ease: [0.33, 1, 0.68, 1],
-        }}
-        className="pointer-events-none relative z-10 min-h-svh"
+    <>
+      <CustomCursor />
+      <div
+        data-testid="sphere-stage"
+        data-phase={spherePhase}
+        className="app-sphere-stage"
+        style={{ pointerEvents: 'none' }}
       >
-        {interactive && <CustomCursor />}
-        <div className="pointer-events-auto">
-          <Navbar />
-        </div>
-        <main>
-          <Hero
-            active={heroActive}
-            fontsReady={criticalFontsReady}
-            onLayoutReady={handleHeroLayoutReady}
-            onRevealComplete={handleHeroRevealComplete}
-          />
-        </main>
-        {/* <div className="pointer-events-auto">
-          <Footer />
-        </div> */}
-      </motion.div>
-
-      {showSplash && (
-        <SplashScreen
-          exiting={exitingSplash}
-          fontsReady={criticalFontsReady}
-          onRevealComplete={handleSplashRevealComplete}
+        <ParticleSphere
+          phase={spherePhase}
+          reducedMotion={prefersReducedMotion === true}
+          onReady={handleSphereReady}
+          onTransitionComplete={handleSphereTransitionComplete}
         />
-      )}
-    </div>
+      </div>
+      <Navbar onResumeClick={handleOpenCv} />
+      <main>
+        <Hero
+          active={!showSplash}
+          fontsReady={fontsReady}
+          onLayoutReady={handleLayoutReady}
+          onRevealComplete={handleHeroRevealComplete}
+        />
+      </main>
+      <Footer />
+      <CVModal isOpen={cvOpen} onClose={handleCloseCv} />
+    </>
   )
 }

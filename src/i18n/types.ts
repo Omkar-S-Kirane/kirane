@@ -13,7 +13,6 @@
 export interface Translations {
   common: {
     brandName: string
-    splashTagline: string
     copyright: string
   }
   navigation: {
@@ -29,25 +28,6 @@ export interface Translations {
     description: string
     viewWork: string
     learnMore: string
-  }
-  portfolio: {
-    workEyebrow: string
-    workHeading: string
-    projectCategory: string
-    projectTitle: string
-    projectDescription: string
-    sourceLinkLabel: string
-    experienceEyebrow: string
-    experienceHeading: string
-    experienceDescription: string
-    skillsEyebrow: string
-    skillsHeading: string
-    skillsDescription: string
-    skills: readonly string[]
-    contactEyebrow: string
-    contactHeading: string
-    contactDescription: string
-    githubLinkLabel: string
   }
   footer: {
     github: string
@@ -66,11 +46,32 @@ export interface Translations {
     label: string
     changeLanguage: string
   }
-  theme: {
-    preference: string
-    dark: string
-    light: string
-    system: string
+  resume: {
+    /** Modal chrome */
+    modalTitle: string
+    close: string
+    /** Action buttons */
+    print: string
+    downloadPdf: string
+    /** Section headings — match the original CV layout */
+    professionalSummary: string
+    experience: string
+    education: string
+    skills: string
+    keyContributions: string
+    extracurricular: string
+    awards: string
+    professionalInterests: string
+    /** Table / field labels */
+    institution: string
+    degree: string
+    result: string
+    period: string
+    /** Accessibility */
+    openResume: string
+    closeResume: string
+    resumeDocument: string
+    pageOf: string
   }
 }
 
@@ -84,7 +85,8 @@ export type LanguageCode = 'en' | 'mr' | 'hi' | 'sa' | 'gu'
  * Navigation item keys — used by navbar-constants to reference
  * translations without embedding display text.
  */
-export type NavItemKey = 'work' | 'experience' | 'skills' | 'resume'
+export type NavItemKey =
+  'work' | 'experience' | 'skills' | 'resume' | 'contactMe'
 
 /**
  * Social link keys — used by footer-constants to reference

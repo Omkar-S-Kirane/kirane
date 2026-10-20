@@ -1,0 +1,52 @@
+/* ---------------------------------------------------------------------------
+ * CV / Resume — Design tokens
+ *
+ * Mirrors the original PDF's visual language: white background, black text,
+ * Georgia/serif headings, tight spacing. These tokens scope all CV styles
+ * so they never bleed into the portfolio's dark theme.
+ * --------------------------------------------------------------------------- */
+
+:root {
+  /* Page */
+  --cv-page-bg: #ffffff;
+  --cv-page-fg: #1a1a1a;
+  --cv-page-fg-muted: #4a4a4a;
+  --cv-page-width: 210mm;
+  --cv-page-min-height: 297mm;
+  --cv-page-padding: 20mm;
+
+  /* Typography */
+  --cv-font-body: 'Georgia', 'Noto Serif', 'Nirmala UI', serif;
+  --cv-font-heading: 'Georgia', 'Noto Serif', 'Nirmala UI', serif;
+  --cv-font-mono: ui-monospace, 'Cascadia Code', monospace;
+
+  --cv-text-xs: 0.6875rem; /* 11px */
+  --cv-text-sm: 0.75rem; /* 12px */
+  --cv-text-base: 0.8125rem; /* 13px */
+  --cv-text-lg: 0.875rem; /* 14px */
+  --cv-text-xl: 1rem; /* 16px */
+  --cv-text-2xl: 1.5rem; /* 24px */
+
+  --cv-leading-tight: 1.3;
+  --cv-leading-normal: 1.5;
+  --cv-leading-relaxed: 1.65;
+
+  /* Spacing */
+  --cv-gap-xs: 2px;
+  --cv-gap-sm: 4px;
+  --cv-gap-md: 8px;
+  --cv-gap-lg: 12px;
+  --cv-gap-xl: 16px;
+  --cv-gap-2xl: 24px;
+
+  /* Decorative */
+  --cv-rule-color: #1a1a1a;
+  --cv-rule-width: 1.5px;
+  --cv-link-color: #1a5276;
+
+  /* Modal */
+  --cv-modal-bg: #0a0a0a;
+  --cv-modal-overlay: rgba(0, 0, 0, 0.85);
+  --cv-modal-radius: var(--radius-lg);
+  --cv-modal-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+}

@@ -74,6 +74,28 @@ const mr: Translations = {
     light: 'उजळ',
     system: 'सिस्टम',
   },
+  resume: {
+    modalTitle: 'बायोडाटा',
+    close: 'बंद करा',
+    print: 'प्रिंट',
+    downloadPdf: 'PDF डाउनलोड करा',
+    professionalSummary: 'व्यावसायिक सारांश',
+    experience: 'अनुभव',
+    education: 'शिक्षण',
+    skills: 'कौशल्ये',
+    keyContributions: 'प्रमुख योगदान',
+    extracurricular: 'अभ्यासेतर उपक्रम',
+    awards: 'पुरस्कार आणि मान्यता',
+    professionalInterests: 'व्यावसायिक आवडी',
+    institution: 'संस्था',
+    degree: 'पदवी',
+    result: 'निकाल',
+    period: 'कालावधी',
+    openResume: 'बायोडाटा उघडा',
+    closeResume: 'बायोडाटा बंद करा',
+    resumeDocument: 'बायोडाटा दस्तऐवज',
+    pageOf: 'पृष्ठ {current} / {total}',
+  },
 }
 
 export default mr

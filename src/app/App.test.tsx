@@ -1,6 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { App } from './App'
+import { Providers } from './providers'
 
 vi.mock('@/components/effects/ParticleSphere', () => ({
   ParticleSphere: ({
@@ -41,6 +42,8 @@ vi.mock('@/components/effects/SplashScreen', () => ({
       />
     </div>
   ),
+  shouldShowSplash: () => true,
+  markSplashShown: vi.fn(),
 }))
 
 vi.mock('@/sections/Hero', () => ({
@@ -92,12 +95,15 @@ afterEach(() => {
 describe('App splash lifecycle', () => {
   it('waits for readiness and the full reveal, then hands off one sphere before enabling the hero', async () => {
     vi.useFakeTimers()
-    render(<App />)
+    render(<Providers><App /></Providers>)
 
     await act(async () => {
       await Promise.resolve()
       await Promise.resolve()
     })
+
+    // Dismiss splash so the main content renders
+    fireEvent.click(screen.getByTestId('splash-reveal-complete'))
 
     expect(screen.getAllByTestId('particle-sphere')).toHaveLength(1)
     expect(screen.getByTestId('particle-sphere')).toHaveAttribute(
@@ -150,7 +156,7 @@ describe('App splash lifecycle', () => {
   })
 
   it('continues the splash when the full reveal finishes before readiness', async () => {
-    render(<App />)
+    render(<Providers><App /></Providers>)
 
     await act(async () => {
       await Promise.resolve()

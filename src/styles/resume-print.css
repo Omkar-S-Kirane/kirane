@@ -1,0 +1,132 @@
+/* ---------------------------------------------------------------------------
+ * CV / Resume — Print stylesheet
+ *
+ * When the user triggers Print or "Download PDF" (both use window.print()),
+ * hide every element except the CV document, reset the page to white with
+ * black text, and paginate at A4 boundaries.
+ * --------------------------------------------------------------------------- */
+
+@media print {
+  /* Hide everything except the CV content */
+  body > *:not(.cv-modal-backdrop) {
+    display: none !important;
+  }
+
+  /* Reset the modal to a plain document flow */
+  .cv-modal-backdrop {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .cv-modal {
+    position: static !important;
+    max-width: none !important;
+    max-height: none !important;
+    background: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    display: block !important;
+  }
+
+  .cv-modal__scroll {
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  /* Hide the action bar in print */
+  .cv-actions {
+    display: none !important;
+  }
+
+  /* ── Page setup ──────────────────────────────────────────── */
+
+  @page {
+    size: A4 portrait;
+    margin: 15mm;
+  }
+
+  /* Each .cv-page starts on a new printed page */
+  .cv-page {
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .cv-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* ── Typography adjustments ──────────────────────────────── */
+
+  .cv-header__name {
+    font-size: 22pt !important;
+    color: black !important;
+  }
+
+  .cv-header__contact {
+    font-size: 9pt !important;
+    color: #333 !important;
+  }
+
+  .cv-section__title {
+    font-size: 12pt !important;
+    color: black !important;
+  }
+
+  .cv-section__rule {
+    border-top-color: black !important;
+  }
+
+  .cv-entry__company {
+    color: black !important;
+  }
+
+  .cv-paragraph,
+  .cv-bullets__item,
+  .cv-entry__title,
+  .cv-skills-table__items {
+    font-size: 10pt !important;
+    color: #1a1a1a !important;
+  }
+
+  .cv-skills-table__category {
+    font-size: 10pt !important;
+    color: black !important;
+  }
+
+  .cv-entry__period,
+  .cv-entry__location {
+    color: #444 !important;
+  }
+
+  /* ── Links — show URL for print ──────────────────────────── */
+
+  .cv-link {
+    color: black !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
+  }
+
+  /* Avoid widows/orphans in bullet lists */
+  .cv-bullets__item {
+    orphans: 2;
+    widows: 2;
+  }
+
+  /* Keep entries together where possible */
+  .cv-entry {
+    break-inside: avoid;
+  }
+
+  .cv-section {
+    break-inside: avoid-page;
+  }
+}

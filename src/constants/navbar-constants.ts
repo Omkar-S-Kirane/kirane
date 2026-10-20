@@ -8,6 +8,11 @@ export interface NavItem {
   /** Key into `translations.navigation` — resolved at render time. */
   translationKey: NavItemKey
   href: string
+  /**
+   * When set to 'modal', clicking this item fires `onAction` instead
+   * of scrolling to a section. Used by the Resume item to open the CV modal.
+   */
+  action?: 'scroll' | 'modal'
 }
 
 /** Height of the navbar in pixels — used for scroll-offset calculations. */
@@ -22,9 +27,13 @@ export const NAV_ITEMS: NavItem[] = [
   { translationKey: 'work', href: '#work' },
   { translationKey: 'experience', href: '#experience' },
   { translationKey: 'skills', href: '#skills' },
+  { translationKey: 'resume', href: '#resume', action: 'modal' },
 ]
 
-export const CONTACT_ITEM = { href: '#contact' } as const
+export const CONTACT_ITEM: NavItem = {
+  translationKey: 'contactMe',
+  href: '#contact',
+}
 
 /** All section IDs the navbar targets (without the leading #). */
 export const SECTION_IDS = [

@@ -1,37 +1,22 @@
 @import 'tailwindcss';
 @import './variables.css';
+@import './resume.css';
+@import './resume-print.css';
 
 @theme {
-  --color-bg: #000000;
-  --color-bg-muted: #111110;
-  --color-fg: #f5f2ea;
-  --color-fg-muted: #a7a29a;
-  --color-accent: #e6c66a;
-  --color-accent-hover: #f0d991;
-  --color-border: #292929;
-  --color-border-hover: #49443b;
+  --color-bg: #09090b;
+  --color-bg-muted: #18181b;
+  --color-fg: #fafaf9;
+  --color-fg-muted: #a1a1aa;
+  --color-accent: #d4c5a9;
+  --color-accent-hover: #e8dcc6;
+  --color-border: #27272a;
+  --color-border-hover: #3f3f46;
 
   --font-sans:
     system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Nirmala UI',
     sans-serif;
-  --font-display: 'Space Grotesk', var(--font-sans);
   --font-mono: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
-}
-
-:root {
-  color-scheme: dark;
-}
-
-:root[data-theme='light'] {
-  color-scheme: light;
-  --color-bg: #f5f2ea;
-  --color-bg-muted: #ffffff;
-  --color-fg: #171717;
-  --color-fg-muted: #68645d;
-  --color-accent: #866417;
-  --color-accent-hover: #795916;
-  --color-border: #ded9ce;
-  --color-border-hover: #c6bda8;
 }
 
 @layer base {
@@ -44,27 +29,9 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    html {
-      scroll-behavior: smooth;
-    }
-  }
-
   ::selection {
     background-color: var(--color-accent);
     color: var(--color-bg);
-  }
-
-  :where(input, select, textarea) {
-    color: var(--color-fg);
-    background-color: var(--color-bg-muted);
-    border-color: var(--color-border);
-    color-scheme: inherit;
-  }
-
-  :where(input, select, textarea)::placeholder {
-    color: var(--color-fg-muted);
-    opacity: 1;
   }
 
   *:focus-visible {
@@ -73,34 +40,17 @@
   }
 }
 
-.theme-color-transition,
-.theme-color-transition :where(*) {
-  transition-property:
-    color, background-color, border-color, outline-color, fill, stroke,
-    stop-color, text-decoration-color;
-  transition-duration: 240ms;
-  transition-timing-function: var(--ease-out);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .theme-color-transition,
-  .theme-color-transition :where(*) {
-    transition-duration: 0ms !important;
-  }
-}
-
 /* Spotlight Navbar — radial light that follows the pointer */
 @layer components {
   .spotlight-navbar {
     --spotlight-x: 50%;
     --spotlight-opacity: 0;
-    --spotlight-glow-color: color-mix(in srgb, var(--color-fg) 4%, transparent);
   }
 
   .spotlight-glow {
     background: radial-gradient(
       300px circle at var(--spotlight-x) 50%,
-      var(--spotlight-glow-color),
+      rgba(255, 255, 255, 0.04),
       transparent 70%
     );
     opacity: var(--spotlight-opacity);

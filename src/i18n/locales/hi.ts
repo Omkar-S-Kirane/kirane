@@ -74,6 +74,28 @@ const hi: Translations = {
     light: 'लाइट',
     system: 'सिस्टम',
   },
+  resume: {
+    modalTitle: 'बायोडाटा',
+    close: 'बंद करें',
+    print: 'प्रिंट',
+    downloadPdf: 'PDF डाउनलोड करें',
+    professionalSummary: 'व्यावसायिक सारांश',
+    experience: 'अनुभव',
+    education: 'शिक्षा',
+    skills: 'कौशल',
+    keyContributions: 'प्रमुख योगदान',
+    extracurricular: 'पाठ्येतर गतिविधियाँ',
+    awards: 'पुरस्कार एवं मान्यता',
+    professionalInterests: 'व्यावसायिक रुचियाँ',
+    institution: 'संस्थान',
+    degree: 'उपाधि',
+    result: 'परिणाम',
+    period: 'अवधि',
+    openResume: 'बायोडाटा खोलें',
+    closeResume: 'बायोडाटा बंद करें',
+    resumeDocument: 'बायोडाटा दस्तावेज़',
+    pageOf: 'पृष्ठ {current} / {total}',
+  },
 }
 
 export default hi
