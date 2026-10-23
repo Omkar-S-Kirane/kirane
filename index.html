@@ -1,57 +1,14 @@
 <!doctype html>
-<html lang="en" data-theme-storage-key="kirane-theme">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="KIRANE — Creative Developer Portfolio" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="color-scheme" content="dark light" />
-    <script>
-      ;(() => {
-        const root = document.documentElement
-        const validPreferences = ['dark', 'light', 'system']
-        let preference = 'system'
-
-        try {
-          const storageKey = root.dataset.themeStorageKey
-          const stored = storageKey
-            ? window.localStorage.getItem(storageKey)
-            : null
-          if (validPreferences.includes(stored)) preference = stored
-        } catch {
-          // The system preference remains available when storage is blocked.
-        }
-
-        let systemIsDark = true
-        try {
-          systemIsDark =
-            window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? true
-        } catch {
-          // Fall back to the cinematic dark theme if media queries are blocked.
-        }
-        const theme =
-          preference === 'system'
-            ? systemIsDark
-              ? 'dark'
-              : 'light'
-            : preference
-
-        root.dataset.themePreference = preference
-        root.dataset.theme = theme
-        root.style.colorScheme = theme
-      })()
-    </script>
+    <title>KIRANE | OMKAR</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&display=swap"
-      rel="stylesheet"
-    />
-    <title>KIRANE</title>
   </head>
   <body>
-    <div id="root" class="theme-color-transition"></div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

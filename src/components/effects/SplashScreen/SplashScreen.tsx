@@ -1,43 +1,33 @@
 
-const SPLASH_SESSION_KEY = 'kirane:splash-shown'
-
-/**
- * Determines whether the splash screen should be shown.
- * Returns true only once per browser session (sessionStorage).
- */
-export function shouldShowSplash(): boolean {
-  if (typeof sessionStorage === 'undefined') return true
-  try {
-    return sessionStorage.getItem(SPLASH_SESSION_KEY) === null
-  } catch {
-    return true
-  }
-}
-
-/**
- * Marks the splash screen as shown for the current session.
- */
-export function markSplashShown(): void {
-  if (typeof sessionStorage === 'undefined') return
-  try {
-    sessionStorage.setItem(SPLASH_SESSION_KEY, '1')
-  } catch {
-    // ignore quota/private-mode errors
-  }
-}
-
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import {
   ScrambleReveal,
   StrokeFill,
 } from '@/components/Animations&Motion/TextAnimations/tsx'
+import { StormSplash } from '@/components/effects/StormSplash'
 import { useTranslation } from '@/i18n'
 
 const EXIT_DURATION_SECONDS = 0.48
 const BRAND_DRAW_DURATION_SECONDS = 4
 const TAGLINE_START_DELAY_MS = 360
 const TAGLINE_DURATION_MS = 2300
+
+/**
+ * Determines whether the splash screen should be shown.
+ * Always returns true — the splash screen is persistent.
+ */
+export function shouldShowSplash(): boolean {
+  return true
+}
+
+/**
+ * Marks the splash screen as shown for the current session.
+ * Retained for API compatibility; currently a no-op since splash is persistent.
+ */
+export function markSplashShown(): void {
+  /* no-op — splash always shows */
+}
 
 interface SplashScreenProps {
   exiting: boolean
@@ -96,9 +86,12 @@ export function SplashScreen({
         ease: [0.33, 1, 0.68, 1],
       }}
       aria-hidden={exiting}
-      className="pointer-events-none fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
-      style={{ background: 'transparent' }}
+      className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden"
     >
+      {/* Storm particle sphere background */}
+      <StormSplash />
+
+      {/* Brand text overlay */}
       {fontsReady && (
         <StrokeFill
           text={t.common.brandName}
