@@ -1,10 +1,9 @@
 "use client";
 
-import * as React from "react";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/cn";
 
 /**
  * Interactive Particles

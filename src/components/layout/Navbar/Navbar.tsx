@@ -22,11 +22,13 @@ function NavLink({
   isActive,
   onClick,
   onAction,
+  controlledNavigation = false,
 }: {
   item: NavItem
   isActive: boolean
   onClick: () => void
   onAction?: () => void
+  controlledNavigation?: boolean
 }) {
   const { t } = useTranslation()
 
@@ -43,6 +45,7 @@ function NavLink({
     if (el) {
       e.preventDefault()
       onClick()
+      if (controlledNavigation) return
       const top =
         el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16
       window.scrollTo({ top, behavior: 'smooth' })
@@ -89,12 +92,14 @@ function MobileMenu({
   activeId,
   onNavClick,
   onResumeClick,
+  controlledNavigation = false,
 }: {
   isOpen: boolean
   onClose: () => void
   activeId: string | null
   onNavClick: (id: string) => void
   onResumeClick?: () => void
+  controlledNavigation?: boolean
 }) {
   const { t } = useTranslation()
 
@@ -121,7 +126,7 @@ function MobileMenu({
     onClose()
 
     const el = document.getElementById(targetId)
-    if (el) {
+    if (el && !controlledNavigation) {
       const top =
         el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16
       window.scrollTo({ top, behavior: 'smooth' })
@@ -195,21 +200,29 @@ function MobileMenu({
 
 interface NavbarProps {
   onResumeClick?: () => void
+  activeSection?: string
+  onNavigate?: (id: string) => void
 }
 
-export function Navbar({ onResumeClick }: NavbarProps) {
+export function Navbar({
+  onResumeClick,
+  activeSection,
+  onNavigate,
+}: NavbarProps) {
   const { t } = useTranslation()
   const navRef = useRef<HTMLElement>(null)
-  const [activeId, setActiveFromClick] = useActiveSection()
+  const [observedActiveId, setActiveFromClick] = useActiveSection()
+  const activeId = activeSection ?? observedActiveId
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useSpotlight(navRef)
 
   const handleNavClick = useCallback(
     (id: string) => {
-      setActiveFromClick(id)
+      if (onNavigate) onNavigate(id)
+      else setActiveFromClick(id)
     },
-    [setActiveFromClick],
+    [onNavigate, setActiveFromClick],
   )
 
   // Close mobile menu on resize to desktop
@@ -237,6 +250,11 @@ export function Navbar({ onResumeClick }: NavbarProps) {
         <a
           href="/"
           onClick={(e) => {
+            if (onNavigate) {
+              e.preventDefault()
+              handleNavClick('home')
+              return
+            }
             e.preventDefault()
             window.history.pushState(null, '', '/')
             window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -259,6 +277,7 @@ export function Navbar({ onResumeClick }: NavbarProps) {
               isActive={activeId === item.href.slice(1)}
               onClick={() => handleNavClick(item.href.slice(1))}
               onAction={item.action === 'modal' ? onResumeClick : undefined}
+              controlledNavigation={Boolean(onNavigate)}
             />
           ))}
         </nav>
@@ -270,6 +289,11 @@ export function Navbar({ onResumeClick }: NavbarProps) {
           <a
             href={CONTACT_ITEM.href}
             onClick={(e) => {
+              if (onNavigate) {
+                e.preventDefault()
+                handleNavClick('contact')
+                return
+              }
               const el = document.getElementById('contact')
               if (el) {
                 e.preventDefault()
@@ -316,26 +340,8 @@ export function Navbar({ onResumeClick }: NavbarProps) {
         activeId={activeId}
         onNavClick={handleNavClick}
         onResumeClick={onResumeClick}
+        controlledNavigation={Boolean(onNavigate)}
       />
     </header>
   )
 }
-
-/*
- * -----------------------------------------------------------------------
- * MISSING SECTION IDS
- * -----------------------------------------------------------------------
- * The following sections do not have corresponding elements with
- * matching id attributes yet. The navbar links are ready — add
- * id="<name>" to each section as it's built:
- *
- *   - #work       → needs <section id="work">
- *   - #experience → needs <section id="experience">
- *   - #skills     → needs <section id="skills">
- *   - #resume     → ✅ Opens the CV modal via onResumeClick callback
- *   - #contact    → needs <section id="contact">
- *
- * The Hero section at the top has no id but the KIRANE brand link
- * scrolls to the top of the page, which is equivalent.
- * -----------------------------------------------------------------------
- */

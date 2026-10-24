@@ -10,6 +10,7 @@ const mr: Translations = {
     work: 'कार्य',
     experience: 'अनुभव',
     skills: 'कौशल्ये',
+    impact: 'प्रभाव',
     resume: 'बायोडाटा',
     contactMe: 'संपर्क करा',
   },
@@ -51,6 +52,15 @@ const mr: Translations = {
     contactDescription:
       'माझ्या कामाबद्दल किंवा संभाव्य सहकार्याबद्दल GitHub वर संपर्क साधा.',
     githubLinkLabel: 'GitHub प्रोफाइल पाहा',
+    impactEyebrow: 'अभियांत्रिकी / प्रभाव',
+    impactHeading: 'मी काय घडवतो त्यातून अनुभव मोजला जातो.',
+    impactMetrics: {
+      experience: 'व्यावसायिक अनुभवाची वर्षे',
+      reactNative: 'React Native सह कामाची वर्षे',
+      apps: 'प्रकाशित ॲप्स',
+      platforms: 'समर्थित प्लॅटफॉर्म',
+      platformDetails: 'Web · Android · Android TV · iOS',
+    },
   },
   footer: {
     github: 'GitHub',

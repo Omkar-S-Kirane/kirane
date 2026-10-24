@@ -91,9 +91,41 @@ vi.mock('@/components/layout/Footer', () => ({
 afterEach(() => {
   cleanup()
   vi.useRealTimers()
+  window.history.replaceState(null, '', '/')
 })
 
 describe('App splash lifecycle', () => {
+  it('advances to the next full-screen section on a wheel gesture', () => {
+    render(
+      <Providers>
+        <App />
+      </Providers>,
+    )
+
+    const main = screen.getByRole('main')
+    expect(main).toHaveAttribute('data-active-section', 'home')
+    fireEvent.click(screen.getByTestId('splash-reveal-complete'))
+    fireEvent.wheel(main, { deltaY: 100 })
+
+    expect(main).toHaveAttribute('data-active-section', 'impact')
+    expect(window.location.hash).toBe('#impact')
+  })
+
+  it('resets a deep-link hash to Home while the splash screen is shown', () => {
+    window.history.replaceState(null, '', '/#impact')
+    render(
+      <Providers>
+        <App />
+      </Providers>,
+    )
+
+    expect(screen.getByRole('main')).toHaveAttribute(
+      'data-active-section',
+      'home',
+    )
+    expect(window.location.hash).toBe('')
+  })
+
   it('reveals the main screen beneath the fading splash before removing it', async () => {
     vi.useFakeTimers()
     render(

@@ -20,6 +20,7 @@ export interface Translations {
     work: string
     experience: string
     skills: string
+    impact: string
     resume: string
     contactMe: string
   }
@@ -29,6 +30,34 @@ export interface Translations {
     description: string
     viewWork: string
     learnMore: string
+  }
+  portfolio: {
+    workEyebrow: string
+    workHeading: string
+    projectCategory: string
+    projectTitle: string
+    projectDescription: string
+    sourceLinkLabel: string
+    experienceEyebrow: string
+    experienceHeading: string
+    experienceDescription: string
+    skillsEyebrow: string
+    skillsHeading: string
+    skillsDescription: string
+    skills: string[]
+    impactEyebrow: string
+    impactHeading: string
+    impactMetrics: {
+      experience: string
+      reactNative: string
+      apps: string
+      platforms: string
+      platformDetails: string
+    }
+    contactEyebrow: string
+    contactHeading: string
+    contactDescription: string
+    githubLinkLabel: string
   }
   footer: {
     github: string
@@ -46,6 +75,12 @@ export interface Translations {
   languageSwitcher: {
     label: string
     changeLanguage: string
+  }
+  theme: {
+    preference: string
+    dark: string
+    light: string
+    system: string
   }
   resume: {
     /** Modal chrome */
@@ -87,7 +122,7 @@ export type LanguageCode = 'en' | 'mr' | 'hi' | 'sa' | 'gu'
  * translations without embedding display text.
  */
 export type NavItemKey =
-  'work' | 'experience' | 'skills' | 'resume' | 'contactMe'
+  'work' | 'experience' | 'skills' | 'impact' | 'resume' | 'contactMe'
 
 /**
  * Social link keys — used by footer-constants to reference

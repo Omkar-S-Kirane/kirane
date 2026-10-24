@@ -10,6 +10,7 @@ const gu: Translations = {
     work: 'કાર્ય',
     experience: 'અનુભવ',
     skills: 'કૌશલ્ય',
+    impact: 'અસર',
     resume: 'બાયોડેટા',
     contactMe: 'સંપર્ક કરો',
   },
@@ -51,6 +52,15 @@ const gu: Translations = {
     contactDescription:
       'મારા કામ અથવા સંભવિત સહયોગ વિશે વાત કરવા GitHub પર સંપર્ક કરો.',
     githubLinkLabel: 'GitHub પ્રોફાઇલ જુઓ',
+    impactEyebrow: 'એન્જિનિયરિંગ / અસર',
+    impactHeading: 'હું જે બનાવું છું તેનાથી અનુભવ માપવામાં આવે છે.',
+    impactMetrics: {
+      experience: 'વ્યાવસાયિક અનુભવનાં વર્ષો',
+      reactNative: 'React Native સાથે કામનાં વર્ષો',
+      apps: 'ડિપ્લોય કરેલી એપ્સ',
+      platforms: 'સપોર્ટેડ પ્લેટફોર્મ્સ',
+      platformDetails: 'Web · Android · Android TV · iOS',
+    },
   },
   footer: {
     github: 'GitHub',

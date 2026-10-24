@@ -18,12 +18,9 @@ export interface NavItem {
 /** Height of the navbar in pixels — used for scroll-offset calculations. */
 export const NAVBAR_HEIGHT = 56
 
-/**
- * Navigation items.
- * Section IDs that don't exist yet are still linked so the navbar is
- * ready when those sections are added.
- */
+/** Navigation items shown in the header and responsive menu. */
 export const NAV_ITEMS: NavItem[] = [
+  { translationKey: 'impact', href: '#impact' },
   { translationKey: 'work', href: '#work' },
   { translationKey: 'experience', href: '#experience' },
   { translationKey: 'skills', href: '#skills' },
@@ -37,7 +34,10 @@ export const CONTACT_ITEM: NavItem = {
 
 /** All section IDs the navbar targets (without the leading #). */
 export const SECTION_IDS = [
-  ...NAV_ITEMS.map((item) => item.href.slice(1)),
+  'home',
+  ...NAV_ITEMS.filter((item) => item.action !== 'modal').map((item) =>
+    item.href.slice(1),
+  ),
   CONTACT_ITEM.href.slice(1),
 ]
 

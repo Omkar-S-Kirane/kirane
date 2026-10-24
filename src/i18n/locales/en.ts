@@ -10,6 +10,7 @@ const en: Translations = {
     work: 'Work',
     experience: 'Experience',
     skills: 'Skills',
+    impact: 'Impact',
     resume: 'Resume',
     contactMe: 'Contact Me',
   },
@@ -51,6 +52,15 @@ const en: Translations = {
     contactDescription:
       'For questions about my work or possible collaborations, reach me through GitHub.',
     githubLinkLabel: 'Visit GitHub profile',
+    impactEyebrow: 'ENGINEERING / IMPACT',
+    impactHeading: 'Experience measured through what I build.',
+    impactMetrics: {
+      experience: 'Years of professional experience',
+      reactNative: 'Years building with React Native',
+      apps: 'Apps deployed',
+      platforms: 'Platforms supported',
+      platformDetails: 'Web · Android · Android TV · iOS',
+    },
   },
   footer: {
     github: 'GitHub',

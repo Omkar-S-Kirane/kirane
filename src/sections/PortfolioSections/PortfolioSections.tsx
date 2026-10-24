@@ -2,19 +2,36 @@ import { ArrowUpRight } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { useTranslation } from '@/i18n'
+import { EngineeringImpact } from '@/sections/EngineeringImpact'
 
 const REPOSITORY_URL = 'https://github.com/Omkar-S-Kirane/kirane'
 const PROFILE_URL = 'https://github.com/Omkar-S-Kirane'
 
-export function PortfolioSections() {
+export function PortfolioSections({
+  activeSection,
+  scrollDirection = 1,
+}: {
+  activeSection?: 'work' | 'experience' | 'skills' | 'impact' | 'contact'
+  scrollDirection?: -1 | 1
+}) {
   const { t } = useTranslation()
+  const visible = (id: NonNullable<typeof activeSection>) =>
+    activeSection === undefined || activeSection === id
 
   return (
     <div className="pointer-events-auto">
+      <EngineeringImpact
+        active={visible('impact')}
+        scrollDirection={scrollDirection}
+      />
+
       <section
         id="work"
         aria-label={t.portfolio.workHeading}
-        className="scroll-mt-28 border-t border-border"
+        aria-hidden={!visible('work')}
+        inert={!visible('work')}
+        hidden={!visible('work')}
+        className="flex min-h-svh items-center border-t border-border"
       >
         <Container
           maxWidth="wide"
@@ -60,7 +77,10 @@ export function PortfolioSections() {
       <section
         id="experience"
         aria-label={t.portfolio.experienceHeading}
-        className="scroll-mt-28 border-t border-border"
+        aria-hidden={!visible('experience')}
+        inert={!visible('experience')}
+        hidden={!visible('experience')}
+        className="flex min-h-svh items-center border-t border-border"
       >
         <Container
           maxWidth="wide"
@@ -79,7 +99,10 @@ export function PortfolioSections() {
       <section
         id="skills"
         aria-label={t.portfolio.skillsHeading}
-        className="scroll-mt-28 border-t border-border"
+        aria-hidden={!visible('skills')}
+        inert={!visible('skills')}
+        hidden={!visible('skills')}
+        className="flex min-h-svh items-center border-t border-border"
       >
         <Container
           maxWidth="wide"
@@ -111,7 +134,10 @@ export function PortfolioSections() {
       <section
         id="contact"
         aria-label={t.portfolio.contactHeading}
-        className="scroll-mt-28 border-y border-border"
+        aria-hidden={!visible('contact')}
+        inert={!visible('contact')}
+        hidden={!visible('contact')}
+        className="flex min-h-svh items-center border-y border-border"
       >
         <Container
           maxWidth="wide"

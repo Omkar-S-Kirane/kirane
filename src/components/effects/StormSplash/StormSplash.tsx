@@ -635,13 +635,15 @@ export function StormSplash({ onReady }: StormSplashProps) {
 
     /* ── Resize handler ── */
     function onResize(): void {
+      const resizeCanvas = canvasRef.current
+      if (!resizeCanvas) return
       const w = window.innerWidth
       const h = window.innerHeight
       camera.aspect = w / h
       camera.updateProjectionMatrix()
       const dpr = Math.min(window.devicePixelRatio, 2)
-      canvas.width = w * dpr
-      canvas.height = h * dpr
+      resizeCanvas.width = w * dpr
+      resizeCanvas.height = h * dpr
       renderer.setPixelRatio(dpr)
       renderer.setSize(w, h)
       torusComposer.setPixelRatio(dpr)
