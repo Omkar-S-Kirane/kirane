@@ -129,7 +129,7 @@ export function CVModal({ isOpen, onClose }: CVModalProps) {
           >
             <CVActions onClose={onClose} />
 
-            <div className="cv-modal__scroll">
+            <div className="cv-modal__scroll" data-lenis-prevent>
               <CVDocument data={data} />
             </div>
           </motion.div>

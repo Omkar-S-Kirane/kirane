@@ -2,6 +2,7 @@ import { MotionConfig } from 'motion/react'
 import type { ReactNode } from 'react'
 import { I18nProvider } from '@/i18n'
 import { ThemeProvider } from '@/theme'
+import { LenisProvider } from './LenisProvider'
 
 interface ProvidersProps {
   children: ReactNode
@@ -19,7 +20,9 @@ export function Providers({ children }: ProvidersProps) {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <MotionConfig reducedMotion="user">{children}</MotionConfig>
+        <MotionConfig reducedMotion="user">
+          <LenisProvider>{children}</LenisProvider>
+        </MotionConfig>
       </I18nProvider>
     </ThemeProvider>
   )
