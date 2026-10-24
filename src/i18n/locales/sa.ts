@@ -14,8 +14,9 @@ const sa: Translations = {
     contactMe: 'सम्पर्कं कुरुत',
   },
   hero: {
-    tagline: 'सृजनात्मक-अभियांत्रिकी / अग्र-अन्त-विकासः',
-    heading: 'जनान् प्रेरयन्ति\nतादृशान् अङ्कीयान्\nअनुभवान् निर्मामि।',
+    tagline:
+      'Engineering seamless digital experiences across web, iOS, and Android.',
+    heading: 'ARCHITECT. BUILD. SCALE.',
     description:
       'उद्देश्यपूर्णैः परस्परक्रियाभिः सूक्ष्मविवरणेषु च अवधानं दत्त्वा विचारपूर्वकान् उच्चकार्यक्षमान् जालानुभवान् निर्मामि।',
     viewWork: 'मम कार्यं पश्यतु',

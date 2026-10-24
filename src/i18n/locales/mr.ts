@@ -14,8 +14,9 @@ const mr: Translations = {
     contactMe: 'संपर्क करा',
   },
   hero: {
-    tagline: 'क्रिएटिव्ह इंजिनिअरिंग / फ्रंटएंड डेव्हलपमेंट',
-    heading: 'लोकांना प्रेरित करणारे\nडिजिटल अनुभव\nघडवतो.',
+    tagline:
+      'Engineering seamless digital experiences across web, iOS, and Android.',
+    heading: 'ARCHITECT. BUILD. SCALE.',
     description:
       'उद्देशपूर्ण परस्परक्रिया आणि तपशीलांकडे लक्ष देऊन विचारपूर्वक, उच्च-कार्यक्षम वेब अनुभव तयार करतो.',
     viewWork: 'माझे काम पाहा',

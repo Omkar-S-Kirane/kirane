@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { motion, useReducedMotion, type Variants } from 'motion/react'
-import { ArrowDown, ArrowUpRight } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
-import { VengeanceInteractiveParticlesText } from '@/components/textStyling'
+import { PressureTest } from '@/components/Animations&Motion/TextAnimations/tsx/PressureTest'
 import { useTranslation } from '@/i18n'
 import { fadeInUp } from '@/lib/animations/motion-variants'
 
@@ -109,43 +107,34 @@ export function Hero({
         maxWidth="wide"
         padding="page"
         safeArea
-        className="relative z-10 grid w-full grid-cols-1 items-center lg:min-h-[calc(100svh-9rem)] lg:grid-cols-12"
+        className="relative z-10 grid w-full grid-cols-1 items-center lg:min-h-[calc(100svh-9rem)]"
       >
         <motion.div
           initial={prefersReducedMotion ? false : 'hidden'}
           animate={active ? 'visible' : 'hidden'}
           variants={sequenceVariants}
           onAnimationComplete={handleRevealComplete}
-          className="max-w-3xl lg:col-span-7"
+          className="mx-auto w-full max-w-5xl text-center"
         >
-          <motion.p
-            variants={fadeVariants}
-            className="mb-6 flex items-center gap-3 font-display text-xs font-medium uppercase tracking-[0.16em] text-accent sm:text-sm"
-          >
-            <span aria-hidden="true" className="h-px w-8 bg-accent" />
-            {t.hero.tagline}
-          </motion.p>
-
-          <motion.h1
+          <motion.div
             variants={
               prefersReducedMotion
                 ? reducedMotionSequenceVariants
                 : headingVariants
             }
-            className="font-display text-[clamp(2.7rem,6.2vw,5.5rem)] font-medium leading-[0.98] tracking-[-0.065em]"
+            className="w-full"
           >
-            <VengeanceInteractiveParticlesText
-              text={t.hero.heading}
-              fontSize={98}
-              fontWeight={600}
-              animated={!prefersReducedMotion}
-              interactionRadius={100}
-            />
-          </motion.h1>
-          
+            <PressureTest text={t.hero.heading} tag="h1" className="text-fg" />
+          </motion.div>
+
+          <motion.p
+            variants={fadeVariants}
+            className="mx-auto mt-6 max-w-2xl text-center font-display text-base leading-relaxed text-secondary sm:text-lg"
+          >
+            {t.hero.tagline}
+          </motion.p>
         </motion.div>
 
-        <div aria-hidden="true" className="hidden lg:col-span-5 lg:block" />
       </Container>
     </section>
   )

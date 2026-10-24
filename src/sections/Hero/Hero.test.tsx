@@ -63,8 +63,13 @@ describe('Hero readiness', () => {
     expect(
       screen.getByRole('heading', {
         level: 1,
-        name: /Engineering digital\s+experiences that\s+move people\./,
+        name: 'ARCHITECT. BUILD. SCALE.',
       }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Engineering seamless digital experiences across web, iOS, and Android.',
+      ),
     ).toBeInTheDocument()
     expect(
       screen.getByText(

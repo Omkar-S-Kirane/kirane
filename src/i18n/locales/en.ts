@@ -14,8 +14,9 @@ const en: Translations = {
     contactMe: 'Contact Me',
   },
   hero: {
-    tagline: 'Creative engineering / frontend development',
-    heading: 'Engineering digital\nexperiences that\nmove people.',
+    tagline:
+      'Engineering seamless digital experiences across web, iOS, and Android.',
+    heading: 'ARCHITECT. BUILD. SCALE.',
     description:
       'I build thoughtful, high-performance web experiences with purposeful interactions and attention to detail.',
     viewWork: 'Explore my work',

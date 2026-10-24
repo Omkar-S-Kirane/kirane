@@ -14,8 +14,9 @@ const hi: Translations = {
     contactMe: 'संपर्क करें',
   },
   hero: {
-    tagline: 'क्रिएटिव इंजीनियरिंग / फ्रंटएंड डेवलपमेंट',
-    heading: 'डिजिटल अनुभव बनाता हूँ,\nजो लोगों को\nप्रेरित करें।',
+    tagline:
+      'Engineering seamless digital experiences across web, iOS, and Android.',
+    heading: 'ARCHITECT. BUILD. SCALE.',
     description:
       'मैं उद्देश्यपूर्ण इंटरैक्शन और बारीकियों पर ध्यान के साथ विचारशील, उच्च-प्रदर्शन वाले वेब अनुभव बनाता हूँ।',
     viewWork: 'मेरा काम देखें',

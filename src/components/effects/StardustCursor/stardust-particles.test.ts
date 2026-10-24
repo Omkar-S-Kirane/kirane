@@ -58,7 +58,7 @@ describe('stardust particle creation', () => {
       Math.max(...perpendicularPositions) - Math.min(...perpendicularPositions)
 
     const beginningColor = trail.particles[0].color
-    const endingColor = trail.particles.at(-1)?.color
+    const endingColor = trail.particles.at(-1)?.color ?? ''
     const colorChannels = [beginningColor, endingColor].map(
       (color) => color.match(/\d+/g)?.map(Number) ?? [],
     )

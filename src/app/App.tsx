@@ -18,12 +18,14 @@ import { Hero } from '@/sections/Hero'
 export function App() {
   // Show splash only once per browser session
   const [showSplash, setShowSplash] = useState(shouldShowSplash)
+  const [splashExiting, setSplashExiting] = useState(false)
   const [cvOpen, setCvOpen] = useState(false)
   const [fontsReady, setFontsReady] = useState(false)
   const prefersReducedMotion = useReducedMotion() === true
   const [spherePhase, setSpherePhase] = useState<ParticleSpherePhase>('splash')
   const sphereReadyRef = useRef(false)
   const allReadyRef = useRef(false)
+  const splashExitTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     waitForCriticalFonts(
@@ -32,6 +34,15 @@ export function App() {
       setFontsReady(true)
     })
   }, [])
+
+  useEffect(
+    () => () => {
+      if (splashExitTimerRef.current !== null) {
+        window.clearTimeout(splashExitTimerRef.current)
+      }
+    },
+    [],
+  )
 
   useEffect(() => {
     document.documentElement.classList.add('hide-scrollbar')
@@ -42,9 +53,14 @@ export function App() {
   }, [])
 
   const handleSplashComplete = useCallback(() => {
-    setShowSplash(false)
+    if (splashExiting) return
+    setSplashExiting(true)
     markSplashShown()
-  }, [])
+    splashExitTimerRef.current = window.setTimeout(() => {
+      splashExitTimerRef.current = null
+      setShowSplash(false)
+    }, prefersReducedMotion ? 10 : 480)
+  }, [prefersReducedMotion, splashExiting])
 
   const handleSphereReady = useCallback(() => {
     sphereReadyRef.current = true
@@ -79,43 +95,46 @@ export function App() {
     setCvOpen(false)
   }, [])
 
-  if (showSplash) {
-    return (
-      <SplashScreen
-        exiting={false}
-        fontsReady={fontsReady}
-        onRevealComplete={handleSplashComplete}
-      />
-    )
-  }
-
   return (
     <>
-      <StardustCursor />
-      <div
-        data-testid="sphere-stage"
-        data-phase={spherePhase}
-        className="app-sphere-stage"
-        style={{ pointerEvents: 'none' }}
-      >
-        <ParticleSphere
-          phase={spherePhase}
-          reducedMotion={prefersReducedMotion === true}
-          onReady={handleSphereReady}
-          onTransitionComplete={handleSphereTransitionComplete}
-        />
-      </div>
-      <Navbar onResumeClick={handleOpenCv} />
-      <main>
-        <Hero
-          active={!showSplash}
+      {showSplash && (
+        <SplashScreen
+          exiting={splashExiting}
           fontsReady={fontsReady}
-          onLayoutReady={handleLayoutReady}
-          onRevealComplete={handleHeroRevealComplete}
+          onRevealComplete={handleSplashComplete}
         />
-      </main>
-      {/* <Footer /> */}
-      <CVModal isOpen={cvOpen} onClose={handleCloseCv} />
+      )}
+      <div
+        id="app-shell"
+        data-testid="app-shell"
+        inert={showSplash && !splashExiting}
+      >
+        <StardustCursor />
+        <div
+          data-testid="sphere-stage"
+          data-phase={spherePhase}
+          className="app-sphere-stage"
+          style={{ pointerEvents: 'none' }}
+        >
+          <ParticleSphere
+            phase={spherePhase}
+            reducedMotion={prefersReducedMotion === true}
+            onReady={handleSphereReady}
+            onTransitionComplete={handleSphereTransitionComplete}
+          />
+        </div>
+        <Navbar onResumeClick={handleOpenCv} />
+        <main>
+          <Hero
+            active={!showSplash || splashExiting}
+            fontsReady={fontsReady}
+            onLayoutReady={handleLayoutReady}
+            onRevealComplete={handleHeroRevealComplete}
+          />
+        </main>
+        {/* <Footer /> */}
+        <CVModal isOpen={cvOpen} onClose={handleCloseCv} />
+      </div>
     </>
   )
 }

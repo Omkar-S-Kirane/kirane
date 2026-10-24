@@ -93,6 +93,30 @@ afterEach(() => {
 })
 
 describe('App splash lifecycle', () => {
+  it('reveals the main screen beneath the fading splash before removing it', async () => {
+    vi.useFakeTimers()
+    render(
+      <Providers>
+        <App />
+      </Providers>,
+    )
+
+    await act(async () => {
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    expect(screen.getByTestId('app-shell')).toHaveAttribute('inert')
+    fireEvent.click(screen.getByTestId('splash-reveal-complete'))
+
+    expect(screen.getByTestId('splash')).toHaveAttribute('data-exiting', 'true')
+    expect(screen.getByTestId('app-shell')).not.toHaveAttribute('inert')
+    expect(screen.getByTestId('hero')).toHaveAttribute('data-active', 'true')
+
+    act(() => vi.advanceTimersByTime(480))
+    expect(screen.queryByTestId('splash')).not.toBeInTheDocument()
+  })
+
   it('hides the document scrollbar without disabling page scrolling', () => {
     const { unmount } = render(
       <Providers>

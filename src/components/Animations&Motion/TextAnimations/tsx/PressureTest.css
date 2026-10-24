@@ -1,0 +1,22 @@
+.pressure-test {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.pt-title {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pt-title span {
+  display: inline-block;
+  transform-origin: center center;
+}

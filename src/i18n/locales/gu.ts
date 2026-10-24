@@ -14,8 +14,9 @@ const gu: Translations = {
     contactMe: 'સંપર્ક કરો',
   },
   hero: {
-    tagline: 'ક્રિએટિવ એન્જિનિયરિંગ / ફ્રન્ટએન્ડ ડેવલપમેન્ટ',
-    heading: 'લોકોને પ્રેરિત કરે\nએવા ડિજિટલ અનુભવો\nબનાવું છું.',
+    tagline:
+      'Engineering seamless digital experiences across web, iOS, and Android.',
+    heading: 'ARCHITECT. BUILD. SCALE.',
     description:
       'હેતુપૂર્ણ ઇન્ટરૅક્શન અને વિગતો પર ધ્યાન સાથે વિચારપૂર્વકના, ઉચ્ચ-પ્રદર્શનવાળા વેબ અનુભવો બનાવું છું.',
     viewWork: 'મારું કામ જુઓ',
