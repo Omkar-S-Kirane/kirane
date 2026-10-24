@@ -42,6 +42,7 @@ vi.mock('@/components/effects/SplashScreen', () => ({
       />
     </div>
   ),
+  SPLASH_EXIT_DURATION_MS: 1900,
   shouldShowSplash: () => true,
   markSplashShown: vi.fn(),
 }))
@@ -113,8 +114,34 @@ describe('App splash lifecycle', () => {
     expect(screen.getByTestId('app-shell')).not.toHaveAttribute('inert')
     expect(screen.getByTestId('hero')).toHaveAttribute('data-active', 'true')
 
-    act(() => vi.advanceTimersByTime(480))
+    act(() => vi.advanceTimersByTime(1900))
     expect(screen.queryByTestId('splash')).not.toBeInTheDocument()
+  })
+
+  it('starts the sphere merge only as the splash begins fading', async () => {
+    render(
+      <Providers>
+        <App />
+      </Providers>,
+    )
+
+    await act(async () => {
+      await Promise.resolve()
+      await Promise.resolve()
+    })
+
+    fireEvent.click(screen.getByTestId('renderer-ready'))
+    expect(screen.getByTestId('sphere-stage')).toHaveAttribute(
+      'data-phase',
+      'splash',
+    )
+
+    fireEvent.click(screen.getByTestId('splash-reveal-complete'))
+    expect(screen.getByTestId('splash')).toHaveAttribute('data-exiting', 'true')
+    expect(screen.getByTestId('sphere-stage')).toHaveAttribute(
+      'data-phase',
+      'transitioning',
+    )
   })
 
   it('hides the document scrollbar without disabling page scrolling', () => {

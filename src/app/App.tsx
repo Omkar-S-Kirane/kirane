@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { waitForCriticalFonts } from './critical-fonts'
 import { useReducedMotion } from 'motion/react'
+import './App.css'
 import { CVModal } from '@/components/cv'
 import { StardustCursor } from '@/components/effects/StardustCursor'
 import {
   SplashScreen,
+  SPLASH_EXIT_DURATION_MS,
   shouldShowSplash,
   markSplashShown,
 } from '@/components/effects/SplashScreen'
@@ -59,25 +61,29 @@ export function App() {
     splashExitTimerRef.current = window.setTimeout(() => {
       splashExitTimerRef.current = null
       setShowSplash(false)
-    }, prefersReducedMotion ? 10 : 480)
+    }, prefersReducedMotion ? 10 : SPLASH_EXIT_DURATION_MS)
   }, [prefersReducedMotion, splashExiting])
+
+  const checkAllReady = useCallback(() => {
+    if (allReadyRef.current) return
+    if (fontsReady && splashExiting && sphereReadyRef.current) {
+      allReadyRef.current = true
+      setSpherePhase('transitioning')
+    }
+  }, [fontsReady, splashExiting])
+
+  useEffect(() => {
+    checkAllReady()
+  }, [checkAllReady])
 
   const handleSphereReady = useCallback(() => {
     sphereReadyRef.current = true
     checkAllReady()
-  }, [])
+  }, [checkAllReady])
 
   const handleSphereTransitionComplete = useCallback(() => {
     setSpherePhase('hero')
   }, [])
-
-  const checkAllReady = useCallback(() => {
-    if (allReadyRef.current) return
-    if (fontsReady && sphereReadyRef.current) {
-      allReadyRef.current = true
-      setSpherePhase('transitioning')
-    }
-  }, [fontsReady])
 
   const handleLayoutReady = useCallback(() => {
     // Hero layout is ready

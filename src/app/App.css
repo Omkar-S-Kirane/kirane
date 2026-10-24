@@ -6,6 +6,27 @@
   transition: transform 1.9s var(--ease-in-out);
 }
 
+.app-sphere-stage::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(76vw, 840px);
+  height: min(76vw, 620px);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(255 191 61 / 30%) 0%,
+    rgb(214 139 35 / 20%) 28%,
+    rgb(144 82 16 / 10%) 48%,
+    transparent 72%
+  );
+  content: '';
+  filter: blur(36px);
+  opacity: 1;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
 .app-sphere-stage[data-phase='transitioning'],
 .app-sphere-stage[data-phase='hero'] {
   transform: translate3d(14vw, 0, 0) scale(0.72);
