@@ -75,8 +75,8 @@ vi.mock('@/sections/PortfolioSections', () => ({
   PortfolioSections: () => <div data-testid="portfolio-sections" />,
 }))
 
-vi.mock('@/components/effects/CustomCursor', () => ({
-  CustomCursor: () => <div data-testid="custom-cursor" />,
+vi.mock('@/components/effects/StardustCursor', () => ({
+  StardustCursor: () => <div data-testid="stardust-cursor" />,
 }))
 
 vi.mock('@/components/layout/Navbar', () => ({
@@ -168,7 +168,7 @@ describe('App splash lifecycle', () => {
 
     fireEvent.click(screen.getByTestId('hero-reveal-complete'))
     expect(screen.getByTestId('app-shell')).not.toHaveAttribute('inert')
-    expect(screen.getByTestId('custom-cursor')).toBeInTheDocument()
+    expect(screen.getByTestId('stardust-cursor')).toBeInTheDocument()
     expect(screen.getAllByTestId('particle-sphere')).toHaveLength(1)
   })
 

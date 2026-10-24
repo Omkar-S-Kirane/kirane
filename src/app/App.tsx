@@ -2,13 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { waitForCriticalFonts } from './critical-fonts'
 import { useReducedMotion } from 'motion/react'
 import { CVModal } from '@/components/cv'
-import { CustomCursor } from '@/components/effects/CustomCursor'
+import { StardustCursor } from '@/components/effects/StardustCursor'
 import {
   SplashScreen,
   shouldShowSplash,
   markSplashShown,
 } from '@/components/effects/SplashScreen'
-import { Footer } from '@/components/layout/Footer'
 import { Navbar } from '@/components/layout/Navbar'
 import {
   ParticleSphere,
@@ -92,7 +91,7 @@ export function App() {
 
   return (
     <>
-      <CustomCursor />
+      <StardustCursor />
       <div
         data-testid="sphere-stage"
         data-phase={spherePhase}
