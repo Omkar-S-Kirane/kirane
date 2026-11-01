@@ -120,7 +120,7 @@ export function LanguageSwitcher() {
         aria-haspopup="listbox"
         aria-label={t.languageSwitcher.changeLanguage}
         className={cn(
-          'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors duration-200',
+          'inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors duration-200',
           'text-fg-muted hover:text-fg',
           isOpen && 'text-fg',
         )}
@@ -154,7 +154,7 @@ export function LanguageSwitcher() {
                   aria-selected={isActive}
                   onClick={() => handleSelect(lang.code)}
                   className={cn(
-                    'flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors duration-150',
+                    'flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors duration-150',
                     isActive
                       ? 'bg-fg/[0.08] text-fg'
                       : 'text-fg-muted hover:bg-fg/[0.04] hover:text-fg',

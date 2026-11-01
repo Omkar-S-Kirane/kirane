@@ -61,6 +61,8 @@ export interface DeveloperUniverseProps {
   /** Smoothed section progress from useUniverseProgress (0 → 1). */
   progress: MotionValue<number>
   active?: boolean
+  /** Accept planet input only while the Universe destination is active. */
+  interactionEnabled?: boolean
   /** Reframing as surrounding overlays appear (0 → 1). */
   reframe?: MotionValue<number>
   /** Space taken by those overlays once fully visible, in CSS pixels. */
@@ -144,6 +146,7 @@ function FloatingCard({
 export function DeveloperUniverse({
   progress,
   active = true,
+  interactionEnabled = true,
   reframe,
   insets = NO_INSETS,
   className,
@@ -173,14 +176,17 @@ export function DeveloperUniverse({
   const sunY = useMotionValue(-9999)
   const sunScale = useMotionValue(1)
 
-  const [interactive, setInteractive] = useState(() =>
-    isInteractive(formation.get()),
-  )
+  const [formed, setFormed] = useState(() => isInteractive(formation.get()))
   useMotionValueEvent(formation, 'change', (value) => {
-    setInteractive(isInteractive(value))
+    setFormed(isInteractive(value))
   })
 
+  const interactive = interactionEnabled && formed
   const interaction = usePlanetInteraction(interactive)
+  const clearInteraction = interaction.clear
+  useEffect(() => {
+    if (!interactionEnabled) clearInteraction()
+  }, [clearInteraction, interactionEnabled])
   const activePlanet = useMemo(
     () =>
       DEVELOPER_UNIVERSE_PLANETS.find(
@@ -261,6 +267,10 @@ export function DeveloperUniverse({
       className={cn('developer-universe', className)}
       role="group"
       aria-label={t.universe.sceneLabel}
+      aria-hidden={!interactionEnabled}
+      inert={!interactionEnabled}
+      data-interactive={interactive}
+      style={{ pointerEvents: interactionEnabled ? 'auto' : 'none' }}
     >
       <div className="developer-universe__space" aria-hidden="true" />
       <motion.div
@@ -301,6 +311,7 @@ export function DeveloperUniverse({
           formation={formation}
           activeId={interaction.activeId}
           onSelect={interaction.select}
+          interactionEnabled={interactionEnabled}
         />
       )}
 

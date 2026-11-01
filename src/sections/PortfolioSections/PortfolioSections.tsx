@@ -1,33 +1,67 @@
 import { ArrowUpRight } from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
+import type { ReactNode } from 'react'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { resumeData } from '@/data/resume'
 import { useTranslation } from '@/i18n'
+import { ExperienceStage } from './ExperienceStage'
+import './PortfolioSections.css'
 
 const REPOSITORY_URL = 'https://github.com/Omkar-S-Kirane/kirane'
 const PROFILE_URL = 'https://github.com/Omkar-S-Kirane'
 
-export function PortfolioSections() {
+interface PortfolioSectionsProps {
+  onOpenResume?: () => void
+}
+
+function Reveal({
+  children,
+  delay = 0,
+}: {
+  children: ReactNode
+  delay?: number
+}) {
+  const reduceMotion = useReducedMotion() === true
+  return (
+    <motion.div
+      initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: reduceMotion ? 0 : 0.45,
+        delay: reduceMotion ? 0 : delay,
+        ease: [0.33, 1, 0.68, 1],
+      }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+export function WorkStage() {
   const { t } = useTranslation()
   return (
-    <div className="pointer-events-auto">
-      <section
-        id="work"
-        data-page-section
-        aria-label={t.portfolio.workHeading}
-        className="flex min-h-svh items-center border-t border-border"
+    <section
+      id="work"
+      data-page-section
+      aria-label={t.portfolio.workHeading}
+      className="portfolio-stage-section"
+    >
+      <Container
+        maxWidth="wide"
+        padding="page"
+        safeArea
+        className="portfolio-stage-section__layout portfolio-work-stage"
       >
-        <Container
-          maxWidth="wide"
-          padding="page"
-          safeArea
-          className="py-20 sm:py-28"
-        >
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(20rem,1fr)] lg:items-end lg:gap-16">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(20rem,1fr)] lg:items-end lg:gap-16">
+          <Reveal>
             <SectionHeading
               eyebrow={t.portfolio.workEyebrow}
               title={t.portfolio.workHeading}
             />
+          </Reveal>
 
+          <Reveal delay={0.08}>
             <a
               href={REPOSITORY_URL}
               target="_blank"
@@ -53,50 +87,39 @@ export function PortfolioSections() {
                 {t.portfolio.sourceLinkLabel}
               </span>
             </a>
-          </div>
-        </Container>
-      </section>
+          </Reveal>
+        </div>
+      </Container>
+    </section>
+  )
+}
 
-      <section
-        id="experience"
-        data-page-section
-        aria-label={t.portfolio.experienceHeading}
-        className="flex min-h-svh items-center border-t border-border"
+export function SkillsStage() {
+  const { t } = useTranslation()
+  return (
+    <section
+      id="skills"
+      data-page-section
+      aria-label={t.portfolio.skillsHeading}
+      className="portfolio-stage-section"
+    >
+      <Container
+        maxWidth="wide"
+        padding="page"
+        safeArea
+        className="portfolio-stage-section__layout portfolio-skills-stage"
       >
-        <Container
-          maxWidth="wide"
-          padding="page"
-          safeArea
-          className="py-20 sm:py-28"
-        >
-          <SectionHeading
-            eyebrow={t.portfolio.experienceEyebrow}
-            title={t.portfolio.experienceHeading}
-            description={t.portfolio.experienceDescription}
-          />
-        </Container>
-      </section>
-
-      <section
-        id="skills"
-        data-page-section
-        aria-label={t.portfolio.skillsHeading}
-        className="flex min-h-svh items-center border-t border-border"
-      >
-        <Container
-          maxWidth="wide"
-          padding="page"
-          safeArea
-          className="grid gap-10 py-20 sm:py-28 lg:grid-cols-[minmax(0,0.75fr)_minmax(20rem,1fr)] lg:items-center lg:gap-16"
-        >
+        <Reveal>
           <SectionHeading
             eyebrow={t.portfolio.skillsEyebrow}
             title={t.portfolio.skillsHeading}
             description={t.portfolio.skillsDescription}
           />
+        </Reveal>
+        <Reveal delay={0.08}>
           <ul
             aria-label={t.portfolio.skillsHeading}
-            className="flex flex-wrap gap-3"
+            className="portfolio-skills-stage__list flex flex-wrap gap-3"
           >
             {t.portfolio.skills.map((skill) => (
               <li
@@ -107,37 +130,115 @@ export function PortfolioSections() {
               </li>
             ))}
           </ul>
-        </Container>
-      </section>
+        </Reveal>
+      </Container>
+    </section>
+  )
+}
 
-      <section
-        id="contact"
-        data-page-section
-        aria-label={t.portfolio.contactHeading}
-        className="flex min-h-svh items-center border-y border-border"
+export function ResumeStage({ onOpenResume }: PortfolioSectionsProps) {
+  const { t, language } = useTranslation()
+  const resume = resumeData[language]
+  return (
+    <section
+      id="resume"
+      data-page-section
+      aria-label={t.resume.modalTitle}
+      className="portfolio-stage-section"
+    >
+      <Container
+        maxWidth="wide"
+        padding="page"
+        safeArea
+        className="portfolio-stage-section__layout portfolio-resume-stage"
       >
-        <Container
-          maxWidth="wide"
-          padding="page"
-          safeArea
-          className="grid gap-8 py-20 sm:py-28 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end"
-        >
+        <Reveal>
+          <SectionHeading
+            eyebrow={t.resume.professionalSummary}
+            title={resume.personalInfo.fullName}
+            description={resume.professionalSummary}
+          />
+        </Reveal>
+        <Reveal delay={0.08}>
+          <button
+            type="button"
+            onClick={onOpenResume}
+            className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-fg px-5 py-3 text-sm font-medium text-bg transition-colors duration-200 hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          >
+            {t.resume.openResume}
+            <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+          </button>
+        </Reveal>
+      </Container>
+    </section>
+  )
+}
+
+export function ContactStage() {
+  const { t, language } = useTranslation()
+  const resume = resumeData[language]
+  return (
+    <section
+      id="contact"
+      data-page-section
+      aria-label={t.portfolio.contactHeading}
+      className="portfolio-stage-section"
+    >
+      <Container
+        maxWidth="wide"
+        padding="page"
+        safeArea
+        className="portfolio-stage-section__layout portfolio-contact-stage"
+      >
+        <Reveal>
           <SectionHeading
             eyebrow={t.portfolio.contactEyebrow}
             title={t.portfolio.contactHeading}
             description={t.portfolio.contactDescription}
           />
-          <a
-            href={PROFILE_URL}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-fg px-5 py-3 text-sm font-medium text-bg transition-colors duration-200 hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-          >
-            {t.portfolio.githubLinkLabel}
-            <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
-          </a>
-        </Container>
-      </section>
+        </Reveal>
+        <Reveal delay={0.08}>
+          <div className="flex flex-wrap gap-3">
+            <a
+              href={`mailto:${resume.personalInfo.email}`}
+              className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full bg-fg px-5 py-3 text-sm font-medium text-bg transition-colors duration-200 hover:bg-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            >
+              {t.footer.email}
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+            </a>
+            <a
+              href={resume.personalInfo.linkedInUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full border border-border px-5 py-3 text-sm font-medium text-fg transition-colors duration-200 hover:border-border-hover hover:bg-fg/[0.04] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            >
+              {t.footer.linkedin}
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+            </a>
+            <a
+              href={PROFILE_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-12 w-fit items-center gap-3 rounded-full border border-border px-5 py-3 text-sm font-medium text-fg transition-colors duration-200 hover:border-border-hover hover:bg-fg/[0.04] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            >
+              {t.portfolio.githubLinkLabel}
+              <ArrowUpRight aria-hidden="true" className="h-4 w-4" />
+            </a>
+          </div>
+        </Reveal>
+      </Container>
+    </section>
+  )
+}
+
+export function PortfolioSections({ onOpenResume }: PortfolioSectionsProps) {
+  return (
+    <div className="pointer-events-auto">
+      <WorkStage />
+      <ExperienceStage />
+      <SkillsStage />
+      <ResumeStage onOpenResume={onOpenResume} />
+      <ContactStage />
     </div>
   )
 }

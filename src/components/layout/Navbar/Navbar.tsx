@@ -4,12 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
 import { useTranslation } from '@/i18n'
 import type { NavItem } from '@/constants/navbar-constants'
-import {
-  CONTACT_ITEM,
-  NAVBAR_HEIGHT,
-  NAV_ITEMS,
-} from '@/constants/navbar-constants'
-import { useActiveSection } from '@/hooks/use-active-section'
+import { CONTACT_ITEM, NAV_ITEMS } from '@/constants/navbar-constants'
 import { useSpotlight } from '@/hooks/use-spotlight'
 import { LanguageSwitcher } from './LanguageSwitcher'
 
@@ -22,13 +17,11 @@ function NavLink({
   isActive,
   onClick,
   onAction,
-  controlledNavigation = false,
 }: {
   item: NavItem
   isActive: boolean
   onClick: () => void
   onAction?: () => void
-  controlledNavigation?: boolean
 }) {
   const { t } = useTranslation()
 
@@ -40,17 +33,8 @@ function NavLink({
       return
     }
 
-    const targetId = item.href.slice(1)
-    const el = document.getElementById(targetId)
-    if (el) {
-      e.preventDefault()
-      onClick()
-      if (controlledNavigation) return
-      const top =
-        el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16
-      window.scrollTo({ top, behavior: 'smooth' })
-    }
-    // If element doesn't exist, let the browser handle it normally
+    e.preventDefault()
+    onClick()
   }
 
   return (
@@ -92,14 +76,12 @@ function MobileMenu({
   activeId,
   onNavClick,
   onResumeClick,
-  controlledNavigation = false,
 }: {
   isOpen: boolean
   onClose: () => void
   activeId: string | null
   onNavClick: (id: string) => void
   onResumeClick?: () => void
-  controlledNavigation?: boolean
 }) {
   const { t } = useTranslation()
 
@@ -124,13 +106,6 @@ function MobileMenu({
     const targetId = item.href.slice(1)
     onNavClick(targetId)
     onClose()
-
-    const el = document.getElementById(targetId)
-    if (el && !controlledNavigation) {
-      const top =
-        el.getBoundingClientRect().top + window.scrollY - NAVBAR_HEIGHT - 16
-      window.scrollTo({ top, behavior: 'smooth' })
-    }
   }
 
   return (
@@ -160,7 +135,7 @@ function MobileMenu({
                   }}
                   aria-current={activeId === id ? 'page' : undefined}
                   className={cn(
-                    'cursor-pointer rounded-xl px-4 py-2.5 text-sm transition-colors duration-150',
+                    'flex min-h-11 cursor-pointer items-center rounded-xl px-4 py-2.5 text-sm transition-colors duration-150',
                     activeId === id
                       ? 'bg-fg/[0.08] text-fg'
                       : 'text-fg-muted hover:bg-fg/[0.04] hover:text-fg',
@@ -179,7 +154,7 @@ function MobileMenu({
               }}
               aria-current={activeId === 'contact' ? 'page' : undefined}
               className={cn(
-                'rounded-xl px-4 py-2.5 text-sm transition-colors duration-150',
+                'flex min-h-11 items-center rounded-xl px-4 py-2.5 text-sm transition-colors duration-150',
                 activeId === 'contact'
                   ? 'bg-fg/[0.08] text-fg'
                   : 'text-fg-muted hover:bg-fg/[0.04] hover:text-fg',
@@ -211,18 +186,16 @@ export function Navbar({
 }: NavbarProps) {
   const { t } = useTranslation()
   const navRef = useRef<HTMLElement>(null)
-  const [observedActiveId, setActiveFromClick] = useActiveSection()
-  const activeId = activeSection ?? observedActiveId
+  const activeId = activeSection ?? 'home'
   const [mobileOpen, setMobileOpen] = useState(false)
 
   useSpotlight(navRef)
 
   const handleNavClick = useCallback(
     (id: string) => {
-      if (onNavigate) onNavigate(id)
-      else setActiveFromClick(id)
+      onNavigate?.(id)
     },
-    [onNavigate, setActiveFromClick],
+    [onNavigate],
   )
 
   // Close mobile menu on resize to desktop
@@ -250,14 +223,8 @@ export function Navbar({
         <a
           href="/"
           onClick={(e) => {
-            if (onNavigate) {
-              e.preventDefault()
-              handleNavClick('home')
-              return
-            }
             e.preventDefault()
-            window.history.pushState(null, '', '/')
-            window.scrollTo({ top: 0, behavior: 'smooth' })
+            handleNavClick('home')
           }}
           className="shrink-0 whitespace-nowrap text-sm font-semibold tracking-tight text-fg sm:text-base"
           aria-label={t.accessibility.homeLink}
@@ -277,7 +244,6 @@ export function Navbar({
               isActive={activeId === item.href.slice(1)}
               onClick={() => handleNavClick(item.href.slice(1))}
               onAction={item.action === 'modal' ? onResumeClick : undefined}
-              controlledNavigation={Boolean(onNavigate)}
             />
           ))}
         </nav>
@@ -289,22 +255,8 @@ export function Navbar({
           <a
             href={CONTACT_ITEM.href}
             onClick={(e) => {
-              if (onNavigate) {
-                e.preventDefault()
-                handleNavClick('contact')
-                return
-              }
-              const el = document.getElementById('contact')
-              if (el) {
-                e.preventDefault()
-                handleNavClick('contact')
-                const top =
-                  el.getBoundingClientRect().top +
-                  window.scrollY -
-                  NAVBAR_HEIGHT -
-                  16
-                window.scrollTo({ top, behavior: 'smooth' })
-              }
+              e.preventDefault()
+              handleNavClick('contact')
             }}
             className={cn(
               'hidden rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-200 lg:block',
@@ -322,7 +274,7 @@ export function Navbar({
             aria-label={
               mobileOpen ? t.accessibility.closeMenu : t.accessibility.openMenu
             }
-            className="inline-flex items-center justify-center rounded-full p-2 text-fg-muted transition-colors duration-150 hover:text-fg lg:hidden"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-fg-muted transition-colors duration-150 hover:text-fg lg:hidden"
           >
             {mobileOpen ? (
               <X className="h-5 w-5" />
@@ -340,7 +292,6 @@ export function Navbar({
         activeId={activeId}
         onNavClick={handleNavClick}
         onResumeClick={onResumeClick}
-        controlledNavigation={Boolean(onNavigate)}
       />
     </header>
   )

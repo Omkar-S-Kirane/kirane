@@ -303,6 +303,7 @@ function SceneContents(props: UniverseSceneProps) {
         systemRadius={systemRadius}
         reframe={props.reframe}
         insets={props.insets}
+        interactive={props.interactive}
       />
       <Starfield count={layout.quality.stars} />
       <SwirlParticles

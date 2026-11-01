@@ -28,3 +28,36 @@ if (typeof globalThis.ResizeObserver === 'undefined') {
     value: ResizeObserverMock,
   })
 }
+
+if (typeof globalThis.IntersectionObserver === 'undefined') {
+  class IntersectionObserverMock implements IntersectionObserver {
+    readonly root = null
+    readonly rootMargin = '0px'
+    readonly scrollMargin = '0px'
+    readonly thresholds = [0]
+
+    constructor(
+      callback: IntersectionObserverCallback,
+      options?: IntersectionObserverInit,
+    ) {
+      void callback
+      void options
+    }
+
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords(): IntersectionObserverEntry[] {
+      return []
+    }
+  }
+
+  Object.defineProperty(globalThis, 'IntersectionObserver', {
+    configurable: true,
+    value: IntersectionObserverMock,
+  })
+  Object.defineProperty(window, 'IntersectionObserver', {
+    configurable: true,
+    value: IntersectionObserverMock,
+  })
+}

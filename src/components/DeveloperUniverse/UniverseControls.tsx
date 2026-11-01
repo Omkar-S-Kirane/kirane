@@ -12,6 +12,8 @@ interface UniverseControlsProps {
   reframe: MotionValue<number>
   /** Space reserved by those overlays once fully visible, in CSS pixels. */
   insets: { top: number; bottom: number }
+  /** Pointer parallax is enabled only on the Universe destination. */
+  interactive: boolean
 }
 
 const DEG = Math.PI / 180
@@ -31,6 +33,7 @@ export function UniverseControls({
   systemRadius,
   reframe,
   insets,
+  interactive,
 }: UniverseControlsProps) {
   const runtimeRef = useUniverseRuntime()
   const gl = useThree((state) => state.gl)
@@ -52,7 +55,7 @@ export function UniverseControls({
   // Pointer parallax follows the cursor anywhere on the page.
   useEffect(() => {
     const { reducedMotion, layout } = runtimeRef.current
-    if (reducedMotion || layout.coarsePointer) return
+    if (!interactive || reducedMotion || layout.coarsePointer) return
     const onMove = (event: PointerEvent) => {
       if (event.pointerType !== 'mouse') return
       pointer.current.x = (event.clientX / window.innerWidth) * 2 - 1
@@ -60,7 +63,7 @@ export function UniverseControls({
     }
     window.addEventListener('pointermove', onMove, { passive: true })
     return () => window.removeEventListener('pointermove', onMove)
-  }, [runtimeRef])
+  }, [interactive, runtimeRef])
 
   // Drag to rotate. Touch drags only rotate horizontally, because vertical
   // swipes drive the scroll-based formation.

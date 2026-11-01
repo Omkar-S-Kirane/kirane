@@ -7,6 +7,7 @@ const mr: Translations = {
     copyright: 'किराणे | ओंकार',
   },
   navigation: {
+    universe: 'विश्व',
     work: 'कार्य',
     experience: 'अनुभव',
     skills: 'कौशल्ये',

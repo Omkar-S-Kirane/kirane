@@ -11,6 +11,7 @@ interface UniverseFallbackProps {
   formation: MotionValue<number>
   activeId: string | null
   onSelect: (id: string) => void
+  interactionEnabled: boolean
 }
 
 /**
@@ -23,6 +24,7 @@ export function UniverseFallback({
   formation,
   activeId,
   onSelect,
+  interactionEnabled,
 }: UniverseFallbackProps) {
   const { t } = useTranslation()
   const sunOpacity = useTransform(formation, (f) => getSunState(f).form)
@@ -34,7 +36,9 @@ export function UniverseFallback({
 
   return (
     <div className="universe-fallback">
-      <p className="universe-fallback__notice">{t.universe.fallbackNotice}</p>
+      {interactionEnabled && (
+        <p className="universe-fallback__notice">{t.universe.fallbackNotice}</p>
+      )}
       <motion.div
         className="universe-fallback__sun"
         style={{ opacity: sunOpacity, scale: sunScale }}
@@ -43,31 +47,57 @@ export function UniverseFallback({
         <span>{t.universe.sunLineOne}</span>
         <span>{t.universe.sunLineTwo}</span>
       </motion.div>
-      <motion.ul
-        className="universe-fallback__planets"
-        style={{ opacity: planetsOpacity }}
-      >
-        {planets.map((planet) => (
-          <li key={planet.id}>
-            <button
-              type="button"
-              className={cn(
-                'universe-fallback__planet',
-                activeId === planet.id && 'is-active',
-              )}
-              aria-pressed={activeId === planet.id}
-              onClick={() => onSelect(planet.id)}
-            >
-              <TechnologyLogoMark
-                logo={planet.logo}
-                colour={planet.logoColor}
-                className="h-5 w-5"
+      {interactionEnabled ? (
+        <motion.ul
+          className="universe-fallback__planets"
+          style={{ opacity: planetsOpacity }}
+        >
+          {planets.map((planet) => (
+            <li key={planet.id}>
+              <button
+                type="button"
+                className={cn(
+                  'universe-fallback__planet',
+                  activeId === planet.id && 'is-active',
+                )}
+                aria-pressed={activeId === planet.id}
+                onClick={() => onSelect(planet.id)}
+              >
+                <TechnologyLogoMark
+                  logo={planet.logo}
+                  colour={planet.logoColor}
+                  className="h-5 w-5"
+                />
+                <span>{planet.name}</span>
+              </button>
+            </li>
+          ))}
+        </motion.ul>
+      ) : (
+        <motion.div
+          className="universe-fallback__ambient-planets"
+          style={{ opacity: planetsOpacity }}
+          aria-hidden="true"
+        >
+          {planets.map((planet, index) => {
+            const angle = (index / planets.length) * Math.PI * 2
+            const left = 50 + Math.cos(angle) * 35
+            const top = 50 + Math.sin(angle) * 27
+            return (
+              <span
+                key={planet.id}
+                className="universe-fallback__ambient-planet"
+                style={{
+                  left: `${left}%`,
+                  top: `${top}%`,
+                  backgroundColor: planet.color,
+                  boxShadow: `0 0 12px ${planet.color}`,
+                }}
               />
-              <span>{planet.name}</span>
-            </button>
-          </li>
-        ))}
-      </motion.ul>
+            )
+          })}
+        </motion.div>
+      )}
     </div>
   )
 }

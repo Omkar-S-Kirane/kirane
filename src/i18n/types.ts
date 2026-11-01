@@ -17,6 +17,7 @@ export interface Translations {
     copyright: string
   }
   navigation: {
+    universe: string
     work: string
     experience: string
     skills: string
@@ -161,7 +162,13 @@ export type LanguageCode = 'en' | 'mr' | 'hi' | 'sa' | 'gu'
  * translations without embedding display text.
  */
 export type NavItemKey =
-  'work' | 'experience' | 'skills' | 'impact' | 'resume' | 'contactMe'
+  | 'universe'
+  | 'work'
+  | 'experience'
+  | 'skills'
+  | 'impact'
+  | 'resume'
+  | 'contactMe'
 
 /**
  * Social link keys — used by footer-constants to reference

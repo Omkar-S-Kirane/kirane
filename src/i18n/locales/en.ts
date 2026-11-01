@@ -7,6 +7,7 @@ const en: Translations = {
     copyright: 'KIRANE | OMKAR',
   },
   navigation: {
+    universe: 'Universe',
     work: 'Work',
     experience: 'Experience',
     skills: 'Skills',

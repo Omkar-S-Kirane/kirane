@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useReducedMotion } from 'motion/react'
+import { useMotionValue, useReducedMotion } from 'motion/react'
 import { waitForCriticalFonts } from './critical-fonts'
 import './App.css'
 import { CVModal } from '@/components/cv'
@@ -16,8 +16,13 @@ import {
   ParticleSphere,
   type ParticleSpherePhase,
 } from '@/components/effects/ParticleSphere'
-import { PortfolioSections } from '@/sections/PortfolioSections'
-import { useSectionNavigation } from '@/hooks/use-section-navigation'
+import { PersistentUniverseBackground } from '@/components/DeveloperUniverse/PersistentUniverseBackground'
+import { CinematicStageHost } from '@/components/navigation/CinematicStageHost'
+import {
+  CINEMATIC_STAGE_IDS,
+  useCinematicNavigation,
+  type CinematicStageId,
+} from '@/hooks/use-cinematic-navigation'
 import {
   CinematicJourney,
   type CinematicJourneyHandle,
@@ -31,11 +36,23 @@ export function App() {
   const [fontsReady, setFontsReady] = useState(false)
   const prefersReducedMotion = useReducedMotion() === true
   const [spherePhase, setSpherePhase] = useState<ParticleSpherePhase>('splash')
-  const { activeId, navigateTo } = useSectionNavigation(
-    showSplash ? 'home' : undefined,
-  )
-  const sphereReadyRef = useRef(false)
   const journeyRef = useRef<CinematicJourneyHandle>(null)
+  const {
+    activeStage,
+    universeEntered,
+    navigateTo,
+    onTransitionComplete,
+    onUniverseEnteredChange,
+    onHeroTransitionComplete,
+    onHeroTransitionReset,
+    handleWheel,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handleKeyDown,
+  } = useCinematicNavigation(journeyRef)
+  const universeProgress = useMotionValue(activeStage === 'home' ? 0 : 1)
+  const sphereReadyRef = useRef(false)
   const allReadyRef = useRef(false)
   const splashExitTimerRef = useRef<number | null>(null)
 
@@ -58,11 +75,38 @@ export function App() {
 
   useEffect(() => {
     document.documentElement.classList.add('portfolio-natural-scroll')
+    document.documentElement.classList.add('cinematic-locked')
 
     return () => {
       document.documentElement.classList.remove('portfolio-natural-scroll')
+      document.documentElement.classList.remove('cinematic-locked')
     }
   }, [])
+
+  useEffect(() => {
+    const viewport = document.getElementById('app-shell')
+    if (!viewport) return
+    viewport.addEventListener('wheel', handleWheel, { passive: false })
+    viewport.addEventListener('touchstart', handleTouchStart, { passive: true })
+    viewport.addEventListener('touchmove', handleTouchMove, { passive: false })
+    viewport.addEventListener('touchend', handleTouchEnd, { passive: true })
+    viewport.addEventListener('touchcancel', handleTouchEnd, { passive: true })
+    viewport.addEventListener('keydown', handleKeyDown)
+    return () => {
+      viewport.removeEventListener('wheel', handleWheel)
+      viewport.removeEventListener('touchstart', handleTouchStart)
+      viewport.removeEventListener('touchmove', handleTouchMove)
+      viewport.removeEventListener('touchend', handleTouchEnd)
+      viewport.removeEventListener('touchcancel', handleTouchEnd)
+      viewport.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [
+    handleKeyDown,
+    handleTouchEnd,
+    handleTouchMove,
+    handleTouchStart,
+    handleWheel,
+  ])
 
   const handleSplashComplete = useCallback(() => {
     if (splashExiting) return
@@ -111,18 +155,18 @@ export function App() {
     setCvOpen(true)
   }, [])
 
-  const handleCloseCv = useCallback(() => {
-    setCvOpen(false)
-  }, [])
-
   const handleNavigate = useCallback(
     (id: string) => {
-      if (id === 'home') journeyRef.current?.reset()
-      else journeyRef.current?.completeForNavigation()
-      navigateTo(id)
+      if (CINEMATIC_STAGE_IDS.includes(id as CinematicStageId)) {
+        navigateTo(id as CinematicStageId)
+      }
     },
     [navigateTo],
   )
+
+  const handleCloseCv = useCallback(() => {
+    setCvOpen(false)
+  }, [])
 
   return (
     <>
@@ -135,10 +179,16 @@ export function App() {
       )}
       <div
         id="app-shell"
+        className="app-shell"
         data-testid="app-shell"
         inert={showSplash && !splashExiting}
       >
         <StardustCursor />
+        <PersistentUniverseBackground
+          progress={universeProgress}
+          entered={universeEntered}
+          activeSection={activeStage}
+        />
         <div
           data-testid="sphere-stage"
           data-phase={spherePhase}
@@ -156,24 +206,33 @@ export function App() {
         </div>
         <Navbar
           onResumeClick={handleOpenCv}
-          activeSection={activeId}
+          activeSection={activeStage}
           onNavigate={handleNavigate}
         />
-        <main className="app-page-stage" data-active-section={activeId}>
+        <main
+          className="app-page-stage"
+          data-active-section={activeStage}
+          data-active-stage={activeStage}
+        >
           <div className="app-page-transition">
             <CinematicJourney
               ref={journeyRef}
-              initialProgress={activeId === 'home' ? 0 : 1}
-              active={
-                (!showSplash || splashExiting) &&
-                (activeId === 'home' || activeId === 'impact')
-              }
+              initialProgress={activeStage === 'home' ? 0 : 1}
+              universeProgress={universeProgress}
+              active={(!showSplash || splashExiting) && activeStage === 'home'}
+              onUniverseEnteredChange={onUniverseEnteredChange}
+              onHeroTransitionComplete={onHeroTransitionComplete}
+              onHeroTransitionReset={onHeroTransitionReset}
               fontsReady={fontsReady}
               onLayoutReady={handleLayoutReady}
               onRevealComplete={handleHeroRevealComplete}
             />
-            <PortfolioSections />
           </div>
+          <CinematicStageHost
+            activeStage={activeStage}
+            onTransitionComplete={onTransitionComplete}
+            onOpenResume={handleOpenCv}
+          />
         </main>
         {/* <Footer /> */}
         <CVModal isOpen={cvOpen} onClose={handleCloseCv} />

@@ -7,6 +7,7 @@ const gu: Translations = {
     copyright: 'કિરાણે | ઓમકાર',
   },
   navigation: {
+    universe: 'બ્રહ્માંડ',
     work: 'કાર્ય',
     experience: 'અનુભવ',
     skills: 'કૌશલ્ય',

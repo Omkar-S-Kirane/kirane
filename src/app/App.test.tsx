@@ -84,7 +84,20 @@ vi.mock('@/sections/PortfolioSections', () => ({
       <section id="work" />
       <section id="experience" />
       <section id="skills" />
+      <section id="resume" />
       <section id="contact" />
+    </div>
+  ),
+}))
+
+vi.mock('@/sections/Universe', () => ({
+  UniverseSection: () => <section id="universe" data-page-section />,
+}))
+
+vi.mock('@/components/DeveloperUniverse/PersistentUniverseBackground', () => ({
+  PersistentUniverseBackground: () => (
+    <div data-testid="persistent-universe-background">
+      <div data-testid="persistent-universe-scene" />
     </div>
   ),
 }))
@@ -125,7 +138,7 @@ afterEach(() => {
 })
 
 describe('App splash lifecycle', () => {
-  it('keeps Hero and Impact in one cinematic viewport before the normal sections', () => {
+  it('keeps the Hero transition separate from the ordered persistent-universe sections', () => {
     render(
       <Providers>
         <App />
@@ -133,21 +146,36 @@ describe('App splash lifecycle', () => {
     )
 
     const main = screen.getByRole('main')
+    expect(screen.getByTestId('app-shell')).toHaveClass('app-shell')
     expect(main).toHaveAttribute('data-active-section', 'home')
+    expect(main).toHaveAttribute('data-active-stage', 'home')
     const journey = screen.getByTestId('cinematic-journey')
+    expect(document.documentElement).toHaveClass('cinematic-locked')
     expect(journey.contains(screen.getByTestId('hero'))).toBe(true)
-    expect(journey.contains(screen.getByTestId('impact'))).toBe(true)
-    vi.spyOn(journey, 'getBoundingClientRect').mockReturnValue(
-      new DOMRect(0, 0, 1280, window.innerHeight),
+    expect(journey.querySelector('#impact')).toBeNull()
+    expect(main.querySelector('#impact')).toBeNull()
+    expect(main.querySelector('#work')).toBeNull()
+
+    const sectionIds = Array.from(
+      main.querySelectorAll<HTMLElement>('section[id]'),
+      (section) => section.id,
     )
-    act(() => window.dispatchEvent(new Event('scroll')))
+    expect(sectionIds).toEqual(['home'])
+    expect(
+      document.querySelectorAll('[data-testid="persistent-universe-scene"]'),
+    ).toHaveLength(1)
+    expect(
+      main.contains(screen.getByTestId('persistent-universe-background')),
+    ).toBe(false)
+
     const wheel = new WheelEvent('wheel', {
       deltaY: -100,
       bubbles: true,
       cancelable: true,
     })
     act(() => journey.dispatchEvent(wheel))
-    expect(wheel.defaultPrevented).toBe(false)
+    expect(wheel.defaultPrevented).toBe(true)
+    expect(window.scrollY).toBe(0)
 
     const advancingWheel = new WheelEvent('wheel', {
       deltaY: 100,
@@ -164,6 +192,18 @@ describe('App splash lifecycle', () => {
     })
     act(() => journey.dispatchEvent(key))
     expect(key.defaultPrevented).toBe(true)
+    expect(window.scrollY).toBe(0)
+    expect(main).toHaveAttribute('data-active-stage', 'universe')
+
+    const returnKey = new KeyboardEvent('keydown', {
+      key: 'Home',
+      bubbles: true,
+      cancelable: true,
+    })
+    act(() => journey.dispatchEvent(returnKey))
+    expect(returnKey.defaultPrevented).toBe(true)
+    expect(window.scrollY).toBe(0)
+    expect(main).toHaveAttribute('data-active-stage', 'home')
 
     const outsideWheel = new WheelEvent('wheel', {
       deltaY: 100,
@@ -171,7 +211,7 @@ describe('App splash lifecycle', () => {
       cancelable: true,
     })
     act(() => main.dispatchEvent(outsideWheel))
-    expect(outsideWheel.defaultPrevented).toBe(false)
+    expect(outsideWheel.defaultPrevented).toBe(true)
 
     act(() =>
       journey.dispatchEvent(
@@ -197,15 +237,9 @@ describe('App splash lifecycle', () => {
     act(() => journey.dispatchEvent(verticalTouch))
     expect(verticalTouch.defaultPrevented).toBe(true)
     expect(document.getElementById('home')).toBeInTheDocument()
-    expect(document.getElementById('impact')).toBeInTheDocument()
-    expect(
-      document
-        .getElementById('work')
-        ?.closest('[data-testid="cinematic-journey"]'),
-    ).toBeNull()
   })
 
-  it('resets a deep-link hash to Home while the splash screen is shown', () => {
+  it('preserves a valid deep-link stage while the splash screen is shown', () => {
     window.history.replaceState(null, '', '/#impact')
     render(
       <Providers>
@@ -215,9 +249,9 @@ describe('App splash lifecycle', () => {
 
     expect(screen.getByRole('main')).toHaveAttribute(
       'data-active-section',
-      'home',
+      'impact',
     )
-    expect(window.location.hash).toBe('')
+    expect(window.location.hash).toBe('#impact')
   })
 
   it('reveals the main screen beneath the fading splash before removing it', async () => {

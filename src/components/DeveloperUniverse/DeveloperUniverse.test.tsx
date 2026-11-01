@@ -111,6 +111,46 @@ describe('DeveloperUniverse', () => {
     expect(within(list).getAllByRole('button')).toHaveLength(19)
   })
 
+  it('makes the scene inert outside the Universe destination', () => {
+    const { container } = render(
+      <I18nProvider>
+        <DeveloperUniverse
+          progress={motionValue(1)}
+          interactionEnabled={false}
+        />
+      </I18nProvider>,
+    )
+
+    const scene = container.querySelector('.developer-universe')
+    expect(scene).toHaveAttribute('inert')
+    expect(scene).toHaveAttribute('aria-hidden', 'true')
+    expect(scene).toHaveStyle({ pointerEvents: 'none' })
+  })
+
+  it('keeps only subdued orbit accents in the persistent fallback outside Universe', () => {
+    const { container } = render(
+      <I18nProvider>
+        <DeveloperUniverse
+          progress={motionValue(1)}
+          interactionEnabled={false}
+        />
+      </I18nProvider>,
+    )
+
+    expect(
+      container.querySelector('.universe-fallback__ambient-planets'),
+    ).toBeInTheDocument()
+    expect(
+      container.querySelectorAll('.universe-fallback__ambient-planet'),
+    ).not.toHaveLength(0)
+    expect(
+      container.querySelector('.universe-fallback__planet'),
+    ).not.toBeInTheDocument()
+    expect(
+      container.querySelector('.universe-fallback__notice'),
+    ).not.toBeInTheDocument()
+  })
+
   it('does not duplicate the technology controls in the fallback', () => {
     render(
       <I18nProvider>
