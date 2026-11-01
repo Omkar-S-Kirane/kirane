@@ -1,0 +1,9 @@
+.hero-background {
+  background-image: url('../../assets/background/hero-bg.PNG');
+  background-position: center;
+  background-size: cover;
+}
+
+.hero-copy-shadow {
+  text-shadow: 0 2px 12px rgb(0 0 0 / 88%), 0 0 28px rgb(0 0 0 / 46%);
+}

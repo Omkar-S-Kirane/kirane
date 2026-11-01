@@ -1,4 +1,5 @@
 import { render, within } from '@testing-library/react'
+import { motionValue } from 'motion/react'
 import { describe, expect, it, vi } from 'vitest'
 import { I18nProvider } from '@/i18n'
 import { EngineeringImpact } from './EngineeringImpact'
@@ -62,5 +63,26 @@ describe('EngineeringImpact', () => {
     expect(cards[0].closest('.metric-card-scroll-layer')).toHaveClass(
       'metric-card-scroll-layer',
     )
+  })
+
+  it('hosts the Developer Universe and keeps the heading and metrics', () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
+    render(
+      <I18nProvider>
+        <EngineeringImpact formationProgress={motionValue(1)} />
+      </I18nProvider>,
+    )
+
+    const section = document.getElementById('impact') as HTMLElement
+    expect(
+      within(section).getByRole('group', { name: /Developer universe/ }),
+    ).toBeInTheDocument()
+    expect(
+      within(section).getByRole('heading', {
+        name: 'Experience measured through what I build.',
+      }),
+    ).toBeInTheDocument()
+    expect(within(section).getAllByRole('article')).toHaveLength(4)
+    vi.restoreAllMocks()
   })
 })

@@ -4,6 +4,7 @@ import { Container } from '@/components/ui/Container'
 import { PressureTest } from '@/components/Animations&Motion/TextAnimations/tsx/PressureTest'
 import { useTranslation } from '@/i18n'
 import { fadeInUp } from '@/lib/animations/motion-variants'
+import './Hero.css'
 
 interface HeroProps {
   active: boolean
@@ -101,13 +102,18 @@ export function Hero({
     <section
       id="home"
       ref={sectionRef}
-      className="relative flex min-h-svh items-start overflow-hidden pt-[clamp(8rem,18svh,11rem)] pb-[calc(3.5rem+var(--layout-safe-area-bottom))] lg:items-center lg:pt-28"
+      className="relative isolate flex min-h-svh items-start overflow-hidden pt-[clamp(8.5rem,15svh,11rem)] pb-[calc(3.5rem+var(--layout-safe-area-bottom))] lg:pt-[16svh]"
     >
+      <div aria-hidden="true" className="hero-background absolute inset-0" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/55"
+      />
       <Container
         maxWidth="wide"
         padding="page"
         safeArea
-        className="relative z-10 grid w-full grid-cols-1 items-center lg:min-h-[calc(100svh-9rem)]"
+        className="relative z-10 grid w-full grid-cols-1 items-start"
       >
         <motion.div
           initial={prefersReducedMotion ? false : 'hidden'}
@@ -124,12 +130,16 @@ export function Hero({
             }
             className="w-full"
           >
-            <PressureTest text={t.hero.heading} tag="h1" className="text-fg" />
+            <PressureTest
+              text={t.hero.heading}
+              tag="h1"
+              className="text-fg hero-copy-shadow"
+            />
           </motion.div>
 
           <motion.p
             variants={fadeVariants}
-            className="mx-auto mt-6 max-w-2xl text-center font-display text-base leading-relaxed text-secondary sm:text-lg"
+            className="hero-copy-shadow mx-auto mt-4 max-w-2xl text-center font-display text-base leading-relaxed text-secondary sm:mt-6 sm:text-lg"
           >
             {t.hero.tagline}
           </motion.p>

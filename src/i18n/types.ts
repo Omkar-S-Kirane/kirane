@@ -109,6 +109,42 @@ export interface Translations {
     resumeDocument: string
     pageOf: string
   }
+  universe: {
+    /** First line of the text inside the central sun. */
+    sunLineOne: string
+    /** Second line of the text inside the central sun. */
+    sunLineTwo: string
+    sceneLabel: string
+    scrollHint: string
+    selectedPlanet: string
+    experience: string
+    projects: string
+    proficiency: string
+    description: string
+    keyExpertise: string
+    relatedTechnologies: string
+    /** Use {count} for the number of years. */
+    yearsValue: string
+    /** Use {count} for the number of projects. */
+    projectsValue: string
+    notSpecified: string
+    closeCard: string
+    technologyListLabel: string
+    fallbackNotice: string
+    categories: {
+      frontend: string
+      mobile: string
+      backend: string
+      database: string
+      versionControl: string
+      cloud: string
+    }
+    proficiencyLevels: {
+      advanced: string
+      intermediate: string
+      learning: string
+    }
+  }
 }
 
 /**

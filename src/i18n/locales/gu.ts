@@ -107,6 +107,40 @@ const gu: Translations = {
     resumeDocument: 'બાયોડેટા દસ્તાવેજ',
     pageOf: 'પૃષ્ઠ {current} / {total}',
   },
+  universe: {
+    sunLineOne: 'ફુલ સ્ટેક',
+    sunLineTwo: 'ડેવલપર',
+    sceneLabel:
+      'ડેવલપર બ્રહ્માંડ: મારી ફુલ-સ્ટેક એન્જિનિયરિંગ ઓળખની આસપાસ ફરતી મારી ટેક્નોલોજી',
+    scrollHint: 'બ્રહ્માંડ રચવા માટે સ્ક્રોલ કરો',
+    selectedPlanet: 'પસંદ કરેલો ગ્રહ',
+    experience: 'અનુભવ',
+    projects: 'પ્રોજેક્ટ્સ',
+    proficiency: 'નિપુણતા',
+    description: 'વર્ણન',
+    keyExpertise: 'મુખ્ય કુશળતાઓ',
+    relatedTechnologies: 'સંબંધિત ટેક્નોલોજી',
+    yearsValue: '{count}+ વર્ષ',
+    projectsValue: '{count}+',
+    notSpecified: 'ઉલ્લેખિત નથી',
+    closeCard: 'ટેક્નોલોજી વિગતો બંધ કરો',
+    technologyListLabel: 'ડેવલપર બ્રહ્માંડની ટેક્નોલોજી',
+    fallbackNotice:
+      'આ ઉપકરણ પર ઇન્ટરેક્ટિવ 3D ઉપલબ્ધ નથી, તેથી સરળ બ્રહ્માંડ બતાવ્યું છે.',
+    categories: {
+      frontend: 'ફ્રન્ટએન્ડ ડેવલપમેન્ટ',
+      mobile: 'મોબાઇલ ડેવલપમેન્ટ',
+      backend: 'બેકએન્ડ ડેવલપમેન્ટ',
+      database: 'ડેટાબેઝ',
+      versionControl: 'વર્ઝન કંટ્રોલ',
+      cloud: 'ક્લાઉડ અને ડિપ્લોયમેન્ટ',
+    },
+    proficiencyLevels: {
+      advanced: 'અદ્યતન',
+      intermediate: 'મધ્યમ',
+      learning: 'શીખી રહ્યો છું',
+    },
+  },
 }
 
 export default gu

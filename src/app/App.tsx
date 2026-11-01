@@ -11,6 +11,7 @@ import {
   markSplashShown,
 } from '@/components/effects/SplashScreen'
 import { Navbar } from '@/components/layout/Navbar'
+import { preloadUniverseScene } from '@/components/DeveloperUniverse'
 import {
   ParticleSphere,
   type ParticleSpherePhase,
@@ -31,11 +32,15 @@ export function App() {
     activeId,
     scrollDirection,
     scrollProgress,
+    sectionProgress,
     navigateTo,
     handleWheel,
     handleTouchStart,
+    handleTouchMove,
     handleTouchEnd,
-  } = useSectionNavigation(showSplash ? 'home' : undefined)
+  } = useSectionNavigation(showSplash ? 'home' : undefined, {
+    scrub: !prefersReducedMotion,
+  })
   const sphereReadyRef = useRef(false)
   const allReadyRef = useRef(false)
   const splashExitTimerRef = useRef<number | null>(null)
@@ -104,7 +109,8 @@ export function App() {
   }, [])
 
   const handleHeroRevealComplete = useCallback(() => {
-    // Hero reveal is complete
+    // Fetch the Developer Universe scene while the visitor reads the hero.
+    preloadUniverseScene()
   }, [])
 
   const handleOpenCv = useCallback(() => {
@@ -136,6 +142,9 @@ export function App() {
             ? undefined
             : handleTouchStart
         }
+        onTouchMove={
+          cvOpen || (showSplash && !splashExiting) ? undefined : handleTouchMove
+        }
         onTouchEnd={
           cvOpen || (showSplash && !splashExiting) ? undefined : handleTouchEnd
         }
@@ -147,12 +156,14 @@ export function App() {
           className="app-sphere-stage"
           style={{ pointerEvents: 'none' }}
         >
-          <ParticleSphere
-            phase={spherePhase}
-            reducedMotion={prefersReducedMotion === true}
-            onReady={handleSphereReady}
-            onTransitionComplete={handleSphereTransitionComplete}
-          />
+          {spherePhase !== 'hero' && (
+            <ParticleSphere
+              phase={spherePhase}
+              reducedMotion={prefersReducedMotion === true}
+              onReady={handleSphereReady}
+              onTransitionComplete={handleSphereTransitionComplete}
+            />
+          )}
         </div>
         <Navbar
           onResumeClick={handleOpenCv}
@@ -186,6 +197,7 @@ export function App() {
                   activeSection={activeId}
                   scrollDirection={scrollDirection}
                   scrollProgress={scrollProgress}
+                  sectionProgress={sectionProgress}
                 />
               )}
             </motion.div>

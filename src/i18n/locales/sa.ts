@@ -107,6 +107,40 @@ const sa: Translations = {
     resumeDocument: 'परिचयपत्रदस्तावेजम्',
     pageOf: 'पृष्ठम् {current} / {total}',
   },
+  universe: {
+    sunLineOne: 'पूर्णस्तर',
+    sunLineTwo: 'विकासकः',
+    sceneLabel:
+      'विकासक-ब्रह्माण्डम्: मम पूर्णस्तर-अभियान्त्रिक-परिचयं परितः भ्रमन्ति मम तन्त्रज्ञानानि',
+    scrollHint: 'ब्रह्माण्डनिर्माणाय स्क्रोल् करोतु',
+    selectedPlanet: 'चितः ग्रहः',
+    experience: 'अनुभवः',
+    projects: 'परियोजनाः',
+    proficiency: 'प्रावीण्यम्',
+    description: 'विवरणम्',
+    keyExpertise: 'प्रमुखकौशलानि',
+    relatedTechnologies: 'सम्बद्धतन्त्रज्ञानानि',
+    yearsValue: '{count}+ वर्षाणि',
+    projectsValue: '{count}+',
+    notSpecified: 'अनिर्दिष्टम्',
+    closeCard: 'तन्त्रज्ञानविवरणं पिदधातु',
+    technologyListLabel: 'विकासक-ब्रह्माण्डस्य तन्त्रज्ञानानि',
+    fallbackNotice:
+      'अस्मिन् उपकरणे संवादात्मकं त्रिमितदृश्यं न उपलभ्यते, अतः सरलं ब्रह्माण्डं दर्श्यते।',
+    categories: {
+      frontend: 'अग्रभाग-विकासः',
+      mobile: 'चलदूरवाणी-विकासः',
+      backend: 'पृष्ठभाग-विकासः',
+      database: 'दत्तांशकोशः',
+      versionControl: 'संस्करण-नियन्त्रणम्',
+      cloud: 'मेघः प्रसारणं च',
+    },
+    proficiencyLevels: {
+      advanced: 'उन्नतम्',
+      intermediate: 'मध्यमम्',
+      learning: 'अधीयमानम्',
+    },
+  },
 }
 
 export default sa

@@ -107,6 +107,40 @@ const hi: Translations = {
     resumeDocument: 'बायोडाटा दस्तावेज़',
     pageOf: 'पृष्ठ {current} / {total}',
   },
+  universe: {
+    sunLineOne: 'फुल स्टैक',
+    sunLineTwo: 'डेवलपर',
+    sceneLabel:
+      'डेवलपर ब्रह्मांड: मेरी फुल-स्टैक इंजीनियरिंग पहचान के चारों ओर घूमती मेरी तकनीकें',
+    scrollHint: 'ब्रह्मांड बनाने के लिए स्क्रॉल करें',
+    selectedPlanet: 'चयनित ग्रह',
+    experience: 'अनुभव',
+    projects: 'प्रोजेक्ट',
+    proficiency: 'दक्षता',
+    description: 'विवरण',
+    keyExpertise: 'मुख्य विशेषज्ञता',
+    relatedTechnologies: 'संबंधित तकनीकें',
+    yearsValue: '{count}+ वर्ष',
+    projectsValue: '{count}+',
+    notSpecified: 'उल्लेखित नहीं',
+    closeCard: 'तकनीक का विवरण बंद करें',
+    technologyListLabel: 'डेवलपर ब्रह्मांड की तकनीकें',
+    fallbackNotice:
+      'इस डिवाइस पर इंटरैक्टिव 3D उपलब्ध नहीं है, इसलिए सरल ब्रह्मांड दिखाया गया है।',
+    categories: {
+      frontend: 'फ्रंटएंड डेवलपमेंट',
+      mobile: 'मोबाइल डेवलपमेंट',
+      backend: 'बैकएंड डेवलपमेंट',
+      database: 'डेटाबेस',
+      versionControl: 'वर्ज़न कंट्रोल',
+      cloud: 'क्लाउड और डिप्लॉयमेंट',
+    },
+    proficiencyLevels: {
+      advanced: 'उन्नत',
+      intermediate: 'मध्यम',
+      learning: 'सीख रहा हूँ',
+    },
+  },
 }
 
 export default hi

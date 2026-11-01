@@ -1,4 +1,5 @@
 import { ArrowUpRight } from 'lucide-react'
+import type { MotionValue } from 'motion/react'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { useTranslation } from '@/i18n'
@@ -11,10 +12,13 @@ export function PortfolioSections({
   activeSection,
   scrollDirection = 1,
   scrollProgress = 0,
+  sectionProgress,
 }: {
   activeSection?: 'work' | 'experience' | 'skills' | 'impact' | 'contact'
   scrollDirection?: -1 | 1
   scrollProgress?: number
+  /** Continuous progress through the Impact section (Developer Universe). */
+  sectionProgress?: MotionValue<number>
 }) {
   const { t } = useTranslation()
   const visible = (id: NonNullable<typeof activeSection>) =>
@@ -26,6 +30,7 @@ export function PortfolioSections({
         active={visible('impact')}
         scrollDirection={scrollDirection}
         scrollProgress={scrollProgress}
+        formationProgress={sectionProgress}
       />
 
       <section

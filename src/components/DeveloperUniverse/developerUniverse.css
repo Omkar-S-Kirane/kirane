@@ -1,0 +1,512 @@
+/* Space Grotesk (SIL Open Font License 1.1) — self-hosted, latin subset. */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 300 700;
+  src: url('../../assets/fonts/space-grotesk/space-grotesk-latin-wght-normal.woff2')
+    format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
+    U+2215, U+FEFF, U+FFFD;
+}
+
+.developer-universe {
+  --universe-bg: #050609;
+  --universe-sun: #f5b94c;
+  --universe-glow: #ffcc75;
+  --universe-glow-secondary: #d9a441;
+  --universe-text: #f5f2ea;
+  --universe-glass: rgb(20 22 30 / 65%);
+  --universe-glass-border: rgb(245 185 76 / 28%);
+  --universe-font: 'Space Grotesk', var(--font-sans);
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--universe-bg);
+  color: var(--universe-text);
+  isolation: isolate;
+}
+
+.developer-universe__space,
+.developer-universe__nebula,
+.developer-universe__dawn,
+.developer-universe__hero-bridge,
+.developer-universe__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.developer-universe__space {
+  background:
+    radial-gradient(60% 50% at 14% 18%, rgb(70 62 140 / 12%), transparent 70%),
+    radial-gradient(55% 45% at 88% 82%, rgb(120 70 30 / 10%), transparent 70%),
+    radial-gradient(130% 95% at 50% 45%, #0b0d14 0%, var(--universe-bg) 62%);
+}
+
+.developer-universe__hero-bridge {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.5) saturate(0.85) blur(1px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.developer-universe__nebula {
+  background: radial-gradient(
+    42% 36% at 50% 50%,
+    rgb(245 185 76 / 15%),
+    rgb(217 164 65 / 6%) 45%,
+    transparent 72%
+  );
+  pointer-events: none;
+}
+
+.developer-universe__dawn {
+  background: radial-gradient(
+    36% 55% at 100% 64%,
+    rgb(255 204 117 / 34%),
+    rgb(217 164 65 / 12%) 45%,
+    transparent 76%
+  );
+  pointer-events: none;
+}
+
+.developer-universe__canvas {
+  touch-action: pan-x pinch-zoom;
+}
+
+/* ------------------------------------------------ central typography */
+.developer-universe__sun-anchor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.developer-universe__sun-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  translate: -50% -50%;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+  color: #fff8ec;
+  font-family: var(--universe-font);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
+  text-align: center;
+  text-shadow:
+    0 1px 1px rgb(60 28 0 / 75%),
+    0 0 2px rgb(60 28 0 / 55%),
+    0 0 14px rgb(92 46 0 / 65%),
+    0 0 34px rgb(120 60 0 / 40%);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------ scroll hint */
+.developer-universe__hint {
+  position: absolute;
+  bottom: calc(1.5rem + var(--layout-safe-area-bottom, 0px));
+  left: 50%;
+  display: flex;
+  translate: -50% 0;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  color: rgb(245 242 234 / 72%);
+  font-family: var(--universe-font);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.developer-universe__hint svg {
+  animation: universe-hint-drift 2.4s var(--ease-in-out, ease-in-out) infinite;
+}
+
+@keyframes universe-hint-drift {
+  0%,
+  100% {
+    transform: translateY(-2px);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(3px);
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------ glass information card */
+.developer-universe__card-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.universe-card {
+  position: absolute;
+  overflow: hidden;
+  border: 1px solid var(--universe-glass-border);
+  border-radius: 1.25rem;
+  background: var(--universe-glass);
+  box-shadow:
+    inset 0 1px 0 rgb(255 236 200 / 10%),
+    inset 0 0 24px rgb(245 185 76 / 5%),
+    0 0 0 1px rgb(255 204 117 / 4%),
+    0 24px 60px -24px rgb(0 0 0 / 85%),
+    0 0 42px -14px rgb(245 185 76 / 28%);
+  color: var(--universe-text);
+  font-family: var(--universe-font);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+}
+
+/* Illuminated top edge. */
+.universe-card::before {
+  position: absolute;
+  top: 0;
+  right: 12%;
+  left: 12%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 204 117 / 75%),
+    transparent
+  );
+  content: '';
+}
+
+.universe-card--floating {
+  top: 0;
+  left: 0;
+  width: min(22rem, calc(100% - 2rem));
+  padding: 1.1rem 1.2rem 1.2rem;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+}
+
+.universe-card--sheet {
+  right: 0.75rem;
+  bottom: calc(0.75rem + var(--layout-safe-area-bottom, 0px));
+  left: 0.75rem;
+  max-height: min(70svh, 34rem);
+  overflow-y: auto;
+  padding: 1.1rem 1.15rem 1.2rem;
+  pointer-events: auto;
+  overscroll-behavior: contain;
+}
+
+.universe-card__eyebrow {
+  margin: 0 0 0.8rem;
+  color: rgb(255 204 117 / 85%);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.universe-card__eyebrow span {
+  color: var(--universe-text);
+}
+
+.universe-card__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.universe-card__badge {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border: 1px solid rgb(245 185 76 / 22%);
+  border-radius: 0.8rem;
+  background: rgb(5 6 9 / 70%);
+  place-items: center;
+}
+
+.universe-card__title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.universe-card__category {
+  margin: 0.1rem 0 0;
+  color: rgb(245 242 234 / 62%);
+  font-size: 0.8rem;
+}
+
+.universe-card__close {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border: 1px solid rgb(245 242 234 / 14%);
+  border-radius: 999px;
+  background: rgb(5 6 9 / 40%);
+  color: var(--universe-text);
+  cursor: pointer;
+  place-items: center;
+}
+
+.universe-card__stats {
+  display: grid;
+  margin: 1rem 0 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.universe-card__stat {
+  min-width: 0;
+  padding: 0.5rem 0.55rem;
+  border: 1px solid rgb(245 242 234 / 8%);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 3%);
+}
+
+.universe-card__stat dt {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: rgb(245 242 234 / 55%);
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+.universe-card__stat dd {
+  margin: 0.3rem 0 0;
+  color: var(--universe-glow);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.universe-card__stat dd.universe-card__muted {
+  color: rgb(245 242 234 / 50%);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.universe-card__group {
+  margin-top: 0.9rem;
+}
+
+.universe-card__group h4 {
+  margin: 0 0 0.4rem;
+  color: rgb(245 242 234 / 50%);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.universe-card__description,
+.universe-card__related {
+  margin: 0;
+  color: rgb(245 242 234 / 84%);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.universe-card__skills {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  gap: 0.35rem;
+  list-style: none;
+}
+
+.universe-card__skills li {
+  padding: 0.22rem 0.55rem;
+  border: 1px solid rgb(245 185 76 / 20%);
+  border-radius: 999px;
+  background: rgb(245 185 76 / 7%);
+  color: rgb(245 242 234 / 88%);
+  font-size: 0.7rem;
+}
+
+/* ------------------------------------------------ WebGL fallback */
+.universe-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 1rem 9rem;
+  gap: 2rem;
+}
+
+.universe-fallback__notice {
+  margin: 0;
+  color: rgb(245 242 234 / 55%);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.universe-fallback__sun {
+  display: flex;
+  width: clamp(9rem, 26vw, 13rem);
+  aspect-ratio: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 38% 34%,
+    #fff4dc 0%,
+    #ffcc75 32%,
+    #f5b94c 58%,
+    #a85f12 100%
+  );
+  box-shadow:
+    0 0 60px rgb(245 185 76 / 45%),
+    0 0 140px rgb(217 164 65 / 25%);
+  color: #fff8ec;
+  font-family: var(--universe-font);
+  font-size: clamp(0.9rem, 2.2vw, 1.25rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-shadow: 0 0 12px rgb(92 46 0 / 60%);
+}
+
+.universe-fallback__planets {
+  display: flex;
+  max-width: 44rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.universe-fallback__planet {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.8rem 0.4rem 0.45rem;
+  border: 1px solid rgb(245 242 234 / 12%);
+  border-radius: 999px;
+  background: rgb(20 22 30 / 70%);
+  color: var(--universe-text);
+  font-family: var(--universe-font);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.universe-fallback__planet.is-active,
+.universe-fallback__planet:hover {
+  border-color: var(--universe-glass-border);
+  background: rgb(245 185 76 / 10%);
+}
+
+/* ------------------------------------------------ Impact section composition */
+.impact-universe {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #050609;
+}
+
+.impact-universe__heading {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: clamp(5.5rem, 13svh, 7.25rem) 1.25rem 0;
+  pointer-events: none;
+  text-align: center;
+}
+
+.impact-universe__heading h2 {
+  font-size: clamp(1.25rem, 2.4vw, 1.9rem);
+}
+
+.impact-universe__heading p {
+  margin-bottom: 0.5rem;
+}
+
+.impact-universe__metrics {
+  position: absolute;
+  z-index: 20;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 0 1rem calc(1rem + var(--layout-safe-area-bottom, 0px));
+  pointer-events: none;
+}
+
+.impact-universe__metrics-grid {
+  display: grid;
+  max-width: 64rem;
+  margin: 0 auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.impact-universe__metrics-grid > * {
+  pointer-events: auto;
+}
+
+.impact-universe__metrics .metric-card {
+  min-height: 0;
+  padding: 0.75rem 1rem;
+}
+
+.impact-universe__metrics .metric-card__value {
+  font-size: clamp(1.4rem, 2.6vw, 2.1rem);
+}
+
+.impact-universe__metrics .metric-card__label {
+  font-size: clamp(0.72rem, 1vw, 0.85rem);
+}
+
+@media (min-width: 1024px) {
+  .impact-universe__metrics {
+    padding-bottom: calc(1.5rem + var(--layout-safe-area-bottom, 0px));
+  }
+
+  .impact-universe__metrics-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .impact-universe__metrics .metric-card {
+    padding: 1rem 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .developer-universe__hint svg {
+    animation: none;
+  }
+}

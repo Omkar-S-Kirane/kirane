@@ -107,6 +107,40 @@ const en: Translations = {
     resumeDocument: 'Resume document',
     pageOf: 'Page {current} of {total}',
   },
+  universe: {
+    sunLineOne: 'FULL STACK',
+    sunLineTwo: 'DEVELOPER',
+    sceneLabel:
+      'Developer universe: my technologies orbiting my full-stack engineering identity',
+    scrollHint: 'Scroll to form the universe',
+    selectedPlanet: 'Selected planet',
+    experience: 'Experience',
+    projects: 'Projects',
+    proficiency: 'Proficiency',
+    description: 'Description',
+    keyExpertise: 'Key expertise',
+    relatedTechnologies: 'Related technologies',
+    yearsValue: '{count}+ years',
+    projectsValue: '{count}+',
+    notSpecified: 'Not specified',
+    closeCard: 'Close technology details',
+    technologyListLabel: 'Technologies in the developer universe',
+    fallbackNotice:
+      'Interactive 3D is unavailable on this device, so a simplified universe is shown.',
+    categories: {
+      frontend: 'Frontend Development',
+      mobile: 'Mobile Development',
+      backend: 'Backend Development',
+      database: 'Database',
+      versionControl: 'Version Control',
+      cloud: 'Cloud & Deployment',
+    },
+    proficiencyLevels: {
+      advanced: 'Advanced',
+      intermediate: 'Intermediate',
+      learning: 'Learning',
+    },
+  },
 }
 
 export default en
