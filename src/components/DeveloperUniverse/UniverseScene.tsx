@@ -34,6 +34,7 @@ import { createGlowTexture, createLogoTexture } from './universeTextures'
 import type { LogoTexture } from './universeTextures'
 
 export interface UniverseSceneProps {
+  active?: boolean
   planets: readonly ScenePlanet[]
   layout: UniverseLayout
   /** Smoothed formation progress, 0 → 1. */
@@ -359,7 +360,14 @@ function SceneContents(props: UniverseSceneProps) {
 
 /** The WebGL universe. Loaded lazily so three.js stays out of the first paint. */
 export function UniverseScene(props: UniverseSceneProps) {
-  const { layout, planets, reducedMotion, onMiss, onContextLost } = props
+  const {
+    active = true,
+    layout,
+    planets,
+    reducedMotion,
+    onMiss,
+    onContextLost,
+  } = props
   const runtimeRef = useRef<UniverseRuntime>(
     createUniverseRuntime(planets, layout, reducedMotion),
   )
@@ -373,6 +381,7 @@ export function UniverseScene(props: UniverseSceneProps) {
   return (
     <Canvas
       className="developer-universe__canvas"
+      frameloop={active ? 'always' : 'never'}
       flat
       dpr={[1, layout.quality.maxDpr]}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}

@@ -86,17 +86,17 @@ export interface SunState {
 
 export function getSunState(f: number): SunState {
   const [enterStart, enterEnd] = FORMATION_TIMELINE.sunEnter
-  const [, settleEnd] = FORMATION_TIMELINE.sunSettle
+  const [settleStart, settleEnd] = FORMATION_TIMELINE.sunSettle
   return {
     light: segment(f, enterStart - 0.02, enterStart + 0.06),
     travel: easeInOutCubic(segment(f, enterStart, enterEnd + 0.02)),
     rise: easeOutCubic(segment(f, enterStart, enterEnd + 0.04)),
-    scale: 0.16 + 0.84 * easeOutCubic(segment(f, enterStart + 0.02, 0.3)),
+    scale: 0.16 + 0.84 * easeOutCubic(segment(f, enterStart + 0.02, settleEnd)),
     form: easeOutCubic(segment(f, enterStart + 0.03, enterEnd + 0.01)),
-    detail: segment(f, 0.2, 0.32),
-    halo: segment(f, 0.18, 0.33),
-    particles: segment(f, 0.22, settleEnd),
-    text: easeOutCubic(segment(f, 0.27, settleEnd)),
+    detail: segment(f, 0.32, settleEnd),
+    halo: segment(f, 0.3, settleEnd),
+    particles: segment(f, 0.34, settleEnd),
+    text: easeOutCubic(segment(f, settleStart, settleEnd)),
   }
 }
 
@@ -148,7 +148,15 @@ export function getMetricsReveal(sectionProgress: number): number {
   )
 }
 
-/** The "scroll to form" hint fades as soon as the visitor starts scrolling. */
+/** Relative universe introduction: reveal early, then fade before planets arrive. */
 export function getScrollHintOpacity(sectionProgress: number): number {
-  return 1 - segment(sectionProgress, 0, 0.035)
+  const reveal = easeOutCubic(segment(sectionProgress, 0.06, 0.17))
+  const fade = 1 - segment(sectionProgress, 0.34, 0.46)
+  return reveal * fade
+}
+
+export function getScrollHintY(sectionProgress: number): number {
+  const entrance = easeOutCubic(segment(sectionProgress, 0.06, 0.17))
+  const exit = segment(sectionProgress, 0.34, 0.46)
+  return (1 - entrance) * 14 - exit * 10
 }

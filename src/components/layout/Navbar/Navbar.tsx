@@ -141,7 +141,7 @@ function MobileMenu({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.2, ease: [0.33, 1, 0.68, 1] }}
-          className="absolute left-4 right-4 top-full mt-2 rounded-2xl border border-white/[0.08] bg-[#0a0a0c]/95 p-2 backdrop-blur-md sm:hidden"
+          className="absolute left-4 right-4 top-full mt-2 rounded-2xl border border-white/[0.08] bg-[#0a0a0c]/95 p-2 backdrop-blur-md lg:hidden"
         >
           <nav
             aria-label={t.accessibility.mobileNavigation}
@@ -228,7 +228,7 @@ export function Navbar({
   // Close mobile menu on resize to desktop
   useEffect(() => {
     const onResize = () => {
-      if (window.innerWidth >= 640) setMobileOpen(false)
+      if (window.innerWidth >= 1024) setMobileOpen(false)
     }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
@@ -245,7 +245,7 @@ export function Navbar({
         className="spotlight-glow pointer-events-none absolute inset-0 rounded-full"
       />
 
-      <div className="relative flex h-14 items-center justify-between px-5 sm:px-6">
+      <div className="relative flex h-14 items-center justify-between px-4 sm:px-6">
         {/* Brand */}
         <a
           href="/"
@@ -259,7 +259,7 @@ export function Navbar({
             window.history.pushState(null, '', '/')
             window.scrollTo({ top: 0, behavior: 'smooth' })
           }}
-          className="text-base font-semibold tracking-tight text-fg"
+          className="shrink-0 whitespace-nowrap text-sm font-semibold tracking-tight text-fg sm:text-base"
           aria-label={t.accessibility.homeLink}
         >
           {t.common.brandName}
@@ -268,7 +268,7 @@ export function Navbar({
         {/* Desktop nav — centred */}
         <nav
           aria-label={t.accessibility.mainNavigation}
-          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 sm:flex"
+          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 lg:flex"
         >
           {NAV_ITEMS.map((item) => (
             <NavLink
@@ -307,7 +307,7 @@ export function Navbar({
               }
             }}
             className={cn(
-              'hidden rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-200 sm:block',
+              'hidden rounded-full px-4 py-1.5 text-sm font-medium transition-colors duration-200 lg:block',
               'bg-fg/[0.1] text-fg hover:bg-fg/[0.15]',
             )}
           >
@@ -322,7 +322,7 @@ export function Navbar({
             aria-label={
               mobileOpen ? t.accessibility.closeMenu : t.accessibility.openMenu
             }
-            className="inline-flex items-center justify-center rounded-full p-2 text-fg-muted transition-colors duration-150 hover:text-fg sm:hidden"
+            className="inline-flex items-center justify-center rounded-full p-2 text-fg-muted transition-colors duration-150 hover:text-fg lg:hidden"
           >
             {mobileOpen ? (
               <X className="h-5 w-5" />

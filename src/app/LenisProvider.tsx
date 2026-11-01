@@ -10,6 +10,8 @@ export function LenisProvider({ children }: LenisProviderProps) {
     const lenis = new Lenis({
       autoRaf: true,
       respectReducedMotion: true,
+      smoothWheel:
+        document.documentElement.classList.contains('aether-document'),
     })
 
     return () => lenis.destroy()

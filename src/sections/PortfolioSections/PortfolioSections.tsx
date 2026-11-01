@@ -1,5 +1,4 @@
 import { ArrowUpRight } from 'lucide-react'
-import type { MotionValue } from 'motion/react'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { useTranslation } from '@/i18n'
@@ -10,35 +9,19 @@ const PROFILE_URL = 'https://github.com/Omkar-S-Kirane'
 
 export function PortfolioSections({
   activeSection,
-  scrollDirection = 1,
-  scrollProgress = 0,
-  sectionProgress,
 }: {
-  activeSection?: 'work' | 'experience' | 'skills' | 'impact' | 'contact'
-  scrollDirection?: -1 | 1
-  scrollProgress?: number
-  /** Continuous progress through the Impact section (Developer Universe). */
-  sectionProgress?: MotionValue<number>
+  activeSection?:
+    'home' | 'work' | 'experience' | 'skills' | 'impact' | 'contact'
 }) {
   const { t } = useTranslation()
-  const visible = (id: NonNullable<typeof activeSection>) =>
-    activeSection === undefined || activeSection === id
-
   return (
     <div className="pointer-events-auto">
-      <EngineeringImpact
-        active={visible('impact')}
-        scrollDirection={scrollDirection}
-        scrollProgress={scrollProgress}
-        formationProgress={sectionProgress}
-      />
+      <EngineeringImpact active={activeSection === 'impact'} />
 
       <section
         id="work"
+        data-page-section
         aria-label={t.portfolio.workHeading}
-        aria-hidden={!visible('work')}
-        inert={!visible('work')}
-        hidden={!visible('work')}
         className="flex min-h-svh items-center border-t border-border"
       >
         <Container
@@ -84,10 +67,8 @@ export function PortfolioSections({
 
       <section
         id="experience"
+        data-page-section
         aria-label={t.portfolio.experienceHeading}
-        aria-hidden={!visible('experience')}
-        inert={!visible('experience')}
-        hidden={!visible('experience')}
         className="flex min-h-svh items-center border-t border-border"
       >
         <Container
@@ -106,10 +87,8 @@ export function PortfolioSections({
 
       <section
         id="skills"
+        data-page-section
         aria-label={t.portfolio.skillsHeading}
-        aria-hidden={!visible('skills')}
-        inert={!visible('skills')}
-        hidden={!visible('skills')}
         className="flex min-h-svh items-center border-t border-border"
       >
         <Container
@@ -141,10 +120,8 @@ export function PortfolioSections({
 
       <section
         id="contact"
+        data-page-section
         aria-label={t.portfolio.contactHeading}
-        aria-hidden={!visible('contact')}
-        inert={!visible('contact')}
-        hidden={!visible('contact')}
         className="flex min-h-svh items-center border-y border-border"
       >
         <Container

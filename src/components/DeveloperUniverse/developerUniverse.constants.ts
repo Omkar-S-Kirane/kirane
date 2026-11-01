@@ -27,12 +27,12 @@ export const FORMATION_SHARE = 0.85
 /** Formation phases, as fractions of the formation progress (0 → 1). */
 export const FORMATION_TIMELINE = {
   space: [0, 0.1],
-  sunEnter: [0.1, 0.25],
-  sunSettle: [0.25, 0.35],
-  planets: [0.35, 0.65],
-  orbits: [0.65, 0.8],
-  activation: [0.8, 0.95],
-  interactive: [0.95, 1],
+  sunEnter: [0.2, 0.4],
+  sunSettle: [0.4, 0.5],
+  planets: [0.5, 0.75],
+  orbits: [0.75, 0.9],
+  activation: [0.82, 0.94],
+  interactive: [0.9, 1],
 } as const satisfies Record<string, readonly [number, number]>
 
 /** Section progress window in which the impact metrics fade in. */

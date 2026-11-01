@@ -9,18 +9,18 @@
 .app-page-stage {
   position: relative;
   width: 100%;
-  height: 100svh;
   min-height: 100svh;
-  overflow: hidden;
-  overscroll-behavior: none;
-  touch-action: pan-x pinch-zoom;
+  overflow: visible;
 }
 
 .app-page-transition {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  will-change: opacity, transform;
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+.app-page-transition > section {
+  scroll-margin-top: 6rem;
 }
 
 .app-sphere-stage::before {

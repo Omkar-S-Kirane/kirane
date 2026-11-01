@@ -42,27 +42,17 @@ describe('EngineeringImpact', () => {
     vi.useRealTimers()
   })
 
-  it('sets the cards to move with the active section scroll direction', () => {
+  it('gives each metric card a distinct, restrained entrance direction', () => {
     render(
       <I18nProvider>
-        <EngineeringImpact scrollDirection={-1} scrollProgress={-0.5} />
+        <EngineeringImpact formationProgress={motionValue(1)} />
       </I18nProvider>,
     )
 
-    const cards = within(
-      document.getElementById('impact') as HTMLElement,
-    ).getAllByRole('article')
-    for (const card of cards) {
-      expect(card.closest('.metric-card-scroll-layer')).toHaveAttribute(
-        'data-parallax-scroll',
-        'up',
-      )
-    }
-    expect(cards[0]).toHaveStyle({ '--metric-scroll-depth-1-y': '-7.5px' })
-    expect(cards[3]).toHaveStyle({ '--metric-scroll-depth-1-y': '-18.75px' })
-    expect(cards[0].closest('.metric-card-scroll-layer')).toHaveClass(
-      'metric-card-scroll-layer',
-    )
+    const cards = document.querySelectorAll('[data-entry-direction]')
+    expect(
+      [...cards].map((card) => card.getAttribute('data-entry-direction')),
+    ).toEqual(['bottom-left', 'bottom', 'bottom-right', 'top-right'])
   })
 
   it('hosts the Developer Universe and keeps the heading and metrics', () => {
@@ -83,6 +73,15 @@ describe('EngineeringImpact', () => {
       }),
     ).toBeInTheDocument()
     expect(within(section).getAllByRole('article')).toHaveLength(4)
+    expect(
+      section.querySelector('.impact-universe__sticky'),
+    ).toBeInTheDocument()
+    expect(
+      section.querySelector('.developer-universe__hero-bridge'),
+    ).not.toBeInTheDocument()
+    expect(
+      section.querySelector('.developer-universe__hint')?.parentElement,
+    ).toHaveClass('developer-universe')
     vi.restoreAllMocks()
   })
 })

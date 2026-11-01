@@ -57,7 +57,7 @@ vi.mock('@/sections/Hero', () => ({
     onLayoutReady: () => void
     onRevealComplete: () => void
   }) => (
-    <section data-testid="hero" data-active={active}>
+    <section id="home" data-testid="hero" data-active={active}>
       <button
         type="button"
         data-testid="hero-layout-ready"
@@ -73,7 +73,15 @@ vi.mock('@/sections/Hero', () => ({
 }))
 
 vi.mock('@/sections/PortfolioSections', () => ({
-  PortfolioSections: () => <div data-testid="portfolio-sections" />,
+  PortfolioSections: () => (
+    <div data-testid="portfolio-sections">
+      <section id="impact" />
+      <section id="work" />
+      <section id="experience" />
+      <section id="skills" />
+      <section id="contact" />
+    </div>
+  ),
 }))
 
 vi.mock('@/components/effects/StardustCursor', () => ({
@@ -95,7 +103,7 @@ afterEach(() => {
 })
 
 describe('App splash lifecycle', () => {
-  it('advances to the next full-screen section on a wheel gesture', () => {
+  it('keeps wheel input native and renders all sections in document flow', () => {
     render(
       <Providers>
         <App />
@@ -104,11 +112,17 @@ describe('App splash lifecycle', () => {
 
     const main = screen.getByRole('main')
     expect(main).toHaveAttribute('data-active-section', 'home')
-    fireEvent.click(screen.getByTestId('splash-reveal-complete'))
-    fireEvent.wheel(main, { deltaY: 100 })
+    const wheel = new WheelEvent('wheel', {
+      deltaY: 100,
+      bubbles: true,
+      cancelable: true,
+    })
+    main.dispatchEvent(wheel)
 
-    expect(main).toHaveAttribute('data-active-section', 'impact')
-    expect(window.location.hash).toBe('#impact')
+    expect(wheel.defaultPrevented).toBe(false)
+    expect(document.getElementById('home')).toBeInTheDocument()
+    expect(document.getElementById('impact')).toBeInTheDocument()
+    expect(document.getElementById('work')).toBeInTheDocument()
   })
 
   it('resets a deep-link hash to Home while the splash screen is shown', () => {
@@ -176,17 +190,17 @@ describe('App splash lifecycle', () => {
     )
   })
 
-  it('hides the document scrollbar without disabling page scrolling', () => {
+  it('enables native document scrolling while mounted', () => {
     const { unmount } = render(
       <Providers>
         <App />
       </Providers>,
     )
 
-    expect(document.documentElement).toHaveClass('hide-scrollbar')
+    expect(document.documentElement).toHaveClass('portfolio-natural-scroll')
 
     unmount()
-    expect(document.documentElement).not.toHaveClass('hide-scrollbar')
+    expect(document.documentElement).not.toHaveClass('portfolio-natural-scroll')
   })
 
   it('waits for readiness and the full reveal, then hands off one sphere before enabling the hero', async () => {

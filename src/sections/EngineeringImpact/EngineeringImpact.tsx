@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   motion,
+  useScroll,
   useMotionValueEvent,
   useReducedMotion,
   useTransform,
@@ -13,17 +14,20 @@ import {
 } from '@/components/DeveloperUniverse'
 import { cn } from '@/lib/cn'
 import { MetricCard } from '@/components/ui/MetricCard'
-import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { useTranslation } from '@/i18n'
 import { getEngineeringMetrics } from './impact-metrics'
 
-const CARD_SCROLL_FACTORS = [0.5, 0.75, 1, 1.25]
+const CARD_ENTRANCES = [
+  { direction: 'bottom-left', x: -28, y: 24 },
+  { direction: 'bottom', x: 0, y: 34 },
+  { direction: 'bottom-right', x: 28, y: 24 },
+  { direction: 'top-right', x: 28, y: -20 },
+] as const
 
 interface ImpactUniverseLayoutProps {
   active: boolean
-  scrollProgress: number
-  formationProgress: MotionValue<number>
+  formationProgress?: MotionValue<number>
 }
 
 /**
@@ -32,12 +36,25 @@ interface ImpactUniverseLayoutProps {
  */
 function ImpactUniverseLayout({
   active,
-  scrollProgress,
   formationProgress,
 }: ImpactUniverseLayoutProps) {
   const { t } = useTranslation()
   const metrics = getEngineeringMetrics()
-  const progress = useUniverseProgress(formationProgress)
+  const reduceMotion = useReducedMotion() === true
+  const sectionRef = useRef<HTMLElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end end'],
+  })
+  const scrollSource = useTransform(
+    formationProgress ?? scrollYProgress,
+    (value) => (reduceMotion ? 1 : value),
+  )
+  const smoothedProgress = useUniverseProgress(scrollSource)
+  const progress = useTransform(
+    reduceMotion ? scrollSource : smoothedProgress,
+    (value) => (reduceMotion ? 1 : value),
+  )
   const reveal = useTransform(progress, getMetricsReveal)
   const headingY = useTransform(reveal, (value) => (1 - value) * -12)
   const metricsY = useTransform(reveal, (value) => (1 - value) * 24)
@@ -53,7 +70,8 @@ function ImpactUniverseLayout({
   useEffect(() => {
     const heading = headingRef.current
     const metricsBlock = metricsRef.current
-    if (!heading || !metricsBlock) return
+    if (!heading || !metricsBlock || typeof ResizeObserver === 'undefined')
+      return
     const observer = new ResizeObserver(() => {
       const next = {
         top: Math.round(heading.offsetHeight),
@@ -72,135 +90,76 @@ function ImpactUniverseLayout({
 
   return (
     <section
+      ref={sectionRef}
       id="impact"
+      data-page-section
       aria-label={t.portfolio.impactEyebrow}
-      aria-hidden={!active}
-      inert={!active}
-      hidden={!active}
       className="impact-universe"
     >
-      <DeveloperUniverse
-        progress={progress}
-        active={active}
-        reframe={reveal}
-        insets={insets}
-      />
-      <motion.div
-        ref={headingRef}
-        className="impact-universe__heading"
-        style={{ opacity: reveal, y: headingY }}
-      >
-        <SectionHeading
-          eyebrow={t.portfolio.impactEyebrow}
-          title={t.portfolio.impactHeading}
-          className="mx-auto text-center"
+      <div className="impact-universe__sticky">
+        <DeveloperUniverse
+          progress={progress}
+          active={active}
+          reframe={reveal}
+          insets={insets}
         />
-      </motion.div>
-      <motion.div
-        ref={metricsRef}
-        className={cn(
-          'impact-universe__metrics',
-          !revealed && '[&_*]:pointer-events-none',
-        )}
-        style={{ opacity: reveal, y: metricsY }}
-      >
-        <div className="impact-universe__metrics-grid">
-          {metrics.map(({ id, value }, index) => (
-            <div key={id} className="metric-card-float">
-              <MetricCard
-                value={value}
-                scrollProgress={scrollProgress}
-                scrollFactor={CARD_SCROLL_FACTORS[index] ?? 1}
-                label={t.portfolio.impactMetrics[id]}
-                detail={
-                  id === 'platforms'
-                    ? t.portfolio.impactMetrics.platformDetails
-                    : undefined
-                }
-              />
-            </div>
-          ))}
-        </div>
-      </motion.div>
-    </section>
-  )
-}
-
-export function EngineeringImpact({
-  active = true,
-  scrollDirection = 1,
-  scrollProgress = 0,
-  formationProgress,
-}: {
-  active?: boolean
-  scrollDirection?: -1 | 1
-  scrollProgress?: number
-  /** Scroll progress through the Impact section; enables the Developer Universe. */
-  formationProgress?: MotionValue<number>
-}) {
-  const { t } = useTranslation()
-  const metrics = getEngineeringMetrics()
-  const reduceMotion = useReducedMotion() === true
-
-  if (formationProgress) {
-    return (
-      <ImpactUniverseLayout
-        active={active}
-        scrollProgress={scrollProgress}
-        formationProgress={formationProgress}
-      />
-    )
-  }
-
-  return (
-    <section
-      id="impact"
-      aria-label={t.portfolio.impactEyebrow}
-      aria-hidden={!active}
-      inert={!active}
-      hidden={!active}
-      className="flex min-h-svh items-center border-t border-border"
-    >
-      <Container
-        maxWidth="wide"
-        padding="page"
-        safeArea
-        className="py-20 sm:py-28"
-      >
-        <div className="mx-auto w-full max-w-6xl">
+        <motion.div
+          ref={headingRef}
+          className="impact-universe__heading"
+          style={{ opacity: reveal, y: headingY }}
+        >
           <SectionHeading
             eyebrow={t.portfolio.impactEyebrow}
             title={t.portfolio.impactHeading}
             className="mx-auto text-center"
           />
-          <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-4 xl:grid-cols-4">
-            {metrics.map(({ id, value }, index) => (
-              <motion.div
-                key={id}
-                className="metric-card-scroll-layer"
-                data-parallax-scroll={scrollDirection > 0 ? 'down' : 'up'}
-                initial={
-                  reduceMotion
-                    ? false
-                    : {
-                        opacity: 0,
-                        y: scrollDirection * (28 + index * 12),
-                        rotateX: scrollDirection * (index % 2 ? -5 : 5),
-                      }
-                }
-                animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                transition={{
-                  duration: reduceMotion ? 0.01 : 0.82,
-                  delay: reduceMotion ? 0 : index * 0.075,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                style={{ perspective: 900, transformStyle: 'preserve-3d' }}
-              >
-                <div className="metric-card-float">
+        </motion.div>
+        <motion.div
+          ref={metricsRef}
+          className={cn(
+            'impact-universe__metrics',
+            !revealed && '[&_*]:pointer-events-none',
+          )}
+          style={{ opacity: reveal, y: metricsY }}
+        >
+          <div className="impact-universe__metrics-grid">
+            {metrics.map(({ id, value }, index) => {
+              const entrance = CARD_ENTRANCES[index] ?? CARD_ENTRANCES[1]
+              return (
+                <motion.div
+                  key={id}
+                  initial={
+                    reduceMotion
+                      ? false
+                      : {
+                          opacity: 0,
+                          x: entrance.x,
+                          y: entrance.y,
+                          scale: 0.96,
+                        }
+                  }
+                  animate={
+                    revealed
+                      ? { opacity: 1, x: 0, y: 0, scale: 1 }
+                      : {
+                          opacity: 0,
+                          x: entrance.x,
+                          y: entrance.y,
+                          scale: 0.96,
+                        }
+                  }
+                  transition={{
+                    type: 'spring',
+                    stiffness: 110,
+                    damping: 22,
+                    mass: 0.7,
+                    delay: reduceMotion ? 0 : index * 0.08,
+                  }}
+                  className="impact-metric-entry"
+                  data-entry-direction={entrance.direction}
+                >
                   <MetricCard
                     value={value}
-                    scrollProgress={scrollProgress}
-                    scrollFactor={CARD_SCROLL_FACTORS[index] ?? 1}
                     label={t.portfolio.impactMetrics[id]}
                     detail={
                       id === 'platforms'
@@ -208,12 +167,28 @@ export function EngineeringImpact({
                         : undefined
                     }
                   />
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              )
+            })}
           </div>
-        </div>
-      </Container>
+        </motion.div>
+      </div>
     </section>
+  )
+}
+
+export function EngineeringImpact({
+  active = true,
+  formationProgress,
+}: {
+  active?: boolean
+  /** Scroll progress through the Impact section; enables the Developer Universe. */
+  formationProgress?: MotionValue<number>
+}) {
+  return (
+    <ImpactUniverseLayout
+      active={active}
+      formationProgress={formationProgress}
+    />
   )
 }

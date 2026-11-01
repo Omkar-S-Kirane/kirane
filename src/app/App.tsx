@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useReducedMotion } from 'motion/react'
 import { waitForCriticalFonts } from './critical-fonts'
 import './App.css'
 import { CVModal } from '@/components/cv'
@@ -28,19 +28,9 @@ export function App() {
   const [fontsReady, setFontsReady] = useState(false)
   const prefersReducedMotion = useReducedMotion() === true
   const [spherePhase, setSpherePhase] = useState<ParticleSpherePhase>('splash')
-  const {
-    activeId,
-    scrollDirection,
-    scrollProgress,
-    sectionProgress,
-    navigateTo,
-    handleWheel,
-    handleTouchStart,
-    handleTouchMove,
-    handleTouchEnd,
-  } = useSectionNavigation(showSplash ? 'home' : undefined, {
-    scrub: !prefersReducedMotion,
-  })
+  const { activeId, navigateTo } = useSectionNavigation(
+    showSplash ? 'home' : undefined,
+  )
   const sphereReadyRef = useRef(false)
   const allReadyRef = useRef(false)
   const splashExitTimerRef = useRef<number | null>(null)
@@ -63,10 +53,10 @@ export function App() {
   )
 
   useEffect(() => {
-    document.documentElement.classList.add('hide-scrollbar')
+    document.documentElement.classList.add('portfolio-natural-scroll')
 
     return () => {
-      document.documentElement.classList.remove('hide-scrollbar')
+      document.documentElement.classList.remove('portfolio-natural-scroll')
     }
   }, [])
 
@@ -134,20 +124,6 @@ export function App() {
         id="app-shell"
         data-testid="app-shell"
         inert={showSplash && !splashExiting}
-        onWheel={
-          cvOpen || (showSplash && !splashExiting) ? undefined : handleWheel
-        }
-        onTouchStart={
-          cvOpen || (showSplash && !splashExiting)
-            ? undefined
-            : handleTouchStart
-        }
-        onTouchMove={
-          cvOpen || (showSplash && !splashExiting) ? undefined : handleTouchMove
-        }
-        onTouchEnd={
-          cvOpen || (showSplash && !splashExiting) ? undefined : handleTouchEnd
-        }
       >
         <StardustCursor />
         <div
@@ -171,37 +147,15 @@ export function App() {
           onNavigate={navigateTo}
         />
         <main className="app-page-stage" data-active-section={activeId}>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={activeId}
-              className="app-page-transition"
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={
-                prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -10 }
-              }
-              transition={{
-                duration: prefersReducedMotion ? 0.01 : 0.48,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              {activeId === 'home' ? (
-                <Hero
-                  active={(!showSplash || splashExiting) && activeId === 'home'}
-                  fontsReady={fontsReady}
-                  onLayoutReady={handleLayoutReady}
-                  onRevealComplete={handleHeroRevealComplete}
-                />
-              ) : (
-                <PortfolioSections
-                  activeSection={activeId}
-                  scrollDirection={scrollDirection}
-                  scrollProgress={scrollProgress}
-                  sectionProgress={sectionProgress}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
+          <div className="app-page-transition">
+            <Hero
+              active={(!showSplash || splashExiting) && activeId === 'home'}
+              fontsReady={fontsReady}
+              onLayoutReady={handleLayoutReady}
+              onRevealComplete={handleHeroRevealComplete}
+            />
+            <PortfolioSections activeSection={activeId} />
+          </div>
         </main>
         {/* <Footer /> */}
         <CVModal isOpen={cvOpen} onClose={handleCloseCv} />

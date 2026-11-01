@@ -101,6 +101,7 @@ export function Hero({
   return (
     <section
       id="home"
+      data-page-section
       ref={sectionRef}
       className="relative isolate flex min-h-svh items-start overflow-hidden pt-[clamp(8.5rem,15svh,11rem)] pb-[calc(3.5rem+var(--layout-safe-area-bottom))] lg:pt-[16svh]"
     >
@@ -144,7 +145,6 @@ export function Hero({
             {t.hero.tagline}
           </motion.p>
         </motion.div>
-
       </Container>
     </section>
   )

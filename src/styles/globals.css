@@ -37,6 +37,20 @@
     overflow: hidden;
   }
 
+  html.portfolio-natural-scroll {
+    height: auto;
+    min-height: 100%;
+    overflow-x: clip;
+    overflow-y: auto;
+  }
+
+  html.portfolio-natural-scroll body,
+  html.portfolio-natural-scroll #root {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+
   body {
     margin: 0;
     background-color: var(--color-bg);

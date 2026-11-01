@@ -30,7 +30,7 @@ import type {
 } from './developerUniverse.types'
 import {
   getScrollHintOpacity,
-  getSpaceState,
+  getScrollHintY,
   getSunState,
   isInteractive,
   toFormationProgress,
@@ -46,12 +46,6 @@ import { usePlanetInteraction } from './usePlanetInteraction'
 import { useUniverseLayout } from './useUniverseLayout'
 import { detectWebGLSupport } from './webglSupport'
 import './developerUniverse.css'
-
-/** The hero artwork, reused so the hero dissolves into deep space. */
-const HERO_BACKGROUND_URL = new URL(
-  '../../assets/background/hero-bg.PNG',
-  import.meta.url,
-).href
 
 const UniverseScene = lazy(() =>
   loadUniverseScene().then((module) => ({ default: module.UniverseScene })),
@@ -159,18 +153,11 @@ export function DeveloperUniverse({
   const layout = useUniverseLayout()
   const scenePlanets = useMemo(() => resolveScenePlanets(layout), [layout])
   const [webglAvailable, setWebglAvailable] = useState(detectWebGLSupport)
+  const [sceneMounted, setSceneMounted] = useState(active)
   const fallbackReframe = useMotionValue(0)
   const reframeValue = reframe ?? fallbackReframe
 
   const formation = useTransform(progress, toFormationProgress)
-  const heroOpacity = useTransform(
-    formation,
-    (f) => 0.55 * (1 - getSpaceState(f).backdrop),
-  )
-  const heroScale = useTransform(
-    formation,
-    (f) => 1.03 + 0.05 * getSpaceState(f).backdrop,
-  )
   const nebulaOpacity = useTransform(formation, (f) => getSunState(f).halo)
   // The first golden light, bleeding in from the east before the sun appears.
   const dawnOpacity = useTransform(formation, (f) => {
@@ -178,6 +165,7 @@ export function DeveloperUniverse({
     return sun.light * (1 - sun.travel)
   })
   const hintOpacity = useTransform(progress, getScrollHintOpacity)
+  const hintY = useTransform(progress, getScrollHintY)
   const sunText = useTransform(formation, (f) => getSunState(f).text)
   const sunTextBlur = useTransform(sunText, (v) => `blur(${(1 - v) * 8}px)`)
   const sunTextLift = useTransform(sunText, (v) => (1 - v) * 10)
@@ -262,6 +250,12 @@ export function DeveloperUniverse({
 
   const handleContextLost = useCallback(() => setWebglAvailable(false), [])
 
+  useEffect(() => {
+    if (!active || sceneMounted) return
+    const frame = window.requestAnimationFrame(() => setSceneMounted(true))
+    return () => window.cancelAnimationFrame(frame)
+  }, [active, sceneMounted])
+
   return (
     <div
       className={cn('developer-universe', className)}
@@ -269,13 +263,6 @@ export function DeveloperUniverse({
       aria-label={t.universe.sceneLabel}
     >
       <div className="developer-universe__space" aria-hidden="true" />
-      <motion.img
-        src={HERO_BACKGROUND_URL}
-        alt=""
-        aria-hidden="true"
-        className="developer-universe__hero-bridge"
-        style={{ opacity: heroOpacity, scale: heroScale }}
-      />
       <motion.div
         className="developer-universe__nebula"
         style={{ opacity: nebulaOpacity }}
@@ -287,9 +274,10 @@ export function DeveloperUniverse({
         aria-hidden="true"
       />
 
-      {active && webglAvailable && (
+      {sceneMounted && webglAvailable && (
         <Suspense fallback={null}>
           <UniverseScene
+            active={active}
             planets={scenePlanets}
             layout={layout}
             formation={formation}
@@ -307,7 +295,7 @@ export function DeveloperUniverse({
         </Suspense>
       )}
 
-      {active && !webglAvailable && (
+      {active && sceneMounted && !webglAvailable && (
         <UniverseFallback
           planets={scenePlanets.map((item) => item.planet)}
           formation={formation}
@@ -335,7 +323,7 @@ export function DeveloperUniverse({
       {!reducedMotion && (
         <motion.p
           className="developer-universe__hint"
-          style={{ opacity: hintOpacity }}
+          style={{ opacity: hintOpacity, y: hintY }}
           aria-hidden="true"
         >
           <ChevronsDown className="h-4 w-4" aria-hidden="true" />
