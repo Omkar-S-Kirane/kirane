@@ -1,24 +1,42 @@
 .metric-card {
   --metric-tilt-x: 0deg;
   --metric-tilt-y: 0deg;
+  --metric-surface-x: 0px;
+  --metric-surface-y: 0px;
   --metric-depth-1-x: 0px;
   --metric-depth-1-y: 0px;
   --metric-depth-2-x: 0px;
   --metric-depth-2-y: 0px;
   --metric-depth-3-x: 0px;
   --metric-depth-3-y: 0px;
+  --metric-scroll-surface-x: 0px;
+  --metric-scroll-surface-y: 0px;
+  --metric-scroll-depth-1-x: 0px;
+  --metric-scroll-depth-1-y: 0px;
+  --metric-scroll-depth-2-x: 0px;
+  --metric-scroll-depth-2-y: 0px;
+  --metric-scroll-depth-3-x: 0px;
+  --metric-scroll-depth-3-y: 0px;
   position: relative;
   isolation: isolate;
   display: flex;
   min-height: 11.5rem;
+  height: 100%;
+  flex: 1;
   flex-direction: column;
   justify-content: center;
   border-radius: 1.25rem;
   padding: clamp(1.25rem, 2.2vw, 2rem);
   background: transparent;
-  transform: perspective(900px) rotateX(var(--metric-tilt-x))
-    rotateY(var(--metric-tilt-y));
+  transform: perspective(1100px)
+    translate3d(
+      calc(var(--metric-surface-x) + var(--metric-scroll-surface-x)),
+      calc(var(--metric-surface-y) + var(--metric-scroll-surface-y)),
+      0
+    )
+    rotateX(var(--metric-tilt-x)) rotateY(var(--metric-tilt-y));
   transform-style: preserve-3d;
+  will-change: transform;
   transition:
     box-shadow 260ms ease,
     transform 320ms cubic-bezier(0.2, 0.7, 0.25, 1);
@@ -77,8 +95,8 @@
   box-shadow: 0 16px 32px rgb(0 0 0 / 22%);
   pointer-events: none;
   transform: translate3d(
-      var(--metric-depth-1-x),
-      var(--metric-depth-1-y),
+      calc(var(--metric-depth-1-x) + var(--metric-scroll-depth-1-x)),
+      calc(var(--metric-depth-1-y) + var(--metric-scroll-depth-1-y)),
       -24px
     )
     scale(0.97);
@@ -89,8 +107,8 @@
   border-color: rgb(244 196 105 / 18%);
   background: linear-gradient(145deg, rgb(34 28 19 / 82%), rgb(9 8 7 / 92%));
   transform: translate3d(
-      var(--metric-depth-2-x),
-      var(--metric-depth-2-y),
+      calc(var(--metric-depth-2-x) + var(--metric-scroll-depth-2-x)),
+      calc(var(--metric-depth-2-y) + var(--metric-scroll-depth-2-y)),
       -12px
     )
     scale(0.985);
@@ -100,11 +118,24 @@
   position: relative;
   z-index: 2;
   transform: translate3d(
-    var(--metric-depth-3-x),
-    var(--metric-depth-3-y),
+    calc(var(--metric-depth-3-x) + var(--metric-scroll-depth-3-x)),
+    calc(var(--metric-depth-3-y) + var(--metric-scroll-depth-3-y)),
     34px
   );
   transition: transform 360ms cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+
+.metric-card-float {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transform: translateZ(0);
+  transform-style: preserve-3d;
+}
+
+.metric-card-scroll-layer {
+  display: flex;
+  min-width: 0;
 }
 
 .metric-card__value {
@@ -142,7 +173,34 @@
   }
 }
 
+@keyframes metric-card-idle-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .metric-card-float {
+    animation: metric-card-idle-float 7s ease-in-out infinite;
+  }
+
+  .metric-card-scroll-layer:nth-child(2) .metric-card-float {
+    animation-delay: -1.4s;
+  }
+
+  .metric-card-scroll-layer:nth-child(3) .metric-card-float {
+    animation-delay: -2.8s;
+  }
+
+  .metric-card-scroll-layer:nth-child(4) .metric-card-float {
+    animation-delay: -4.2s;
+  }
+
   .metric-card:hover {
     box-shadow: 0 16px 42px rgb(219 163 67 / 12%);
   }
@@ -167,9 +225,16 @@
   .metric-card::before,
   .metric-card::after,
   .metric-card__backplate,
-  .metric-card__content {
+  .metric-card__content,
+  .metric-card-float {
     animation: none !important;
     transition: none !important;
+  }
+
+  .metric-card,
+  .metric-card__backplate,
+  .metric-card__content {
+    transform: none !important;
   }
 }
 

@@ -41,4 +41,29 @@ describe('useSectionNavigation', () => {
     expect(result.current.activeId).toBe('impact')
     expect(preventDefault).toHaveBeenCalledTimes(2)
   })
+
+  it('exposes continuous normalized scroll progress to the active slide', () => {
+    vi.useFakeTimers()
+    const { result } = renderHook(() => useSectionNavigation())
+    const preventDefault = vi.fn()
+
+    act(() => {
+      result.current.handleWheel({ deltaY: 30, preventDefault } as never)
+    })
+    expect(result.current.scrollProgress).toBe(0.5)
+    expect(result.current.activeId).toBe('home')
+
+    act(() => {
+      result.current.handleWheel({ deltaY: 30, preventDefault } as never)
+    })
+    expect(result.current.scrollProgress).toBe(1)
+    expect(result.current.activeId).toBe('impact')
+
+    act(() => vi.advanceTimersByTime(280))
+    expect(result.current.scrollProgress).toBe(1)
+
+    act(() => vi.advanceTimersByTime(620))
+    expect(result.current.scrollProgress).toBe(0)
+    vi.useRealTimers()
+  })
 })

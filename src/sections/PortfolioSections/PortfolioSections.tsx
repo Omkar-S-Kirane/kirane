@@ -10,9 +10,11 @@ const PROFILE_URL = 'https://github.com/Omkar-S-Kirane'
 export function PortfolioSections({
   activeSection,
   scrollDirection = 1,
+  scrollProgress = 0,
 }: {
   activeSection?: 'work' | 'experience' | 'skills' | 'impact' | 'contact'
   scrollDirection?: -1 | 1
+  scrollProgress?: number
 }) {
   const { t } = useTranslation()
   const visible = (id: NonNullable<typeof activeSection>) =>
@@ -23,6 +25,7 @@ export function PortfolioSections({
       <EngineeringImpact
         active={visible('impact')}
         scrollDirection={scrollDirection}
+        scrollProgress={scrollProgress}
       />
 
       <section

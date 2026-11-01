@@ -5,12 +5,16 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { useTranslation } from '@/i18n'
 import { getEngineeringMetrics } from './impact-metrics'
 
+const CARD_SCROLL_FACTORS = [0.5, 0.75, 1, 1.25]
+
 export function EngineeringImpact({
   active = true,
   scrollDirection = 1,
+  scrollProgress = 0,
 }: {
   active?: boolean
   scrollDirection?: -1 | 1
+  scrollProgress?: number
 }) {
   const { t } = useTranslation()
   const metrics = getEngineeringMetrics()
@@ -41,6 +45,7 @@ export function EngineeringImpact({
             {metrics.map(({ id, value }, index) => (
               <motion.div
                 key={id}
+                className="metric-card-scroll-layer"
                 data-parallax-scroll={scrollDirection > 0 ? 'down' : 'up'}
                 initial={
                   reduceMotion
@@ -59,15 +64,19 @@ export function EngineeringImpact({
                 }}
                 style={{ perspective: 900, transformStyle: 'preserve-3d' }}
               >
-                <MetricCard
-                  value={value}
-                  label={t.portfolio.impactMetrics[id]}
-                  detail={
-                    id === 'platforms'
-                      ? t.portfolio.impactMetrics.platformDetails
-                      : undefined
-                  }
-                />
+                <div className="metric-card-float">
+                  <MetricCard
+                    value={value}
+                    scrollProgress={scrollProgress}
+                    scrollFactor={CARD_SCROLL_FACTORS[index] ?? 1}
+                    label={t.portfolio.impactMetrics[id]}
+                    detail={
+                      id === 'platforms'
+                        ? t.portfolio.impactMetrics.platformDetails
+                        : undefined
+                    }
+                  />
+                </div>
               </motion.div>
             ))}
           </div>

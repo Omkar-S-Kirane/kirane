@@ -44,14 +44,23 @@ describe('EngineeringImpact', () => {
   it('sets the cards to move with the active section scroll direction', () => {
     render(
       <I18nProvider>
-        <EngineeringImpact scrollDirection={-1} />
+        <EngineeringImpact scrollDirection={-1} scrollProgress={-0.5} />
       </I18nProvider>,
     )
 
-    for (const card of within(
+    const cards = within(
       document.getElementById('impact') as HTMLElement,
-    ).getAllByRole('article')) {
-      expect(card.parentElement).toHaveAttribute('data-parallax-scroll', 'up')
+    ).getAllByRole('article')
+    for (const card of cards) {
+      expect(card.closest('.metric-card-scroll-layer')).toHaveAttribute(
+        'data-parallax-scroll',
+        'up',
+      )
     }
+    expect(cards[0]).toHaveStyle({ '--metric-scroll-depth-1-y': '-7.5px' })
+    expect(cards[3]).toHaveStyle({ '--metric-scroll-depth-1-y': '-18.75px' })
+    expect(cards[0].closest('.metric-card-scroll-layer')).toHaveClass(
+      'metric-card-scroll-layer',
+    )
   })
 })

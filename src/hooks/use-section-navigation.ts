@@ -18,6 +18,7 @@ export type PageSectionId = (typeof PAGE_SECTION_IDS)[number]
 const NAVIGATION_LOCK_MS = 850
 const WHEEL_THRESHOLD = 60
 const WHEEL_GESTURE_RESET_MS = 280
+const SCROLL_PROGRESS_RESET_MS = 900
 const SWIPE_THRESHOLD = 45
 
 function sectionFromHash(): PageSectionId {
@@ -48,12 +49,14 @@ export function useSectionNavigation(initialSection?: PageSectionId) {
     () => initialSection ?? sectionFromHash(),
   )
   const [scrollDirection, setScrollDirection] = useState<-1 | 1>(1)
+  const [scrollProgress, setScrollProgress] = useState(0)
   const activeIdRef = useRef(activeId)
   const lastStepAtRef = useRef(0)
   const touchStartYRef = useRef<number | null>(null)
   const wheelGestureActiveRef = useRef(false)
   const wheelDeltaRef = useRef(0)
   const wheelResetTimerRef = useRef<number | null>(null)
+  const scrollProgressResetTimerRef = useRef<number | null>(null)
 
   const selectSection = useCallback((id: PageSectionId, replace = false) => {
     const currentIndex = PAGE_SECTION_IDS.indexOf(activeIdRef.current)
@@ -108,8 +111,19 @@ export function useSectionNavigation(initialSection?: PageSectionId) {
         wheelResetTimerRef.current = null
       }, WHEEL_GESTURE_RESET_MS)
 
+      if (scrollProgressResetTimerRef.current !== null) {
+        window.clearTimeout(scrollProgressResetTimerRef.current)
+      }
+      scrollProgressResetTimerRef.current = window.setTimeout(() => {
+        scrollProgressResetTimerRef.current = null
+        setScrollProgress(0)
+      }, SCROLL_PROGRESS_RESET_MS)
+
       if (wheelGestureActiveRef.current) return
       wheelDeltaRef.current += event.deltaY
+      setScrollProgress(
+        Math.max(-1, Math.min(1, wheelDeltaRef.current / WHEEL_THRESHOLD)),
+      )
       if (Math.abs(wheelDeltaRef.current) < WHEEL_THRESHOLD) return
 
       wheelGestureActiveRef.current = true
@@ -135,7 +149,16 @@ export function useSectionNavigation(initialSection?: PageSectionId) {
       if (startY === null || endY === undefined) return
       const distance = startY - endY
       if (Math.abs(distance) < SWIPE_THRESHOLD) return
-      navigateBy(distance > 0 ? 1 : -1)
+      const direction = distance > 0 ? 1 : -1
+      setScrollProgress(direction)
+      if (scrollProgressResetTimerRef.current !== null) {
+        window.clearTimeout(scrollProgressResetTimerRef.current)
+      }
+      scrollProgressResetTimerRef.current = window.setTimeout(() => {
+        scrollProgressResetTimerRef.current = null
+        setScrollProgress(0)
+      }, SCROLL_PROGRESS_RESET_MS)
+      navigateBy(direction)
     },
     [navigateBy],
   )
@@ -147,6 +170,11 @@ export function useSectionNavigation(initialSection?: PageSectionId) {
   useEffect(() => {
     const onPopState = () => {
       const next = sectionFromHash()
+      if (scrollProgressResetTimerRef.current !== null) {
+        window.clearTimeout(scrollProgressResetTimerRef.current)
+        scrollProgressResetTimerRef.current = null
+      }
+      setScrollProgress(0)
       const currentIndex = PAGE_SECTION_IDS.indexOf(activeIdRef.current)
       const nextIndex = PAGE_SECTION_IDS.indexOf(next)
       if (nextIndex !== currentIndex) {
@@ -202,6 +230,9 @@ export function useSectionNavigation(initialSection?: PageSectionId) {
       if (wheelResetTimerRef.current !== null) {
         window.clearTimeout(wheelResetTimerRef.current)
       }
+      if (scrollProgressResetTimerRef.current !== null) {
+        window.clearTimeout(scrollProgressResetTimerRef.current)
+      }
     },
     [],
   )
@@ -209,6 +240,7 @@ export function useSectionNavigation(initialSection?: PageSectionId) {
   return {
     activeId,
     scrollDirection,
+    scrollProgress,
     navigateTo,
     navigateBy,
     handleWheel,

@@ -30,6 +30,7 @@ export function App() {
   const {
     activeId,
     scrollDirection,
+    scrollProgress,
     navigateTo,
     handleWheel,
     handleTouchStart,
@@ -184,6 +185,7 @@ export function App() {
                 <PortfolioSections
                   activeSection={activeId}
                   scrollDirection={scrollDirection}
+                  scrollProgress={scrollProgress}
                 />
               )}
             </motion.div>
