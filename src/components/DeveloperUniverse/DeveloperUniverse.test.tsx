@@ -28,6 +28,17 @@ afterEach(() => {
 })
 
 describe('DeveloperUniverse', () => {
+  it('shows the sun identity in title case when WebGL is unavailable', () => {
+    render(
+      <I18nProvider>
+        <DeveloperUniverse progress={motionValue(1)} />
+      </I18nProvider>,
+    )
+
+    expect(screen.getByText('Full Stack')).toBeInTheDocument()
+    expect(screen.getByText('Developer')).toBeInTheDocument()
+  })
+
   it('falls back gracefully without WebGL and invites the visitor to scroll', () => {
     render(
       <I18nProvider>

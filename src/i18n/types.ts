@@ -30,6 +30,9 @@ export interface Translations {
     description: string
     viewWork: string
     learnMore: string
+    soundOn: string
+    soundOff: string
+    audioUnavailable: string
   }
   portfolio: {
     workEyebrow: string

@@ -15,6 +15,7 @@ import { SwirlParticles } from './SwirlParticles'
 import {
   ATMOSPHERE_FRAGMENT,
   ATMOSPHERE_VERTEX,
+  SUN_GLASS_FRAGMENT,
   SUN_FRAGMENT,
   SUN_VERTEX,
 } from './universeShaders'
@@ -68,6 +69,7 @@ export function CentralSun({
   const anchorRef = useRef<Group>(null)
   const bodyRef = useRef<Group>(null)
   const sunMaterialRef = useRef<ShaderMaterial>(null)
+  const glassMaterialRef = useRef<ShaderMaterial>(null)
   const atmosphereMaterialRef = useRef<ShaderMaterial>(null)
   const lightRef = useRef<Sprite>(null)
   const innerHaloRef = useRef<Sprite>(null)
@@ -83,8 +85,8 @@ export function CentralSun({
       uForm: { value: 0 },
       uDetail: { value: 0 },
       uIntensity: { value: 1 },
-      uDeep: { value: new Color(UNIVERSE_PALETTE.sunDeep) },
-      uMid: { value: new Color(UNIVERSE_PALETTE.sun) },
+      uDeep: { value: new Color('#472d1c') },
+      uMid: { value: new Color('#9b6527') },
       uHigh: { value: new Color(UNIVERSE_PALETTE.goldenGlow) },
       uHot: { value: new Color(UNIVERSE_PALETTE.sunHot) },
     }),
@@ -98,6 +100,18 @@ export function CentralSun({
     }),
     [],
   )
+  const glassUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uForm: { value: 0 },
+      uDetail: { value: 0 },
+      uIntensity: { value: 1 },
+      uMid: { value: new Color('#9b6527') },
+      uHigh: { value: new Color(UNIVERSE_PALETTE.goldenGlow) },
+      uHot: { value: new Color(UNIVERSE_PALETTE.sunHot) },
+    }),
+    [],
+  )
 
   useEffect(() => () => sphere.dispose(), [sphere])
 
@@ -106,8 +120,16 @@ export function CentralSun({
     const anchor = anchorRef.current
     const body = bodyRef.current
     const sunMaterial = sunMaterialRef.current
+    const glassMaterial = glassMaterialRef.current
     const atmosphereMaterial = atmosphereMaterialRef.current
-    if (!anchor || !body || !sunMaterial || !atmosphereMaterial) return
+    if (
+      !anchor ||
+      !body ||
+      !sunMaterial ||
+      !glassMaterial ||
+      !atmosphereMaterial
+    )
+      return
 
     const state = getSunState(runtime.formation)
     const baseRadius = runtime.layout.sunRadius
@@ -131,24 +153,29 @@ export function CentralSun({
     uniforms.uTime.value = runtime.time
     uniforms.uForm.value = state.form
     uniforms.uDetail.value = state.detail
-    uniforms.uIntensity.value = 0.94 + 0.08 * state.form
+    uniforms.uIntensity.value =
+      (0.94 + 0.08 * state.form) * (1 + Math.sin(runtime.time * 0.38) * 0.012)
+    glassMaterial.uniforms.uTime.value = runtime.time
+    glassMaterial.uniforms.uForm.value = state.form
+    glassMaterial.uniforms.uDetail.value = state.detail
+    glassMaterial.uniforms.uIntensity.value = uniforms.uIntensity.value
     atmosphereMaterial.uniforms.uTime.value = runtime.time
-    atmosphereMaterial.uniforms.uOpacity.value = state.halo * 0.9
+    atmosphereMaterial.uniforms.uOpacity.value = state.halo * 0.56
 
     const light = lightRef.current
     if (light) {
       light.scale.setScalar(baseRadius * (1.2 + 2.6 * state.light))
-      light.material.opacity = state.light * (1 - 0.6 * state.form)
+      light.material.opacity = state.light * (1 - state.form)
     }
     const inner = innerHaloRef.current
     if (inner) {
       inner.scale.setScalar(radius * 3.1)
-      inner.material.opacity = state.form * 0.5
+      inner.material.opacity = state.form * 0.04
     }
     const wide = wideHaloRef.current
     if (wide) {
       wide.scale.setScalar(radius * 7.5)
-      wide.material.opacity = state.halo * 0.3
+      wide.material.opacity = state.halo * 0.18
     }
   })
 
@@ -170,7 +197,7 @@ export function CentralSun({
         spriteRef={lightRef}
         texture={glowTexture}
         colour={UNIVERSE_PALETTE.sunHot}
-        renderOrder={4}
+        renderOrder={1}
       />
       <group ref={bodyRef} visible={false}>
         <mesh geometry={sphere} renderOrder={3}>
@@ -180,6 +207,16 @@ export function CentralSun({
             fragmentShader={SUN_FRAGMENT}
             uniforms={sunUniforms}
             transparent
+          />
+        </mesh>
+        <mesh geometry={sphere} scale={1.04} renderOrder={4}>
+          <shaderMaterial
+            ref={glassMaterialRef}
+            vertexShader={SUN_VERTEX}
+            fragmentShader={SUN_GLASS_FRAGMENT}
+            uniforms={glassUniforms}
+            transparent
+            depthWrite={false}
           />
         </mesh>
         <mesh geometry={sphere} scale={1.2} renderOrder={2}>

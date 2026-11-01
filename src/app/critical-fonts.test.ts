@@ -24,7 +24,7 @@ describe('waitForCriticalFonts', () => {
       settled = true
     })
 
-    expect(fonts.load).toHaveBeenCalledWith('500 16px "Space Grotesk"')
+    expect(fonts.load).toHaveBeenCalledWith('600 16px "Space Grotesk"')
     faceLoad.resolve([])
     await Promise.resolve()
     expect(settled).toBe(false)

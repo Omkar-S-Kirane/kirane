@@ -110,35 +110,94 @@ void main() {
   float t = uTime * 0.04;
   vec3 p = vObjectPosition * 1.8;
 
-  // Slowly drifting plasma, thin illuminated filaments and lunar-lamp maria.
+  // Soft internal plasma and fine drifting filaments give the core depth.
   float base = fbm(p + vec3(t, -t * 0.7, t * 0.5));
   float cells = snoise(p * 3.1 - vec3(t * 1.3, t, -t * 0.8));
   float filaments = pow(1.0 - abs(cells), 7.0);
   float flow = snoise(p * 0.9 + vec3(0.0, t * 1.6, 0.0));
-  float waves = pow(0.5 + 0.5 * sin(vObjectPosition.y * 8.0 + flow * 2.4 - uTime * 0.75), 14.0);
+  float waves = pow(0.5 + 0.5 * sin(vObjectPosition.y * 7.0 + flow * 2.1 - uTime * 0.16), 18.0);
   float maria = smoothstep(0.15, 0.55, snoise(p * 0.75 + 3.7));
 
-  float heat = 0.6 + 0.32 * base;
-  heat += (filaments * 0.28 + waves * 0.1 - maria * 0.12) * uDetail;
+  float heat = 0.49 + 0.24 * base;
+  heat += (filaments * 0.22 + waves * 0.08 - maria * 0.1) * uDetail;
 
   vec3 color = mix(uDeep, uMid, smoothstep(0.2, 0.62, heat));
-  color = mix(color, uHigh, smoothstep(0.55, 0.9, heat));
-  color = mix(color, uHot, smoothstep(0.86, 1.15, heat));
+  color = mix(color, uHigh, smoothstep(0.55, 0.9, heat) * 0.62);
+  color = mix(color, uHot, smoothstep(0.86, 1.15, heat) * 0.3);
 
-  color *= 0.55 + 0.45 * pow(mu, 0.5);
-  // A slightly deeper amber centre keeps the ivory typography legible,
-  // while the limb glows like a lit moon lamp.
-  color *= 1.0 - 0.2 * smoothstep(0.55, 1.0, mu);
-  color += uHigh * pow(1.0 - mu, 3.0) * 0.6;
+  // Let the environment show through the glass, with a deeper amber centre
+  // behind the bright title and more light gathered at the sphere's limb.
+  color *= 0.16 - 0.05 * mu;
+  color += uHigh * pow(1.0 - mu, 3.0) * 0.42;
+  color += uHigh * filaments * uDetail * 0.055;
 
   vec3 keyLight = normalize(vec3(-0.45, 0.6, 0.65));
-  float reflection = pow(max(dot(reflect(-keyLight, N), V), 0.0), 20.0);
-  color += vec3(1.0, 0.96, 0.88) * reflection * 0.14 * uDetail;
+  float reflection = pow(max(dot(reflect(-keyLight, N), V), 0.0), 28.0);
+  color += vec3(1.0, 0.96, 0.88) * reflection * 0.1 * uDetail;
 
   // The body condenses from the centre of the disc outwards.
   float edge = uForm * 1.25 - (1.0 - mu) - base * 0.12;
-  float alpha = smoothstep(0.0, 0.12, edge);
+  float formMask = smoothstep(0.0, 0.12, edge);
+  float alpha = formMask * (0.1 + 0.06 * (1.0 - mu) + filaments * 0.015 * uDetail);
   color = mix(uHot * 1.15, color, smoothstep(0.0, 0.55, uForm));
+
+  gl_FragColor = vec4(color * uIntensity, alpha);
+  #include <colorspace_fragment>
+}
+`
+
+/** Thin, animated Fresnel shell over the warm translucent solar interior. */
+export const SUN_GLASS_FRAGMENT = /* glsl */ `
+uniform float uTime;
+uniform float uForm;
+uniform float uDetail;
+uniform float uIntensity;
+uniform vec3 uMid;
+uniform vec3 uHigh;
+uniform vec3 uHot;
+
+varying vec3 vObjectPosition;
+varying vec3 vNormalView;
+varying vec3 vPositionView;
+
+${SIMPLEX_NOISE}
+
+void main() {
+  vec3 N = normalize(vNormalView);
+  vec3 V = normalize(-vPositionView);
+  float facing = clamp(dot(N, V), 0.0, 1.0);
+  float fresnel = pow(1.0 - facing, 2.2);
+  float rimLine = pow(fresnel, 8.0);
+  float t = uTime * 0.018;
+
+  vec3 p = vObjectPosition * 4.2;
+  float field = snoise(p + vec3(t, -t * 0.72, t * 0.35));
+  float fibers = pow(1.0 - abs(snoise(p * 1.7 + vec3(-t, t * 0.55, t))), 9.0);
+  float arcs = pow(0.5 + 0.5 * sin(vObjectPosition.y * 7.0 + field * 2.4 + t * 2.0), 20.0);
+  float sweepA = abs(vObjectPosition.y - 0.18 * sin(vObjectPosition.x * 2.8 + t));
+  float sweepB = abs(vObjectPosition.y + 0.14 * sin(vObjectPosition.z * 3.2 - t * 0.8));
+  float energyArc = exp(-sweepA * 30.0) + exp(-sweepB * 34.0);
+
+  vec3 keyLight = normalize(vec3(-0.48, 0.65, 0.58));
+  float reflection = pow(max(dot(reflect(-keyLight, N), V), 0.0), 76.0);
+  float glint = pow(max(dot(reflect(-normalize(vec3(0.75, 0.2, 0.6)), N), V), 0.0), 112.0);
+
+  vec3 color = mix(uMid, uHigh, clamp(0.16 + fresnel * 0.76 + fibers * 0.12, 0.0, 1.0));
+  color = mix(
+    color,
+    uHot,
+    clamp(reflection * 0.72 + glint * 0.8 + rimLine * 0.72, 0.0, 0.9)
+  );
+  color += uHigh * (fibers * 0.11 + arcs * 0.055) * uDetail;
+  color += uHot * energyArc * uDetail * 0.13;
+
+  float formed = smoothstep(0.02, 0.72, uForm);
+  float pulse = 1.0 + sin(uTime * 0.32) * 0.012;
+  float alpha = formed * pulse * (
+    0.018 + fresnel * 0.42 + rimLine * 0.33 + reflection * 0.2 + glint * 0.27
+    + (fibers * 0.065 + arcs * 0.035 + energyArc * 0.09) * uDetail
+  );
+  alpha = clamp(alpha, 0.0, 0.76);
 
   gl_FragColor = vec4(color * uIntensity, alpha);
   #include <colorspace_fragment>

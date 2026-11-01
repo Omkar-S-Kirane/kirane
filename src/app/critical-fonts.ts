@@ -7,7 +7,7 @@ export async function waitForCriticalFonts(
   if (!fonts) return
 
   try {
-    await fonts.load('500 16px "Space Grotesk"')
+    await fonts.load('600 16px "Space Grotesk"')
     await fonts.ready
   } catch {
     // Font failures leave the existing system font stack available.

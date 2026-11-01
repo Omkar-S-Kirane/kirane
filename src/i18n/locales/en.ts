@@ -22,6 +22,10 @@ const en: Translations = {
       'I build thoughtful, high-performance web experiences with purposeful interactions and attention to detail.',
     viewWork: 'Explore my work',
     learnMore: "Let's connect",
+    soundOn: 'Turn sound on',
+    soundOff: 'Turn sound off',
+    audioUnavailable:
+      'Sound could not start. Select “Turn sound on” to try again.',
   },
   portfolio: {
     workEyebrow: '01 — Selected work',
@@ -108,8 +112,8 @@ const en: Translations = {
     pageOf: 'Page {current} of {total}',
   },
   universe: {
-    sunLineOne: 'FULL STACK',
-    sunLineTwo: 'DEVELOPER',
+    sunLineOne: 'Full Stack',
+    sunLineTwo: 'Developer',
     sceneLabel:
       'Developer universe: my technologies orbiting my full-stack engineering identity',
     scrollHint: 'Scroll to form the universe',
