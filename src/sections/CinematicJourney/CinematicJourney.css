@@ -1,0 +1,54 @@
+.cinematic-journey {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100svh;
+  min-height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+  background: #050609;
+  outline: none;
+}
+
+.cinematic-journey:focus-visible {
+  outline: 2px solid rgb(245 185 76 / 70%);
+  outline-offset: -4px;
+}
+
+.cinematic-journey__universe {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  height: 100%;
+}
+
+.cinematic-journey__particles {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+@layer base {
+  html.portfolio-natural-scroll.cinematic-locked {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  html.portfolio-natural-scroll.cinematic-locked body,
+  html.portfolio-natural-scroll.cinematic-locked #root {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cinematic-journey__particles {
+    display: none;
+  }
+}

@@ -1,4 +1,6 @@
-# Developer Universe Natural Scroll Implementation Plan
+# Developer Universe Natural Scroll Implementation Plan (Superseded)
+
+The user changed the interaction direction. Use `2026-11-01-developer-universe-cinematic-lock.md` for the current implementation plan.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 

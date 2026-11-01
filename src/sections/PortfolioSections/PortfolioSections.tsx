@@ -2,22 +2,14 @@ import { ArrowUpRight } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { useTranslation } from '@/i18n'
-import { EngineeringImpact } from '@/sections/EngineeringImpact'
 
 const REPOSITORY_URL = 'https://github.com/Omkar-S-Kirane/kirane'
 const PROFILE_URL = 'https://github.com/Omkar-S-Kirane'
 
-export function PortfolioSections({
-  activeSection,
-}: {
-  activeSection?:
-    'home' | 'work' | 'experience' | 'skills' | 'impact' | 'contact'
-}) {
+export function PortfolioSections() {
   const { t } = useTranslation()
   return (
     <div className="pointer-events-auto">
-      <EngineeringImpact active={activeSection === 'impact'} />
-
       <section
         id="work"
         data-page-section

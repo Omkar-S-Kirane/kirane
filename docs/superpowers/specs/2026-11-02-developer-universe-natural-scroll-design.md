@@ -1,4 +1,6 @@
-# Developer Universe Natural Scroll Design
+# Developer Universe Natural Scroll Design (Superseded)
+
+The user changed the interaction direction. Use `2026-11-01-developer-universe-cinematic-lock-design.md` for the current requirements.
 
 ## Goal
 

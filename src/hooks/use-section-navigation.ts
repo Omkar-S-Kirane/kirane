@@ -55,7 +55,11 @@ export function useSectionNavigation(initialSection?: PageSectionId) {
               Math.abs(b.boundingClientRect.top),
           )[0]
         if (!current) return
-        const id = current.target.id as PageSectionId
+        const cinematicJourney = current.target.closest<HTMLElement>(
+          '[data-cinematic-journey]',
+        )
+        const id = (cinematicJourney?.dataset.activeSection ??
+          current.target.id) as PageSectionId
         setActiveId(id)
         updateHash(id, true)
       },

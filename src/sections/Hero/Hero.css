@@ -1,9 +1,89 @@
 .hero-background {
-  background-image: url('../../assets/background/hero-bg.PNG');
   background-position: center;
   background-size: cover;
+  overflow: hidden;
+}
+
+.hero-background__video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 46%;
+  opacity: 0;
+  transition: opacity 420ms ease-out;
+}
+
+.hero-background.is-video-ready .hero-background__video {
+  opacity: 1;
+}
+
+.hero-dissolve-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@media (min-width: 1440px) {
+  .hero-background__video {
+    object-position: 50% 48%;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .hero-background__video {
+    object-position: 50% 42%;
+  }
+}
+
+@media (max-width: 639px) {
+  .hero-background__video {
+    object-position: 50% 38%;
+  }
+}
+
+@media (max-width: 374px) {
+  .hero-background__video {
+    object-position: 50% 35%;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-cinematic-layer .hero-copy {
+    margin-top: -1.5rem;
+  }
+
+  .hero-cinematic-layer .hero-copy > p {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-background__video {
+    transition: none;
+  }
+}
+
+.hero-cinematic-layer {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 100svh;
 }
 
 .hero-copy-shadow {
-  text-shadow: 0 2px 12px rgb(0 0 0 / 88%), 0 0 28px rgb(0 0 0 / 46%);
+  text-shadow:
+    0 2px 12px rgb(0 0 0 / 88%),
+    0 0 28px rgb(0 0 0 / 46%);
+}
+
+@media (max-width: 639px) and (max-height: 700px) {
+  .hero-cinematic-layer {
+    padding-top: calc(6rem + env(safe-area-inset-top, 0px));
+  }
 }

@@ -52,7 +52,7 @@ function ImpactUniverseLayout({
   )
   const smoothedProgress = useUniverseProgress(scrollSource)
   const progress = useTransform(
-    reduceMotion ? scrollSource : smoothedProgress,
+    formationProgress || reduceMotion ? scrollSource : smoothedProgress,
     (value) => (reduceMotion ? 1 : value),
   )
   const reveal = useTransform(progress, getMetricsReveal)

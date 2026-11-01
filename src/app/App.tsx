@@ -16,9 +16,12 @@ import {
   ParticleSphere,
   type ParticleSpherePhase,
 } from '@/components/effects/ParticleSphere'
-import { Hero } from '@/sections/Hero'
 import { PortfolioSections } from '@/sections/PortfolioSections'
 import { useSectionNavigation } from '@/hooks/use-section-navigation'
+import {
+  CinematicJourney,
+  type CinematicJourneyHandle,
+} from '@/sections/CinematicJourney'
 
 export function App() {
   // Show splash only once per browser session
@@ -32,6 +35,7 @@ export function App() {
     showSplash ? 'home' : undefined,
   )
   const sphereReadyRef = useRef(false)
+  const journeyRef = useRef<CinematicJourneyHandle>(null)
   const allReadyRef = useRef(false)
   const splashExitTimerRef = useRef<number | null>(null)
 
@@ -111,6 +115,15 @@ export function App() {
     setCvOpen(false)
   }, [])
 
+  const handleNavigate = useCallback(
+    (id: string) => {
+      if (id === 'home') journeyRef.current?.reset()
+      else journeyRef.current?.completeForNavigation()
+      navigateTo(id)
+    },
+    [navigateTo],
+  )
+
   return (
     <>
       {showSplash && (
@@ -144,17 +157,22 @@ export function App() {
         <Navbar
           onResumeClick={handleOpenCv}
           activeSection={activeId}
-          onNavigate={navigateTo}
+          onNavigate={handleNavigate}
         />
         <main className="app-page-stage" data-active-section={activeId}>
           <div className="app-page-transition">
-            <Hero
-              active={(!showSplash || splashExiting) && activeId === 'home'}
+            <CinematicJourney
+              ref={journeyRef}
+              initialProgress={activeId === 'home' ? 0 : 1}
+              active={
+                (!showSplash || splashExiting) &&
+                (activeId === 'home' || activeId === 'impact')
+              }
               fontsReady={fontsReady}
               onLayoutReady={handleLayoutReady}
               onRevealComplete={handleHeroRevealComplete}
             />
-            <PortfolioSections activeSection={activeId} />
+            <PortfolioSections />
           </div>
         </main>
         {/* <Footer /> */}

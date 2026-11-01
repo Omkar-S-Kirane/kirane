@@ -76,11 +76,22 @@ export function PressureTest({
   }, [])
 
   const setResponsiveFontSize = useCallback(() => {
-    const width = containerRef.current?.getBoundingClientRect().width
+    const bounds = containerRef.current?.getBoundingClientRect()
+    const width = bounds?.width
     if (width === undefined) return
     // Give the wordmark a little more presence while keeping its size tied to
     // the available width so it stays legible on narrow screens.
     setFontSize(Math.max(24, width / (characters.length * 0.4)))
+    // Keep the pressure effect centered after a device rotation or responsive
+    // viewport resize instead of leaving every glyph at its thinnest weight.
+    if (bounds) {
+      const center = {
+        x: bounds.left + bounds.width / 2,
+        y: bounds.top + bounds.height / 2,
+      }
+      pointerRef.current = center
+      easedPointerRef.current = center
+    }
   }, [characters.length])
 
   useEffect(() => {

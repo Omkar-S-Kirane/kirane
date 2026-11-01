@@ -52,12 +52,18 @@ vi.mock('@/sections/Hero', () => ({
     active,
     onLayoutReady,
     onRevealComplete,
+    dissolveProgress,
   }: {
     active: boolean
     onLayoutReady: () => void
     onRevealComplete: () => void
+    dissolveProgress?: unknown
   }) => (
-    <section id="home" data-testid="hero" data-active={active}>
+    <section
+      data-testid="hero"
+      data-active={active}
+      data-cinematic={Boolean(dissolveProgress)}
+    >
       <button
         type="button"
         data-testid="hero-layout-ready"
@@ -75,13 +81,20 @@ vi.mock('@/sections/Hero', () => ({
 vi.mock('@/sections/PortfolioSections', () => ({
   PortfolioSections: () => (
     <div data-testid="portfolio-sections">
-      <section id="impact" />
       <section id="work" />
       <section id="experience" />
       <section id="skills" />
       <section id="contact" />
     </div>
   ),
+}))
+
+vi.mock('@/sections/EngineeringImpact', () => ({
+  EngineeringImpact: () => <section id="impact" data-testid="impact" />,
+}))
+
+vi.mock('../sections/CinematicJourney/HeroParticleBridge', () => ({
+  HeroParticleBridge: () => null,
 }))
 
 vi.mock('@/components/effects/StardustCursor', () => ({
@@ -96,6 +109,15 @@ vi.mock('@/components/layout/Footer', () => ({
   Footer: () => <footer data-testid="footer" />,
 }))
 
+function createTouchEvent(
+  type: string,
+  touch?: { clientX: number; clientY: number },
+) {
+  const event = new Event(type, { bubbles: true, cancelable: true })
+  Object.defineProperty(event, 'touches', { value: touch ? [touch] : [] })
+  return event
+}
+
 afterEach(() => {
   cleanup()
   vi.useRealTimers()
@@ -103,7 +125,7 @@ afterEach(() => {
 })
 
 describe('App splash lifecycle', () => {
-  it('keeps wheel input native and renders all sections in document flow', () => {
+  it('keeps Hero and Impact in one cinematic viewport before the normal sections', () => {
     render(
       <Providers>
         <App />
@@ -112,17 +134,75 @@ describe('App splash lifecycle', () => {
 
     const main = screen.getByRole('main')
     expect(main).toHaveAttribute('data-active-section', 'home')
+    const journey = screen.getByTestId('cinematic-journey')
+    expect(journey.contains(screen.getByTestId('hero'))).toBe(true)
+    expect(journey.contains(screen.getByTestId('impact'))).toBe(true)
+    vi.spyOn(journey, 'getBoundingClientRect').mockReturnValue(
+      new DOMRect(0, 0, 1280, window.innerHeight),
+    )
+    act(() => window.dispatchEvent(new Event('scroll')))
     const wheel = new WheelEvent('wheel', {
+      deltaY: -100,
+      bubbles: true,
+      cancelable: true,
+    })
+    act(() => journey.dispatchEvent(wheel))
+    expect(wheel.defaultPrevented).toBe(false)
+
+    const advancingWheel = new WheelEvent('wheel', {
       deltaY: 100,
       bubbles: true,
       cancelable: true,
     })
-    main.dispatchEvent(wheel)
+    act(() => journey.dispatchEvent(advancingWheel))
 
-    expect(wheel.defaultPrevented).toBe(false)
+    expect(advancingWheel.defaultPrevented).toBe(true)
+    const key = new KeyboardEvent('keydown', {
+      key: 'ArrowDown',
+      bubbles: true,
+      cancelable: true,
+    })
+    act(() => journey.dispatchEvent(key))
+    expect(key.defaultPrevented).toBe(true)
+
+    const outsideWheel = new WheelEvent('wheel', {
+      deltaY: 100,
+      bubbles: true,
+      cancelable: true,
+    })
+    act(() => main.dispatchEvent(outsideWheel))
+    expect(outsideWheel.defaultPrevented).toBe(false)
+
+    act(() =>
+      journey.dispatchEvent(
+        createTouchEvent('touchstart', { clientX: 80, clientY: 180 }),
+      ),
+    )
+    const horizontalTouch = createTouchEvent('touchmove', {
+      clientX: 180,
+      clientY: 175,
+    })
+    act(() => journey.dispatchEvent(horizontalTouch))
+    expect(horizontalTouch.defaultPrevented).toBe(false)
+
+    act(() =>
+      journey.dispatchEvent(
+        createTouchEvent('touchstart', { clientX: 80, clientY: 180 }),
+      ),
+    )
+    const verticalTouch = createTouchEvent('touchmove', {
+      clientX: 80,
+      clientY: 80,
+    })
+    act(() => journey.dispatchEvent(verticalTouch))
+    expect(verticalTouch.defaultPrevented).toBe(true)
     expect(document.getElementById('home')).toBeInTheDocument()
     expect(document.getElementById('impact')).toBeInTheDocument()
-    expect(document.getElementById('work')).toBeInTheDocument()
+    expect(
+      document
+        .getElementById('work')
+        ?.closest('[data-testid="cinematic-journey"]'),
+    ).toBeNull()
   })
 
   it('resets a deep-link hash to Home while the splash screen is shown', () => {
@@ -190,17 +270,23 @@ describe('App splash lifecycle', () => {
     )
   })
 
-  it('enables native document scrolling while mounted', () => {
+  it('locks the document only while the cinematic journey is active', () => {
     const { unmount } = render(
       <Providers>
         <App />
       </Providers>,
     )
 
+    const journey = screen.getByTestId('cinematic-journey')
+    vi.spyOn(journey, 'getBoundingClientRect').mockReturnValue(
+      new DOMRect(0, 0, 1280, window.innerHeight),
+    )
+    act(() => window.dispatchEvent(new Event('scroll')))
     expect(document.documentElement).toHaveClass('portfolio-natural-scroll')
+    expect(document.documentElement).toHaveClass('cinematic-locked')
 
     unmount()
-    expect(document.documentElement).not.toHaveClass('portfolio-natural-scroll')
+    expect(document.documentElement).not.toHaveClass('cinematic-locked')
   })
 
   it('waits for readiness and the full reveal, then hands off one sphere before enabling the hero', async () => {

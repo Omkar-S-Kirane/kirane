@@ -11,12 +11,13 @@ describe('PortfolioSections', () => {
       </I18nProvider>,
     )
 
-    for (const id of ['work', 'experience', 'skills', 'impact', 'contact']) {
+    for (const id of ['work', 'experience', 'skills', 'contact']) {
       expect(document.getElementById(id)).toBeInTheDocument()
     }
+    expect(document.getElementById('impact')).not.toBeInTheDocument()
   })
 
-  it('places Impact before Work in the full-screen section sequence', () => {
+  it('starts the regular page flow with Work after the cinematic journey', () => {
     render(
       <I18nProvider>
         <PortfolioSections />
@@ -27,9 +28,8 @@ describe('PortfolioSections', () => {
       document.querySelectorAll<HTMLElement>('section[id]'),
       (section) => section.id,
     )
-    expect(sectionIds.indexOf('impact')).toBeLessThan(
-      sectionIds.indexOf('work'),
-    )
+    expect(sectionIds[0]).toBe('work')
+    expect(sectionIds).not.toContain('impact')
   })
 
   it('describes the existing portfolio project without invented credentials', () => {
