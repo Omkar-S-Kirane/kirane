@@ -1,15 +1,34 @@
-import { cleanup, render, screen, within } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '@testing-library/react'
 import { motionValue } from 'motion/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { I18nProvider } from '@/i18n'
 import { DeveloperUniverse } from './DeveloperUniverse'
 
-// The WebGL scene itself is verified in the browser; here it is a stub.
-vi.mock('./loadUniverseScene', () => ({
-  loadUniverseScene: () =>
-    Promise.resolve({ UniverseScene: () => <div data-testid="scene" /> }),
+const { sceneReadiness } = vi.hoisted(() => ({
+  sceneReadiness: { hold: false },
 }))
+
+// The WebGL scene itself is verified in the browser; here it is a stub.
+vi.mock('./loadUniverseScene', async () => {
+  const { useEffect } = await import('react')
+  return {
+    loadUniverseScene: () =>
+      Promise.resolve({
+        UniverseScene: ({ onReady }: { onReady?: () => void }) => {
+          useEffect(() => {
+            if (!sceneReadiness.hold) onReady?.()
+          }, [onReady])
+          return <div data-testid="scene" />
+        },
+      }),
+  }
+})
 
 function mockWebGL(available: boolean) {
   vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
@@ -25,6 +44,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
+  sceneReadiness.hold = false
 })
 
 describe('DeveloperUniverse', () => {
@@ -60,34 +80,121 @@ describe('DeveloperUniverse', () => {
     ).toBeInTheDocument()
   })
 
-  it('does not open planet details until the universe has formed', async () => {
-    const user = userEvent.setup()
+  it('opens details when a partially formed planet is hovered', () => {
     render(
       <I18nProvider>
         <DeveloperUniverse progress={motionValue(0.4)} />
       </I18nProvider>,
     )
 
-    await user.click(screen.getByRole('button', { name: 'React' }))
-    expect(screen.queryByRole('complementary')).not.toBeInTheDocument()
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'React' }))
+    expect(
+      screen.getByRole('complementary', { name: 'Selected planet: React' }),
+    ).toBeInTheDocument()
+  })
+
+  it('opens details for every available planet hover target', () => {
+    render(
+      <I18nProvider>
+        <DeveloperUniverse progress={motionValue(0.7)} />
+      </I18nProvider>,
+    )
+
+    const planetButtons = screen
+      .getAllByRole('button')
+      .filter((button) =>
+        button.classList.contains('universe-fallback__planet'),
+      )
+    expect(planetButtons.length).toBeGreaterThan(1)
+
+    for (const button of planetButtons) {
+      fireEvent.mouseEnter(button)
+      const planetName = button
+        .querySelector('span:last-child')
+        ?.textContent?.trim()
+      expect(planetName).toBeTruthy()
+      expect(
+        screen.getByRole('complementary', {
+          name: `Selected planet: ${planetName}`,
+        }),
+      ).toBeInTheDocument()
+    }
+  })
+
+  it('keeps the new planet card open if the prior planet reports a late pointer leave', () => {
+    render(
+      <I18nProvider>
+        <DeveloperUniverse progress={motionValue(0.7)} />
+      </I18nProvider>,
+    )
+
+    const react = screen.getByRole('button', { name: 'React' })
+    const javascript = screen.getByRole('button', { name: 'JavaScript' })
+
+    fireEvent.mouseEnter(react)
+    fireEvent.mouseEnter(javascript)
+    fireEvent.mouseLeave(react)
+
+    expect(
+      screen.getByRole('complementary', {
+        name: 'Selected planet: JavaScript',
+      }),
+    ).toBeInTheDocument()
+    const previousCard = screen.queryByRole('complementary', {
+      name: 'Selected planet: React',
+    })
+    if (previousCard) {
+      expect(previousCard).toHaveStyle({ pointerEvents: 'none' })
+    }
+  })
+
+  it('keeps switching between floating planet cards possible while WebGL is loading', async () => {
+    sceneReadiness.hold = true
+    vi.restoreAllMocks()
+    mockWebGL(true)
+    render(
+      <I18nProvider>
+        <DeveloperUniverse progress={motionValue(0.7)} />
+      </I18nProvider>,
+    )
+
+    expect(await screen.findByTestId('scene')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'React' }).closest('ul'),
+    ).toBeInTheDocument()
+
+    const react = screen.getByRole('button', { name: 'React' })
+    const javascript = screen.getByRole('button', { name: 'JavaScript' })
+    fireEvent.mouseEnter(react)
+    expect(
+      screen.getByRole('complementary', { name: 'Selected planet: React' }),
+    ).toHaveClass('universe-card--floating')
+
+    fireEvent.mouseEnter(javascript)
+    fireEvent.mouseLeave(react)
+
+    expect(
+      screen.getByRole('complementary', {
+        name: 'Selected planet: JavaScript',
+      }),
+    ).toHaveClass('universe-card--floating')
   })
 
   it('opens and closes planet details once the universe is interactive', async () => {
-    const user = userEvent.setup()
     render(
       <I18nProvider>
         <DeveloperUniverse progress={motionValue(1)} />
       </I18nProvider>,
     )
 
-    await user.click(screen.getByRole('button', { name: 'TypeScript' }))
+    fireEvent.click(screen.getByRole('button', { name: 'TypeScript' }))
     expect(
       screen.getByRole('complementary', {
         name: 'Selected planet: TypeScript',
       }),
     ).toBeInTheDocument()
 
-    await user.click(
+    fireEvent.click(
       screen.getByRole('button', { name: 'Close technology details' }),
     )
     await vi.waitFor(() =>

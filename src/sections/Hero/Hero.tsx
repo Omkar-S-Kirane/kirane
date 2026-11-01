@@ -16,15 +16,27 @@ import {
 } from 'motion/react'
 import { Volume2, VolumeX } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
+import { useDocumentVisibility } from '@/hooks/use-document-visibility'
 import { useTranslation } from '@/i18n'
 import { fadeInUp } from '@/lib/animations/motion-variants'
+import { selectHeroVideo } from './heroVideoSource'
+import type { HeroVideoKind } from './heroVideoSource'
 import './Hero.css'
 
-import heroPoster from '@/assets/background/hero-bg.PNG'
-import heroVideo from '@/assets/background/Developer_typing_at_computer_117e8542.mp4'
+import desktopHeroVideo from '@/assets/background/web-bg.optimized.mp4'
+import mobileHeroVideo from '@/assets/background/mobile-bg.optimized.mp4'
+import desktopHeroPoster from '@/assets/background/web-bg-poster.webp'
+import mobileHeroPoster from '@/assets/background/mobile-bg-poster.webp'
 
 const HERO_SOUND_STORAGE_KEY = 'kirane:hero:sound-enabled'
 const HERO_VIDEO_VOLUME = 0.4
+const HERO_VIDEO_ASSETS: Record<
+  HeroVideoKind,
+  { src: string; poster: string }
+> = {
+  desktop: { src: desktopHeroVideo, poster: desktopHeroPoster },
+  mobile: { src: mobileHeroVideo, poster: mobileHeroPoster },
+}
 
 function readSoundPreference(): boolean {
   try {
@@ -82,15 +94,27 @@ export function Hero({
 }: HeroProps) {
   const { t } = useTranslation()
   const prefersReducedMotion = useReducedMotion() === true
+  const documentVisible = useDocumentVisibility()
   const sectionRef = useRef<HTMLElement | null>(null)
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [videoReady, setVideoReady] = useState(false)
+  const [videoKind, setVideoKind] = useState<HeroVideoKind>(() =>
+    typeof window === 'undefined'
+      ? 'desktop'
+      : selectHeroVideo(window.innerWidth, window.innerHeight),
+  )
+  const selectedVideo = HERO_VIDEO_ASSETS[videoKind]
+  const [videoReadyKind, setVideoReadyKind] = useState<HeroVideoKind | null>(
+    null,
+  )
   const [soundEnabled, setSoundEnabled] = useState(readSoundPreference)
   const [audioUnavailable, setAudioUnavailable] = useState(false)
   const [soundControlActive, setSoundControlActive] = useState(
     () => !dissolveProgress || dissolveProgress.get() < 0.995,
   )
   const soundEnabledRef = useRef(soundEnabled)
+  const soundPreferenceRef = useRef(soundEnabled)
+  const playAttemptPendingRef = useRef(false)
+  const videoSourceVersionRef = useRef(0)
   const [sectionSize, setSectionSize] = useState({ width: 0, height: 0 })
   const maskDimensionsRef = useRef({
     width: 0,
@@ -128,6 +152,32 @@ export function Hero({
     updateMaskRef.current(edge),
   )
 
+  useEffect(() => {
+    const updateVideoKind = () => {
+      setVideoKind((current) =>
+        selectHeroVideo(window.innerWidth, window.innerHeight, current),
+      )
+    }
+    window.addEventListener('resize', updateVideoKind, { passive: true })
+    window.addEventListener('orientationchange', updateVideoKind, {
+      passive: true,
+    })
+    return () => {
+      window.removeEventListener('resize', updateVideoKind)
+      window.removeEventListener('orientationchange', updateVideoKind)
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    videoSourceVersionRef.current += 1
+    playAttemptPendingRef.current = false
+    setVideoReadyKind(null)
+    const restoreSound = soundPreferenceRef.current
+    soundEnabledRef.current = restoreSound
+    setSoundEnabled(restoreSound)
+    setAudioUnavailable(false)
+  }, [videoKind])
+
   const updateVideoAudio = useCallback((progress: number) => {
     const video = videoRef.current
     if (!video) return
@@ -158,20 +208,37 @@ export function Hero({
 
   const attemptVideoPlayback = useCallback(() => {
     const video = videoRef.current
-    if (!video) return
+    if (!video || !video.paused || playAttemptPendingRef.current) return
 
+    const sourceVersion = videoSourceVersionRef.current
+    playAttemptPendingRef.current = true
     try {
-      void video.play().catch(() => {
-        if (soundEnabledRef.current) markAudioUnavailable()
-      })
+      void Promise.resolve(video.play())
+        .catch(() => {
+          if (
+            sourceVersion === videoSourceVersionRef.current &&
+            soundEnabledRef.current
+          ) {
+            markAudioUnavailable()
+          }
+        })
+        .finally(() => {
+          if (sourceVersion === videoSourceVersionRef.current) {
+            playAttemptPendingRef.current = false
+          }
+        })
     } catch {
-      if (soundEnabledRef.current) markAudioUnavailable()
+      if (sourceVersion === videoSourceVersionRef.current) {
+        playAttemptPendingRef.current = false
+        if (soundEnabledRef.current) markAudioUnavailable()
+      }
     }
   }, [markAudioUnavailable])
 
   const handleSoundToggle = useCallback(() => {
     const nextEnabled = !soundEnabledRef.current
     soundEnabledRef.current = nextEnabled
+    soundPreferenceRef.current = nextEnabled
     setSoundEnabled(nextEnabled)
     setAudioUnavailable(false)
     saveSoundPreference(nextEnabled)
@@ -190,7 +257,7 @@ export function Hero({
 
     const video = videoRef.current
     if (!video) return
-    if (!active || progress >= 0.995) {
+    if (!active || !documentVisible || progress >= 0.995) {
       video.pause()
       return
     }
@@ -205,7 +272,7 @@ export function Hero({
 
     const progress = heroProgress.get()
     updateVideoAudio(progress)
-    if (!active || progress >= 0.995) {
+    if (!active || !documentVisible || progress >= 0.995) {
       video.pause()
       return
     }
@@ -219,9 +286,11 @@ export function Hero({
   }, [
     active,
     attemptVideoPlayback,
+    documentVisible,
     heroProgress,
     prefersReducedMotion,
     updateVideoAudio,
+    videoKind,
   ])
 
   const layoutReadyReported = useRef(false)
@@ -309,26 +378,33 @@ export function Hero({
     >
       <div
         aria-hidden="true"
-        className={`hero-background absolute inset-0${videoReady ? ' is-video-ready' : ''}`}
-        style={{ backgroundImage: `url(${heroPoster})` }}
+        data-video-kind={videoKind}
+        className={`hero-background hero-background--${videoKind} absolute inset-0${videoReadyKind === videoKind ? ' is-video-ready' : ''}`}
+        style={{ backgroundImage: `url(${selectedVideo.poster})` }}
       >
         <video
           ref={videoRef}
           className="hero-background__video"
-          autoPlay={!prefersReducedMotion}
+          autoPlay={
+            active &&
+            documentVisible &&
+            heroProgress.get() < 0.995 &&
+            !prefersReducedMotion
+          }
           loop
           muted
           playsInline
-          preload="metadata"
-          poster={heroPoster}
+          preload={active && documentVisible ? 'metadata' : 'none'}
+          poster={selectedVideo.poster}
+          src={selectedVideo.src}
           aria-hidden="true"
           onCanPlay={() => {
-            setVideoReady(true)
+            setVideoReadyKind(videoKind)
             const progress = heroProgress.get()
             updateVideoAudio(progress)
             const video = videoRef.current
             if (!video) return
-            if (!active || progress >= 0.995) {
+            if (!active || !documentVisible || progress >= 0.995) {
               video.pause()
               return
             }
@@ -341,12 +417,11 @@ export function Hero({
             }
           }}
           onError={() => {
-            setVideoReady(false)
-            if (soundEnabledRef.current) markAudioUnavailable()
+            setVideoReadyKind((current) =>
+              current === videoKind ? null : current,
+            )
           }}
-        >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
+        />
       </div>
       {dissolveProgress && (
         <svg

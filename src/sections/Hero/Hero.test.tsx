@@ -22,6 +22,14 @@ vi.mock('motion/react', async (importOriginal) => {
 
 beforeEach(() => {
   reducedMotionMock.mockReturnValue(false)
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: 1024,
+  })
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    value: 768,
+  })
   window.sessionStorage.clear()
   vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
 })
@@ -30,6 +38,14 @@ afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
   window.sessionStorage.clear()
+  Object.defineProperty(window, 'innerWidth', {
+    configurable: true,
+    value: 1024,
+  })
+  Object.defineProperty(window, 'innerHeight', {
+    configurable: true,
+    value: 768,
+  })
 })
 
 function renderHero(props: Partial<React.ComponentProps<typeof Hero>> = {}) {
@@ -124,7 +140,60 @@ describe('Hero', () => {
     )
   })
 
-  it('fades volume with the cinematic dissolve and resumes when reversed', () => {
+  it('loads one viewport-matched video and preserves the sound choice across orientation changes', () => {
+    const play = vi
+      .spyOn(HTMLMediaElement.prototype, 'play')
+      .mockResolvedValue(undefined)
+    const { container } = renderHero()
+    const video = container.querySelector('video')!
+
+    expect(container.querySelectorAll('video')).toHaveLength(1)
+    expect(video.getAttribute('src')).toContain('web-bg.optimized.mp4')
+    expect(video.getAttribute('poster')).toContain('web-bg-poster.webp')
+    fireEvent.click(screen.getByRole('button', { name: 'Turn sound on' }))
+    expect(video.muted).toBe(false)
+
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 390,
+    })
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 844,
+    })
+    fireEvent(window, new Event('orientationchange'))
+
+    expect(container.querySelector('video')).toBe(video)
+    expect(container.querySelectorAll('video')).toHaveLength(1)
+    expect(video.getAttribute('src')).toContain('mobile-bg.optimized.mp4')
+    expect(video.getAttribute('poster')).toContain('mobile-bg-poster.webp')
+    expect(video.muted).toBe(false)
+    expect(
+      screen.getByRole('button', { name: 'Turn sound off' }),
+    ).toHaveAttribute('aria-pressed', 'true')
+    expect(play).toHaveBeenCalled()
+  })
+
+  it('does not change the video source for small viewport resizes within one composition', () => {
+    const { container } = renderHero()
+    const video = container.querySelector('video')!
+    const initialSource = video.getAttribute('src')
+
+    Object.defineProperty(window, 'innerWidth', {
+      configurable: true,
+      value: 1000,
+    })
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 760,
+    })
+    fireEvent(window, new Event('resize'))
+
+    expect(video.getAttribute('src')).toBe(initialSource)
+    expect(container.querySelector('video')).toBe(video)
+  })
+
+  it('fades volume with the cinematic dissolve and resumes when reversed', async () => {
     const play = vi
       .spyOn(HTMLMediaElement.prototype, 'play')
       .mockResolvedValue(undefined)
@@ -135,10 +204,16 @@ describe('Hero', () => {
     const { container } = renderHero({ dissolveProgress })
     const video = container.querySelector('video')!
     fireEvent.click(screen.getByRole('button', { name: 'Turn sound on' }))
+    await act(async () => {
+      await Promise.resolve()
+    })
 
     act(() => dissolveProgress.set(0.5))
     expect(video.volume).toBeCloseTo(0.2)
     expect(video.muted).toBe(false)
+    await act(async () => {
+      await Promise.resolve()
+    })
 
     act(() => dissolveProgress.set(1))
     expect(video.volume).toBe(0)

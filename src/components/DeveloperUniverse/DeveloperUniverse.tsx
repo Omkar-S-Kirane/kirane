@@ -11,7 +11,6 @@ import {
   AnimatePresence,
   motion,
   useMotionValue,
-  useMotionValueEvent,
   useReducedMotion,
   useTransform,
 } from 'motion/react'
@@ -24,6 +23,7 @@ import {
 import { cn } from '@/lib/cn'
 import { useTranslation } from '@/i18n'
 import type {
+  ScreenCircle,
   TechnologyPlanet,
   UniverseFrame,
   UniverseLayout,
@@ -32,7 +32,6 @@ import {
   getScrollHintOpacity,
   getScrollHintY,
   getSunState,
-  isInteractive,
   toFormationProgress,
 } from './formationTimeline'
 import { loadUniverseScene } from './loadUniverseScene'
@@ -115,15 +114,16 @@ function FloatingCard({
     element: HTMLElement,
     x: MotionValue<number>,
     y: MotionValue<number>,
+    planetId: string,
   ) => void
 }) {
   const x = useMotionValue(-9999)
   const y = useMotionValue(-9999)
   const register = useCallback(
     (element: HTMLElement | null) => {
-      if (element) onMount(element, x, y)
+      if (element) onMount(element, x, y, planet.id)
     },
-    [onMount, x, y],
+    [onMount, planet.id, x, y],
   )
   return (
     <PlanetInformationCard
@@ -141,7 +141,7 @@ function FloatingCard({
  * Developer Universe: the full-stack developer as a golden sun, with each
  * technology as a planet on its own orbit. Formation is driven entirely by
  * the section's scroll progress; once formed, planets can be explored by
- * hover (pointer), tap (touch) or keyboard.
+ * hover (pointer), tap (touch) or keyboard as soon as each planet appears.
  */
 export function DeveloperUniverse({
   progress,
@@ -157,6 +157,12 @@ export function DeveloperUniverse({
   const scenePlanets = useMemo(() => resolveScenePlanets(layout), [layout])
   const [webglAvailable, setWebglAvailable] = useState(detectWebGLSupport)
   const [sceneMounted, setSceneMounted] = useState(active)
+  const [sceneReady, setSceneReady] = useState(false)
+  const [cardHasAnchor, setCardHasAnchor] = useState(false)
+  const [hoverAnchor, setHoverAnchor] = useState<{
+    id: string
+    anchor: ScreenCircle
+  } | null>(null)
   const fallbackReframe = useMotionValue(0)
   const reframeValue = reframe ?? fallbackReframe
 
@@ -176,14 +182,47 @@ export function DeveloperUniverse({
   const sunY = useMotionValue(-9999)
   const sunScale = useMotionValue(1)
 
-  const [formed, setFormed] = useState(() => isInteractive(formation.get()))
-  useMotionValueEvent(formation, 'change', (value) => {
-    setFormed(isInteractive(value))
-  })
-
-  const interactive = interactionEnabled && formed
+  // Input is available as soon as the destination is active. Planet hit
+  // meshes appear with each planet, so partial formation never disables a
+  // planet that is already visible.
+  const interactive = interactionEnabled
   const interaction = usePlanetInteraction(interactive)
-  const clearInteraction = interaction.clear
+  const setHoveredPlanet = interaction.hover
+  const clearPlanetInteraction = interaction.clear
+  const hoverAnchorRef = useRef<{ id: string; anchor: ScreenCircle } | null>(
+    null,
+  )
+  const handlePlanetHover = useCallback(
+    (id: string | null, anchor?: ScreenCircle, leavingId?: string) => {
+      if (!id) {
+        // R3F can dispatch a departed planet's pointer-out after the next
+        // planet's pointer-over. Ignore that stale leave so it cannot erase
+        // the new hover target or briefly replace its card with a blocking
+        // sheet.
+        if (
+          leavingId &&
+          hoverAnchorRef.current &&
+          hoverAnchorRef.current.id !== leavingId
+        ) {
+          return
+        }
+        hoverAnchorRef.current = null
+        setHoverAnchor(null)
+        setHoveredPlanet(null)
+        return
+      }
+
+      hoverAnchorRef.current = anchor ? { id, anchor } : null
+      setHoverAnchor(hoverAnchorRef.current)
+      setHoveredPlanet(id)
+    },
+    [setHoveredPlanet],
+  )
+  const clearInteraction = useCallback(() => {
+    hoverAnchorRef.current = null
+    setHoverAnchor(null)
+    clearPlanetInteraction()
+  }, [clearPlanetInteraction])
   useEffect(() => {
     if (!interactionEnabled) clearInteraction()
   }, [clearInteraction, interactionEnabled])
@@ -203,16 +242,20 @@ export function DeveloperUniverse({
     insetsRef.current = insets
   }, [insets])
 
-  const positionCard = useCallback(
-    (frame: UniverseFrame) => {
+  const positionCardAt = useCallback(
+    (
+      anchor: ScreenCircle,
+      sun: ScreenCircle,
+      viewport: { width: number; height: number },
+    ) => {
       const target = cardTargetRef.current
-      if (!target || !frame.planet || target.width === 0) return
+      if (!target || target.width === 0) return
       const shift = reframeValue.get()
       const placement = placeInformationCard({
-        anchor: frame.planet,
-        sun: frame.sun,
+        anchor,
+        sun,
         card: { width: target.width, height: target.height },
-        viewport: { width: frame.width, height: frame.height },
+        viewport,
         insets: {
           top: Math.max(NAVBAR_CLEARANCE, insetsRef.current.top * shift),
           right: EDGE_GAP,
@@ -227,10 +270,38 @@ export function DeveloperUniverse({
     },
     [reframeValue],
   )
+  const positionCard = useCallback(
+    (frame: UniverseFrame, anchor = frame.planet) => {
+      if (!anchor) return
+      positionCardAt(anchor, frame.sun, {
+        width: frame.width,
+        height: frame.height,
+      })
+    },
+    [positionCardAt],
+  )
+  const positionFallbackCard = useCallback(
+    (anchor: ScreenCircle) => {
+      const frame = lastFrameRef.current
+      const width = frame?.width || window.innerWidth
+      const height = frame?.height || window.innerHeight
+      const sun = frame?.sun ?? {
+        x: width / 2,
+        y: height / 2,
+        r: Math.min(width, height) * 0.14,
+      }
+      positionCardAt(anchor, sun, { width, height })
+    },
+    [positionCardAt],
+  )
 
   const handleFrame = useCallback(
     (frame: UniverseFrame) => {
       lastFrameRef.current = frame
+      setCardHasAnchor((current) => {
+        const next = frame.planet !== null
+        return current === next ? current : next
+      })
       sunX.set(frame.sun.x)
       sunY.set(frame.sun.y)
       sunScale.set(Math.max(frame.sun.r, 1) / SUN_TEXT_BASE_RADIUS)
@@ -240,7 +311,12 @@ export function DeveloperUniverse({
   )
 
   const handleCardMount = useCallback(
-    (element: HTMLElement, x: MotionValue<number>, y: MotionValue<number>) => {
+    (
+      element: HTMLElement,
+      x: MotionValue<number>,
+      y: MotionValue<number>,
+      planetId: string,
+    ) => {
       cardTargetRef.current = {
         x,
         y,
@@ -249,12 +325,26 @@ export function DeveloperUniverse({
         side: null,
       }
       // Place the card before its first paint.
-      if (lastFrameRef.current) positionCard(lastFrameRef.current)
+      const frame = lastFrameRef.current
+      const hover = hoverAnchorRef.current
+      if (frame) {
+        positionCard(
+          frame,
+          hover?.id === planetId ? hover.anchor : (frame.planet ?? undefined),
+        )
+      } else if (hover?.id === planetId) {
+        positionFallbackCard(hover.anchor)
+      }
     },
-    [positionCard],
+    [positionCard, positionFallbackCard],
   )
 
-  const handleContextLost = useCallback(() => setWebglAvailable(false), [])
+  const handleSceneReady = useCallback(() => setSceneReady(true), [])
+  const handleContextLost = useCallback(() => {
+    setWebglAvailable(false)
+    setSceneReady(false)
+    setCardHasAnchor(false)
+  }, [])
 
   useEffect(() => {
     if (!active || sceneMounted) return
@@ -296,22 +386,25 @@ export function DeveloperUniverse({
             reducedMotion={reducedMotion}
             activeId={interaction.activeId}
             interactive={interactive}
-            onHover={interaction.hover}
+            onHover={handlePlanetHover}
             onSelect={interaction.select}
-            onMiss={interaction.clear}
+            onMiss={clearInteraction}
             onFrame={handleFrame}
             onContextLost={handleContextLost}
+            onReady={handleSceneReady}
           />
         </Suspense>
       )}
 
-      {active && sceneMounted && !webglAvailable && (
+      {active && sceneMounted && (!webglAvailable || !sceneReady) && (
         <UniverseFallback
           planets={scenePlanets.map((item) => item.planet)}
           formation={formation}
           activeId={interaction.activeId}
           onSelect={interaction.select}
+          onHover={handlePlanetHover}
           interactionEnabled={interactionEnabled}
+          loading={webglAvailable && !sceneReady}
         />
       )}
 
@@ -342,7 +435,7 @@ export function DeveloperUniverse({
         </motion.p>
       )}
 
-      {interactive && webglAvailable && (
+      {interactive && webglAvailable && sceneReady && (
         <ul className="sr-only" aria-label={t.universe.technologyListLabel}>
           {scenePlanets.map(({ planet }) => (
             <li key={planet.id}>
@@ -350,7 +443,7 @@ export function DeveloperUniverse({
                 type="button"
                 onFocus={() => interaction.focus(planet.id)}
                 onClick={() => interaction.focus(planet.id)}
-                onBlur={interaction.clear}
+                onBlur={clearInteraction}
               >
                 {planet.name}
               </button>
@@ -362,7 +455,9 @@ export function DeveloperUniverse({
       <div className="developer-universe__card-layer" aria-live="polite">
         <AnimatePresence>
           {activePlanet &&
-            (cardMode === 'floating' && webglAvailable ? (
+            (cardMode === 'floating' &&
+            (hoverAnchor?.id === interaction.activeId ||
+              (webglAvailable && sceneReady && cardHasAnchor)) ? (
               <FloatingCard
                 key={activePlanet.id}
                 planet={activePlanet}
@@ -374,7 +469,7 @@ export function DeveloperUniverse({
                 planet={activePlanet}
                 relatedNames={relatedNamesOf(activePlanet)}
                 mode="sheet"
-                onClose={interaction.clear}
+                onClose={clearInteraction}
               />
             ))}
         </AnimatePresence>

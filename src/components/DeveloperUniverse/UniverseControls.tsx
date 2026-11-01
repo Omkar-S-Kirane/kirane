@@ -74,13 +74,18 @@ export function UniverseControls({
     let last = { x: 0, y: 0, time: 0 }
 
     const onDown = (event: PointerEvent) => {
-      if (!runtimeRef.current.interactive || event.button > 0) return
+      if (!interactive || event.button > 0) return
       start = { x: event.clientX, y: event.clientY, type: event.pointerType }
       last = { x: event.clientX, y: event.clientY, time: performance.now() }
       rig.current.velocity = 0
     }
     const onMove = (event: PointerEvent) => {
       if (!start) return
+      if (!interactive) {
+        start = null
+        runtimeRef.current.dragging = false
+        return
+      }
       const runtime = runtimeRef.current
       const dx = event.clientX - start.x
       const dy = event.clientY - start.y
@@ -125,7 +130,7 @@ export function UniverseControls({
       window.removeEventListener('pointercancel', onUp)
       runtimeAtMount.dragging = false
     }
-  }, [gl, runtimeRef])
+  }, [gl, interactive, runtimeRef])
 
   useFrame((frameState, rawDelta) => {
     const delta = Math.min(rawDelta, 0.1)

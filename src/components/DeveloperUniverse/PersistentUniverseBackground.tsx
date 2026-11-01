@@ -16,7 +16,9 @@ export function PersistentUniverseBackground({
   activeSection,
 }: PersistentUniverseBackgroundProps) {
   const visible = useDocumentVisibility()
-  const interactiveSection = entered && activeSection === 'universe' && visible
+  const withinUniverseJourney =
+    activeSection === 'home' || activeSection === 'universe'
+  const interactiveSection = entered && withinUniverseJourney && visible
 
   return (
     <div

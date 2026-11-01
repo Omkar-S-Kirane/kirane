@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import {
   BufferAttribute,
@@ -45,11 +45,16 @@ export interface UniverseSceneProps {
   reducedMotion: boolean
   activeId: string | null
   interactive: boolean
-  onHover: (id: string | null) => void
+  onHover: (
+    id: string | null,
+    anchor?: ScreenCircle,
+    leavingId?: string,
+  ) => void
   onSelect: (id: string) => void
   onMiss: () => void
   onFrame: (frame: UniverseFrame) => void
   onContextLost: () => void
+  onReady: () => void
 }
 
 export interface DeveloperUniverseDebug {
@@ -147,10 +152,10 @@ function RuntimeDriver({
 >) {
   const runtimeRef = useUniverseRuntime()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     runtimeRef.current.activeId = activeId
   }, [runtimeRef, activeId])
-  useEffect(() => {
+  useLayoutEffect(() => {
     runtimeRef.current.interactive = interactive
   }, [runtimeRef, interactive])
 
@@ -344,6 +349,7 @@ function SceneContents(props: UniverseSceneProps) {
             key={item.planet.id}
             scenePlanet={item}
             planetCount={planets.length}
+            interactive={props.interactive}
             sphere={planetSphere}
             hitMaterial={hitMaterial}
             convergeGeometry={convergeGeometry}
@@ -393,6 +399,7 @@ export function UniverseScene(props: UniverseSceneProps) {
           event.preventDefault()
           onContextLost()
         })
+        props.onReady()
       }}
       onPointerMissed={() => {
         if (performance.now() - runtimeRef.current.lastDragEndedAt < 150) return

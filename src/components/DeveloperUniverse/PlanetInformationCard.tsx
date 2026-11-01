@@ -1,4 +1,4 @@
-import { motion } from 'motion/react'
+import { motion, useIsPresent } from 'motion/react'
 import type { MotionValue } from 'motion/react'
 import type { Ref } from 'react'
 import { Clock3, FolderGit2, Gauge, X } from 'lucide-react'
@@ -41,6 +41,7 @@ export function PlanetInformationCard({
   ref,
 }: PlanetInformationCardProps) {
   const { t } = useTranslation()
+  const isPresent = useIsPresent()
   const copy = t.universe
   const years =
     planet.experienceYears === null
@@ -75,13 +76,17 @@ export function PlanetInformationCard({
         'universe-card',
         mode === 'sheet' ? 'universe-card--sheet' : 'universe-card--floating',
       )}
-      style={mode === 'floating' ? { x, y } : undefined}
+      style={{
+        ...(mode === 'floating' ? { x, y } : undefined),
+        pointerEvents: mode === 'sheet' && isPresent ? 'auto' : 'none',
+      }}
       initial={{ opacity: 0, scale: 0.96, filter: 'blur(6px)' }}
       animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
       exit={{
         opacity: 0,
         scale: 0.97,
         filter: 'blur(4px)',
+        pointerEvents: 'none',
         transition: { duration: 0.2, ease: [0.33, 1, 0.68, 1] },
       }}
       transition={{ duration: 0.32, ease: [0.33, 1, 0.68, 1] }}

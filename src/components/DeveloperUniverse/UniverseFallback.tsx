@@ -2,6 +2,7 @@ import { motion, useTransform } from 'motion/react'
 import type { MotionValue } from 'motion/react'
 import { cn } from '@/lib/cn'
 import { useTranslation } from '@/i18n'
+import type { ScreenCircle } from './developerUniverse.types'
 import type { TechnologyPlanet } from './developerUniverse.types'
 import { getSunState, segment } from './formationTimeline'
 import { TechnologyLogoMark } from './TechnologyLogoMark'
@@ -11,7 +12,13 @@ interface UniverseFallbackProps {
   formation: MotionValue<number>
   activeId: string | null
   onSelect: (id: string) => void
+  onHover: (
+    id: string | null,
+    anchor?: ScreenCircle,
+    leavingId?: string,
+  ) => void
   interactionEnabled: boolean
+  loading?: boolean
 }
 
 /**
@@ -24,7 +31,9 @@ export function UniverseFallback({
   formation,
   activeId,
   onSelect,
+  onHover,
   interactionEnabled,
+  loading = false,
 }: UniverseFallbackProps) {
   const { t } = useTranslation()
   const sunOpacity = useTransform(formation, (f) => getSunState(f).form)
@@ -36,7 +45,7 @@ export function UniverseFallback({
 
   return (
     <div className="universe-fallback">
-      {interactionEnabled && (
+      {interactionEnabled && !loading && (
         <p className="universe-fallback__notice">{t.universe.fallbackNotice}</p>
       )}
       <motion.div
@@ -62,6 +71,24 @@ export function UniverseFallback({
                 )}
                 aria-pressed={activeId === planet.id}
                 onClick={() => onSelect(planet.id)}
+                onMouseEnter={(event) => {
+                  const bounds = event.currentTarget.getBoundingClientRect()
+                  onHover(planet.id, {
+                    x: bounds.left + bounds.width / 2,
+                    y: bounds.top + bounds.height / 2,
+                    r: bounds.width / 2,
+                  })
+                }}
+                onMouseLeave={() => onHover(null, undefined, planet.id)}
+                onFocus={(event) => {
+                  const bounds = event.currentTarget.getBoundingClientRect()
+                  onHover(planet.id, {
+                    x: bounds.left + bounds.width / 2,
+                    y: bounds.top + bounds.height / 2,
+                    r: bounds.width / 2,
+                  })
+                }}
+                onBlur={() => onHover(null, undefined, planet.id)}
               >
                 <TechnologyLogoMark
                   logo={planet.logo}

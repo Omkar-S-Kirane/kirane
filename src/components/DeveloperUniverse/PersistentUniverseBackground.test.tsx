@@ -18,7 +18,7 @@ afterEach(() => {
 })
 
 describe('PersistentUniverseBackground', () => {
-  it('keeps planet input disabled while the Hero stage is active', () => {
+  it('enables planet input through the entered Hero-to-Universe transition', () => {
     const progress = motionValue(1)
     const { rerender } = render(
       <PersistentUniverseBackground
@@ -29,7 +29,18 @@ describe('PersistentUniverseBackground', () => {
     )
 
     expect(universeSpy).toHaveBeenLastCalledWith(
-      expect.objectContaining({ active: true, interactionEnabled: false }),
+      expect.objectContaining({ active: true, interactionEnabled: true }),
+    )
+
+    rerender(
+      <PersistentUniverseBackground
+        progress={progress}
+        entered={false}
+        activeSection="home"
+      />,
+    )
+    expect(universeSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({ active: false, interactionEnabled: false }),
     )
 
     rerender(
@@ -55,7 +66,7 @@ describe('PersistentUniverseBackground', () => {
     )
   })
 
-  it('keeps one scene mounted and enables interactions only in Universe', () => {
+  it('keeps one scene mounted and disables input outside the Universe journey', () => {
     const progress = motionValue(1)
     const { rerender } = render(
       <PersistentUniverseBackground

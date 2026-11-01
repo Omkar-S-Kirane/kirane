@@ -28,16 +28,22 @@ import {
 } from './universeShaders'
 import { useUniverseRuntime } from './universeRuntime'
 import type { ScenePlanet } from './universeRuntime'
+import type { ScreenCircle } from './developerUniverse.types'
 
 interface OrbitingPlanetProps {
   scenePlanet: ScenePlanet
   planetCount: number
+  interactive: boolean
   sphere: BufferGeometry
   hitMaterial: Material
   convergeGeometry: BufferGeometry
   logoTexture: Texture
   glowTexture: Texture
-  onHover: (id: string | null) => void
+  onHover: (
+    id: string | null,
+    anchor?: ScreenCircle,
+    leavingId?: string,
+  ) => void
   onSelect: (id: string) => void
 }
 
@@ -74,6 +80,7 @@ function arrival(style: PlanetEntrance, e: number) {
 export function OrbitingPlanet({
   scenePlanet,
   planetCount,
+  interactive,
   sphere,
   hitMaterial,
   convergeGeometry,
@@ -186,21 +193,25 @@ export function OrbitingPlanet({
   const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
     event.stopPropagation()
     const runtime = runtimeRef.current
-    if (!runtime.interactive || runtime.dragging) return
+    if (!interactive || runtime.dragging) return
     if (pointerTypeOf(event) !== 'mouse') return
-    onHover(planet.id)
+    onHover(planet.id, {
+      x: event.nativeEvent.clientX,
+      y: event.nativeEvent.clientY,
+      r: 18,
+    })
     document.body.style.cursor = 'pointer'
   }
 
   const handlePointerOut = (event: ThreeEvent<PointerEvent>) => {
     if (pointerTypeOf(event) !== 'mouse') return
-    onHover(null)
+    onHover(null, undefined, planet.id)
     document.body.style.removeProperty('cursor')
   }
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation()
-    if (!runtimeRef.current.interactive || event.delta > 8) return
+    if (!interactive || event.delta > 8) return
     // Mouse users explore by hovering; touch and pen users tap to select.
     if (pointerTypeOf(event) === 'mouse') return
     onSelect(planet.id)
